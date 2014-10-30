@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{49280348-5C19-4F32-898D-D6738BFE1A11}</ProjectGuid>
+    <RootNamespace>HexWarfare</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>c:\Projects\boost\;c:\projects\SDL\include;c:\projects\SDL_mixer;c:\projects\SDL_ttf;c:\projects\SDL_image;C:\Projects\HexWarfare\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Projects\boost\stage32-debug-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\action_process.cpp" />
+    <ClCompile Include="..\..\src\ai_process.cpp" />
+    <ClCompile Include="..\..\src\button.cpp" />
+    <ClCompile Include="..\..\src\collision_process.cpp" />
+    <ClCompile Include="..\..\src\color.cpp" />
+    <ClCompile Include="..\..\src\component.cpp" />
+    <ClCompile Include="..\..\src\creature.cpp" />
+    <ClCompile Include="..\..\src\datetime.cpp" />
+    <ClCompile Include="..\..\src\dialog.cpp" />
+    <ClCompile Include="..\..\src\dungeon.cpp" />
+    <ClCompile Include="..\..\src\engine.cpp" />
+    <ClCompile Include="..\..\src\filesystem.cpp" />
+    <ClCompile Include="..\..\src\font.cpp" />
+    <ClCompile Include="..\..\src\generate_cave.cpp" />
+    <ClCompile Include="..\..\src\gui_elements.cpp" />
+    <ClCompile Include="..\..\src\gui_process.cpp" />
+    <ClCompile Include="..\..\src\hex_map.cpp" />
+    <ClCompile Include="..\..\src\hex_object.cpp" />
+    <ClCompile Include="..\..\src\hex_tile.cpp" />
+    <ClCompile Include="..\..\src\input_process.cpp" />
+    <ClCompile Include="..\..\src\json.cpp" />
+    <ClCompile Include="..\..\src\label.cpp" />
+    <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\map.cpp" />
+    <ClCompile Include="..\..\src\node.cpp" />
+    <ClCompile Include="..\..\src\node_utils.cpp" />
+    <ClCompile Include="..\..\src\noiseutils.cpp" />
+    <ClCompile Include="..\..\src\notify.cpp" />
+    <ClCompile Include="..\..\src\parameters.cpp" />
+    <ClCompile Include="..\..\src\particles.cpp" />
+    <ClCompile Include="..\..\src\process.cpp" />
+    <ClCompile Include="..\..\src\random.cpp" />
+    <ClCompile Include="..\..\src\render_process.cpp" />
+    <ClCompile Include="..\..\src\surface.cpp" />
+    <ClCompile Include="..\..\src\terrain_generator.cpp" />
+    <ClCompile Include="..\..\src\texpack.cpp" />
+    <ClCompile Include="..\..\src\texture.cpp" />
+    <ClCompile Include="..\..\src\tile.cpp" />
+    <ClCompile Include="..\..\src\unit_test.cpp" />
+    <ClCompile Include="..\..\src\widget.cpp" />
+    <ClCompile Include="..\..\src\wm.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\action_process.hpp" />
+    <ClInclude Include="..\..\src\ai_process.hpp" />
+    <ClInclude Include="..\..\src\basic_dir_monitor.hpp" />
+    <ClInclude Include="..\..\src\button.hpp" />
+    <ClInclude Include="..\..\src\collision_process.hpp" />
+    <ClInclude Include="..\..\src\color.hpp" />
+    <ClInclude Include="..\..\src\component.hpp" />
+    <ClInclude Include="..\..\src\creature.hpp" />
+    <ClInclude Include="..\..\src\datetime.hpp" />
+    <ClInclude Include="..\..\src\dialog.hpp" />
+    <ClInclude Include="..\..\src\dir_monitor.hpp" />
+    <ClInclude Include="..\..\src\dungeon.hpp" />
+    <ClInclude Include="..\..\src\engine.hpp" />
+    <ClInclude Include="..\..\src\engine_fwd.hpp" />
+    <ClInclude Include="..\..\src\filesystem.hpp" />
+    <ClInclude Include="..\..\src\font.hpp" />
+    <ClInclude Include="..\..\src\formatter.hpp" />
+    <ClInclude Include="..\..\src\generate_cave.hpp" />
+    <ClInclude Include="..\..\src\geometry.hpp" />
+    <ClInclude Include="..\..\src\gui_elements.hpp" />
+    <ClInclude Include="..\..\src\gui_process.hpp" />
+    <ClInclude Include="..\..\src\hasher.hpp" />
+    <ClInclude Include="..\..\src\hex_map.hpp" />
+    <ClInclude Include="..\..\src\hex_fwd.hpp" />
+    <ClInclude Include="..\..\src\hex_object.hpp" />
+    <ClInclude Include="..\..\src\hex_tile.hpp" />
+    <ClInclude Include="..\..\src\input_process.hpp" />
+    <ClInclude Include="..\..\src\json.hpp" />
+    <ClInclude Include="..\..\src\label.hpp" />
+    <ClInclude Include="..\..\src\map.hpp" />
+    <ClInclude Include="..\..\src\node.hpp" />
+    <ClInclude Include="..\..\src\node_utils.hpp" />
+    <ClInclude Include="..\..\src\noiseutils.h" />
+    <ClInclude Include="..\..\src\notify.hpp" />
+    <ClInclude Include="..\..\src\parameters.hpp" />
+    <ClInclude Include="..\..\src\particles.hpp" />
+    <ClInclude Include="..\..\src\particles_fwd.hpp" />
+    <ClInclude Include="..\..\src\process.hpp" />
+    <ClInclude Include="..\..\src\profile_timer.hpp" />
+    <ClInclude Include="..\..\src\quadtree.hpp" />
+    <ClInclude Include="..\..\src\random.hpp" />
+    <ClInclude Include="..\..\src\render_process.hpp" />
+    <ClInclude Include="..\..\src\sdl_wrapper.hpp" />
+    <ClInclude Include="..\..\src\surface.hpp" />
+    <ClInclude Include="..\..\src\terrain_generator.hpp" />
+    <ClInclude Include="..\..\src\texpack.hpp" />
+    <ClInclude Include="..\..\src\texture.hpp" />
+    <ClInclude Include="..\..\src\tile.hpp" />
+    <ClInclude Include="..\..\src\unit_test.hpp" />
+    <ClInclude Include="..\..\src\utf8_to_codepoint.hpp" />
+    <ClInclude Include="..\..\src\widget.hpp" />
+    <ClInclude Include="..\..\src\wm.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\geometry.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\noise\bin\libnoise.lib" />
+    <Library Include="..\..\..\SDL\VisualC\SDLmain\Win32\Release\SDL2main.lib" />
+    <Library Include="..\..\..\SDL\VisualC\SDL\Win32\Debug\SDL2.lib" />
+    <Library Include="..\..\..\SDL_image\VisualC\Win32\Debug\SDL2_image.lib" />
+    <Library Include="..\..\..\SDL_mixer\VisualC\Release\SDL2_mixer.lib" />
+    <Library Include="..\..\..\SDL_ttf\VisualC\Win32\Debug\SDL2_ttf.lib" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
