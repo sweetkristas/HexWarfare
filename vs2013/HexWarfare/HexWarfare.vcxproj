@@ -82,11 +82,9 @@
     <ClCompile Include="..\..\src\creature.cpp" />
     <ClCompile Include="..\..\src\datetime.cpp" />
     <ClCompile Include="..\..\src\dialog.cpp" />
-    <ClCompile Include="..\..\src\dungeon.cpp" />
     <ClCompile Include="..\..\src\engine.cpp" />
     <ClCompile Include="..\..\src\filesystem.cpp" />
     <ClCompile Include="..\..\src\font.cpp" />
-    <ClCompile Include="..\..\src\generate_cave.cpp" />
     <ClCompile Include="..\..\src\gui_elements.cpp" />
     <ClCompile Include="..\..\src\gui_process.cpp" />
     <ClCompile Include="..\..\src\hex_map.cpp" />
@@ -96,7 +94,6 @@
     <ClCompile Include="..\..\src\json.cpp" />
     <ClCompile Include="..\..\src\label.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
-    <ClCompile Include="..\..\src\map.cpp" />
     <ClCompile Include="..\..\src\node.cpp" />
     <ClCompile Include="..\..\src\node_utils.cpp" />
     <ClCompile Include="..\..\src\noiseutils.cpp" />
@@ -107,7 +104,6 @@
     <ClCompile Include="..\..\src\random.cpp" />
     <ClCompile Include="..\..\src\render_process.cpp" />
     <ClCompile Include="..\..\src\surface.cpp" />
-    <ClCompile Include="..\..\src\terrain_generator.cpp" />
     <ClCompile Include="..\..\src\texpack.cpp" />
     <ClCompile Include="..\..\src\texture.cpp" />
     <ClCompile Include="..\..\src\tile.cpp" />
@@ -127,13 +123,11 @@
     <ClInclude Include="..\..\src\datetime.hpp" />
     <ClInclude Include="..\..\src\dialog.hpp" />
     <ClInclude Include="..\..\src\dir_monitor.hpp" />
-    <ClInclude Include="..\..\src\dungeon.hpp" />
     <ClInclude Include="..\..\src\engine.hpp" />
     <ClInclude Include="..\..\src\engine_fwd.hpp" />
     <ClInclude Include="..\..\src\filesystem.hpp" />
     <ClInclude Include="..\..\src\font.hpp" />
     <ClInclude Include="..\..\src\formatter.hpp" />
-    <ClInclude Include="..\..\src\generate_cave.hpp" />
     <ClInclude Include="..\..\src\geometry.hpp" />
     <ClInclude Include="..\..\src\gui_elements.hpp" />
     <ClInclude Include="..\..\src\gui_process.hpp" />
@@ -145,7 +139,6 @@
     <ClInclude Include="..\..\src\input_process.hpp" />
     <ClInclude Include="..\..\src\json.hpp" />
     <ClInclude Include="..\..\src\label.hpp" />
-    <ClInclude Include="..\..\src\map.hpp" />
     <ClInclude Include="..\..\src\node.hpp" />
     <ClInclude Include="..\..\src\node_utils.hpp" />
     <ClInclude Include="..\..\src\noiseutils.h" />
@@ -160,7 +153,6 @@
     <ClInclude Include="..\..\src\render_process.hpp" />
     <ClInclude Include="..\..\src\sdl_wrapper.hpp" />
     <ClInclude Include="..\..\src\surface.hpp" />
-    <ClInclude Include="..\..\src\terrain_generator.hpp" />
     <ClInclude Include="..\..\src\texpack.hpp" />
     <ClInclude Include="..\..\src\texture.hpp" />
     <ClInclude Include="..\..\src\tile.hpp" />
@@ -173,12 +165,13 @@
     <None Include="..\..\src\geometry.inl" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\noise\bin\libnoise.lib" />
-    <Library Include="..\..\..\SDL\VisualC\SDLmain\Win32\Release\SDL2main.lib" />
-    <Library Include="..\..\..\SDL\VisualC\SDL\Win32\Debug\SDL2.lib" />
+    <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2.lib" />
+    <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2main.lib" />
     <Library Include="..\..\..\SDL_image\VisualC\Win32\Debug\SDL2_image.lib" />
     <Library Include="..\..\..\SDL_mixer\VisualC\Release\SDL2_mixer.lib" />
     <Library Include="..\..\..\SDL_ttf\VisualC\Win32\Debug\SDL2_ttf.lib" />
+    <Library Include="..\..\external\lib\libnoise.lib" />
+    <Library Include="..\lua\Debug\Win32\lua.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

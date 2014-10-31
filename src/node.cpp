@@ -236,8 +236,13 @@ std::vector<std::string> node::as_list_strings() const
 
 const node_map& node::as_map() const
 {
-	ASSERT_LOG(type() == NODE_TYPE_MAP, "as_map() type conversion error from " << type_as_string() << " to map");
-	return m_;
+	if(type() == NODE_TYPE_MAP) {
+		return m_;
+	}
+		static const std::map<node,node>* EmptyMap = new std::map<node,node>;
+		return *EmptyMap;
+//	ASSERT_LOG(type() == NODE_TYPE_MAP, "as_map() type conversion error from " << type_as_string() << " to map");
+//	return m_;
 }
 
 node_list& node::as_mutable_list()
@@ -321,8 +326,11 @@ const node& node::operator[](const std::string& key) const
 {
 	ASSERT_LOG(type() == NODE_TYPE_MAP, "Tried to index node that isn't a map, was: " << type_as_string());
 	auto it = m_.find(node(key));
-	ASSERT_LOG(it != m_.end(), "Couldn't find key(" << key << ") in map");
-	return it->second;
+	//ASSERT_LOG(it != m_.end(), "Couldn't find key(" << key << ") in map");
+	if(it != m_.end()) {
+		return it->second;
+	}
+	return node();
 }
 
 node node::operator()(const node& args)

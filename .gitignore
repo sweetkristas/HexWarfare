@@ -36,10 +36,10 @@ roguelike
 *.user
 *.unsuccessfulbuild
 *.opensdf
-vs2013/Debug
-vs2013/Release
-vs2012/Debug
-vs2012/Release
+vs2013/HexWarfare/Debug
+vs2013/HexWarfare/Release
+vs2012/HexWarfare/Debug
+vs2012/HexWarfare/Release
 
 # exclude any temporary files.
 images/temp

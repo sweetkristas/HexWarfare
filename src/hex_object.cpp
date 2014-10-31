@@ -94,12 +94,10 @@ namespace hex
 		{
 			hex_engine();
 			explicit hex_engine(const node& n) {
-				rules = n["rules"].as_list_strings();
 				node tiles_var = n["tiles"];
 				ASSERT_LOG(tiles_var.is_map(), "\"tiles\" must be a map type.");
 				load_hex_tiles(tiles_var);
 			}
-			std::vector<std::string> rules;
 		};
 
 		hex_engine& generate_hex_engine()
@@ -115,11 +113,6 @@ namespace hex
 		generate_hex_engine();
 		tile_ = get_tile_type_map()[type_];
 		ASSERT_LOG(tile_, "Could not find tile: " << type_);
-	}
-
-	std::vector<std::string> hex_object::get_rules()
-	{
-		return generate_hex_engine().rules;
 	}
 
 	hex_object_ptr hex_object::get_tile_in_dir(enum direction d) const
@@ -147,8 +140,10 @@ namespace hex
 		return hex_object_ptr();
 	}
 
-	void hex_object::draw() const
+	void hex_object::draw(const point& cam) const
 	{
+		// XXX ignore cam for now. probably be drawing x_-cam.x, y_-cam.y
+
 		// Draw base tile.
 		if(tile_ == NULL) {
 			return;
@@ -159,11 +154,6 @@ namespace hex
 		for(const NeighborType& neighbor : neighbors_) {
 			neighbor.type->draw_adjacent(x_, y_, neighbor.dirmap);
 		}
-	}
-
-	void hex_object::apply_rules(const std::string& rule)
-	{
-		// XXX
 	}
 
 	void hex_object::neighbors_changed()

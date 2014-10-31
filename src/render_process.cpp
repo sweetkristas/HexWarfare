@@ -67,9 +67,7 @@ namespace process
 					screen_width_in_tiles / 2 + cam.x,
 					screen_height_in_tiles / 2 + cam.y);
 
-				for(auto& chk : map->t.get_chunks_in_area(area)) {
-					chk->draw(eng, cam);
-				}
+				map->map->draw(cam);
 			}
 		}
 	}

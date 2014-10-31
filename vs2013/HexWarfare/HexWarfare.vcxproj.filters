@@ -42,9 +42,6 @@
     <ClCompile Include="..\..\src\dialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\dungeon.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,9 +49,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\font.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\generate_cave.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui_elements.cpp">
@@ -73,9 +67,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\node.cpp">
@@ -106,9 +97,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\surface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\terrain_generator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\texpack.cpp">
@@ -173,9 +161,6 @@
     <ClInclude Include="..\..\src\dir_monitor.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\dungeon.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\engine.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -189,9 +174,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\formatter.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\generate_cave.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\geometry.hpp">
@@ -213,9 +195,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\label.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\map.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\node.hpp">
@@ -258,9 +237,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\surface.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\terrain_generator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\texpack.hpp">
@@ -306,8 +282,9 @@
     <Library Include="..\..\..\SDL_image\VisualC\Win32\Debug\SDL2_image.lib" />
     <Library Include="..\..\..\SDL_ttf\VisualC\Win32\Debug\SDL2_ttf.lib" />
     <Library Include="..\..\..\SDL_mixer\VisualC\Release\SDL2_mixer.lib" />
-    <Library Include="..\..\..\noise\bin\libnoise.lib" />
-    <Library Include="..\..\..\SDL\VisualC\SDLmain\Win32\Release\SDL2main.lib" />
-    <Library Include="..\..\..\SDL\VisualC\SDL\Win32\Debug\SDL2.lib" />
+    <Library Include="..\..\external\lib\libnoise.lib" />
+    <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2.lib" />
+    <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2main.lib" />
+    <Library Include="..\lua\Debug\Win32\lua.lib" />
   </ItemGroup>
 </Project>

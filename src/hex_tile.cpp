@@ -33,7 +33,7 @@ namespace hex
 	}
 
 	tile_sheet::tile_sheet(const node& value)
-		: texture_(graphics::texture(value["image"].as_string(), graphics::TextureFlags::NONE)),
+		: texture_(graphics::texture("images/" + value["image"].as_string(), graphics::TextureFlags::NONE)),
 		  area_(rect(2, 2, 72, 72)), ncols_(36), pad_(4)
 	{
 	}

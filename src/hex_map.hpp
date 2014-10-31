@@ -28,11 +28,10 @@ namespace hex
 	class hex_map : public std::enable_shared_from_this<hex_map>
 	{
 	public:
-		hex_map() : zorder_(-1000), width_(0), height_(0), x_(0), y_(0)
-		{}
+		hex_map() : x_(0), y_(0), width_(0), height_(0), zorder_(-1000) {}
+		explicit hex_map(const node& n);
 		virtual ~hex_map()
 		{}
-		explicit hex_map(const node& n);
 		int zorder() const { return zorder_; }
 		void set_zorder(int zorder) { zorder_ = zorder; }
 
@@ -43,7 +42,7 @@ namespace hex
 		size_t height() const { return height_; }
 		size_t size() const { return width_ * height_; }
 		void build();
-		virtual void draw() const;
+		virtual void draw(const point& cam) const;
 		node write() const;
 
 		bool set_tile(int x, int y, const std::string& tile);
@@ -56,12 +55,16 @@ namespace hex
 
 		static point loc_in_dir(int x, int y, direction d);
 		static point loc_in_dir(int x, int y, const std::string& s);
+		
+		static hex_map_ptr factory(const node& n);
 	private:
+		hex_map(const hex_map&);
+		void operator=(const hex_map&);
 		std::vector<hex_object_ptr> tiles_;
-		int width_;
-		int height_;
 		int x_;
 		int y_;
+		int width_;
+		int height_;
 		int zorder_;
 	};
 }

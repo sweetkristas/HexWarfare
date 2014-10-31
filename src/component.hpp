@@ -25,9 +25,8 @@
 
 #include "color.hpp"
 #include "geometry.hpp"
-#include "map.hpp"
+#include "hex_map.hpp"
 #include "node.hpp"
-#include "terrain_generator.hpp"
 #include "texture.hpp"
 #include "widget.hpp"
 
@@ -147,7 +146,7 @@ namespace component
 	struct mapgrid : public component
 	{
 		mapgrid();
-		terrain::terrain t;
+		hex::hex_map_ptr map;
 	};
 
 	struct gui_component : public component

@@ -34,10 +34,8 @@
 #include "component.hpp"
 #include "creature.hpp"
 #include "dialog.hpp"
-#include "dungeon.hpp"
 #include "engine.hpp"
 #include "font.hpp"
-#include "generate_cave.hpp"
 #include "gui_elements.hpp"
 #include "gui_process.hpp"
 #include "json.hpp"
@@ -136,7 +134,11 @@ component_set_ptr create_world(engine& e)
 		-screen_height_in_tiles / 2 + cam.y,
 		screen_width_in_tiles / 2 + cam.x,
 		screen_height_in_tiles / 2 + cam.y);
-	auto chunks = world->map->t.get_chunks_in_area(area);
+	try {
+		world->map->map = hex::hex_map::factory(json::parse_from_file("data/maps/map1.cfg"));
+	} catch(json::parse_error& pe) {
+		ASSERT_LOG(false, "Error parsing data/maps/map1.cfg: " << pe.what());
+	}
 	e.add_entity(world);
 	return world;
 }
@@ -195,18 +197,29 @@ int main(int argc, char* argv[])
 		font::manager font_manager;
 		graphics::texture::manager texture_manager(wm.get_renderer());
 
-//		unit::loader(json::parse_from_file("data/units.cfg"));
+		try {
+//			unit::loader(json::parse_from_file("data/units.cfg"));
+		} catch(json::parse_error& pe) {
+			ASSERT_LOG(false, "Error parsing data/units.cfg: " << pe.what());
+		}
 
-		gui::section::manager gui_manager(wm.get_renderer(), json::parse_from_file("data/gui.cfg"));
+		try {
+			gui::section::manager gui_manager(wm.get_renderer(), json::parse_from_file("data/gui.cfg"));
+		} catch(json::parse_error& pe) {
+			ASSERT_LOG(false, "Error parsing data/gui.cfg: " << pe.what());
+		}
 
 		// XX engine should take the renderer as a parameter, expose it as a get function, then pass itself
 		// to the update function.
 		engine e(wm);
-		e.set_tile_size(terrain::terrain::get_terrain_size());
+		e.set_tile_size(point(72,72));
 
 //		create_player(e, point(0, 0));
-//		create_world(e);		
-//		e.add_entity(creature::spawn("goblin", point(1, 1)));
+		try {
+			create_world(e);		
+		} catch(std::bad_weak_ptr& e) {
+			ASSERT_LOG(false, "Bad weak ptr: " << e.what());
+		}
 
 		e.add_process(std::make_shared<process::input>());
 		e.add_process(std::make_shared<process::render>());
@@ -217,33 +230,17 @@ int main(int argc, char* argv[])
 		e.add_process(std::make_shared<process::em_collision>());
 		e.add_process(std::make_shared<process::ee_collision>());
 
-		////////////////////////////////////////////
-		// test code block
-		//graphics::texture darkness(wm.width(), wm.height(), graphics::TextureFlags::NO_CACHE | graphics::TextureFlags::TARGET);
-//		graphics::texture light("images/light.png", graphics::TextureFlags::NONE);
-		//darkness.set_blend(graphics::BlendMode::BLEND);
-		//light.set_blend(graphics::BlendMode::ADDITIVE);
-		//SDL_SetRenderTarget(wm.get_renderer(), darkness.get());
-		//SDL_SetRenderDrawColor(wm.get_renderer(), 16, 16, 32, 224);
-		//SDL_RenderClear(wm.get_renderer());
-
-		//light.blit(rect((wm.width()-e.get_tile_size().x*4)/2, (wm.height()-e.get_tile_size().y*4)/2, e.get_tile_size().x*4, e.get_tile_size().y*4));
-
-		//SDL_SetRenderTarget(wm.get_renderer(), NULL);
-
-		//auto dung = dungeon::dungeon_model::generate(1);
-		//auto dung = dungeon::dungeon_model::read(json::parse_from_file("data/map_test.cfg"));
-		//dungeon::dungeon_view dv(dung);
-		////////////////////////////////////////////
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {
 			Uint32 cycle_start_tick = SDL_GetTicks();
 			profile::timer tm;
 
 			SDL_RenderClear(wm.get_renderer());
-			running = e.update(60.0/1000.0);
-			//dv.draw(0,0);
-			//darkness.blit(rect(0, 0));
+			try {
+				running = e.update(60.0/1000.0);
+			} catch(std::bad_weak_ptr& e) {
+				ASSERT_LOG(false, "Bad weak ptr: " << e.what());
+			}
 			draw_perf_stats(e, tm.get_time());
 			SDL_RenderPresent(wm.get_renderer());
 	

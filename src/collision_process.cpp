@@ -16,7 +16,6 @@
 
 #include "component.hpp"
 #include "engine.hpp"
-#include "map.hpp"
 #include "collision_process.hpp"
 
 namespace process

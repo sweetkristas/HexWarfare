@@ -36,39 +36,41 @@ namespace hex
 		y_(value["y"].as_int32(0)),
 		width_(value["width"].as_int32()), height_(0)
 	{
+	}
+
+	hex_map_ptr hex_map::factory(const node& n)
+	{
+		hex_map_ptr p = std::make_shared<hex_map>(n);
 		int index = 0;
-		for (auto tile_str : value["tiles"].as_list_strings()) {
-			const int x = index%width_;
-			const int y = index/width_;
-			tiles_.push_back(hex_object_ptr(new hex_object(tile_str, x, y, shared_from_this())));
+		for (auto& tile_str : n["tiles"].as_list_strings()) {
+			const int x = index % p->width_;
+			const int y = index / p->width_;
+			p->tiles_.push_back(hex_object_ptr(new hex_object(tile_str, x, y, p)));
 			++index;
 		}
-
-		height_ = tiles_.size()/width_;
+		p->height_ = p->tiles_.size() / p->width_;
+		return p;
 	}
 
-	void hex_map::draw() const
+	void hex_map::draw(const point& cam) const
 	{
 		for(auto tile_ptr : tiles_) {
-			tile_ptr->draw();
-		}
-	}
-
-	void hex_map::build()
-	{
-		for(auto& rule : hex_object::get_rules()) {
-			for(auto tile_ptr : tiles_) {
-				tile_ptr->apply_rules(rule);
-			}
+			tile_ptr->draw(cam);
 		}
 	}
 
 	node hex_map::write() const
 	{
 		node_builder res;
-		res.add("x", x_);
-		res.add("y", y_);
-		res.add("zorder", zorder_);
+		if(x_ != 0) {
+			res.add("x", x_);
+		}
+		if(y_ != 0) {
+			res.add("y", y_);
+		}
+		if(zorder_ != -1000) {
+			res.add("zorder", zorder_);
+		}
 
 		std::vector<node> v;
 		for(auto tile : tiles_) {

@@ -33,11 +33,9 @@ namespace hex
 		hex_object(const std::string& type, int x, int y, std::weak_ptr<const hex_map> owner);
 		virtual ~hex_object() {}
 
-		virtual void draw() const;
+		virtual void draw(const point& cam) const;
 	
 		void build();
-		void apply_rules(const std::string& rule);
-
 		const std::string& type() const { return type_; }
 
 		hex_object_ptr get_tile_in_dir(enum direction d) const;
@@ -51,7 +49,6 @@ namespace hex
 		void init_neighbors();
 		void neighbors_changed();
 
-		static std::vector<std::string> get_rules();
 		static std::vector<tile_type_ptr> get_hex_tiles();
 		static std::vector<tile_type_ptr>& get_editor_tiles();
 
