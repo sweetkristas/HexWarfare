@@ -19,7 +19,7 @@
 *.exe
 *.out
 *.app
-roguelike
+HexWarfare
 
 # Dependency files
 *.d

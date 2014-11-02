@@ -63,10 +63,10 @@ namespace process
 
 				const int screen_width_in_tiles = (eng.get_window().width() + eng.get_tile_size().x - 1) / eng.get_tile_size().x;
 				const int screen_height_in_tiles = (eng.get_window().height() + eng.get_tile_size().y - 1) / eng.get_tile_size().y;
-				rect area = rect::from_coordinates(-screen_width_in_tiles / 2 + cam.x, 
-					-screen_height_in_tiles / 2 + cam.y,
-					screen_width_in_tiles / 2 + cam.x,
-					screen_height_in_tiles / 2 + cam.y);
+				//rect area = rect::from_coordinates(-screen_width_in_tiles / 2 + cam.x, 
+				//	-screen_height_in_tiles / 2 + cam.y,
+				//	screen_width_in_tiles / 2 + cam.x,
+				//	screen_height_in_tiles / 2 + cam.y);
 
 				map->map->draw(cam);
 			}

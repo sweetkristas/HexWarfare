@@ -63,7 +63,8 @@ namespace hex
 		for (auto p : value["adjacent"].as_map()) {
 			unsigned char dirmap = 0;
 			std::vector<std::string> dir;
-			boost::split(dir, p.first.as_string(), boost::is_any_of(","));
+			std::string adj = p.first.as_string();
+			boost::split(dir, adj, boost::is_any_of(","));
 			for(auto d : dir) {
 				static const std::string Directions[] = { "n", "ne", "se", "s", "sw", "nw" };
 				const std::string* dir_str = std::find(Directions, Directions+6, d);

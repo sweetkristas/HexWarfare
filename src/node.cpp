@@ -324,13 +324,14 @@ const node& node::operator[](const node& v) const
 
 const node& node::operator[](const std::string& key) const
 {
+	static node EmptyNode = node();
 	ASSERT_LOG(type() == NODE_TYPE_MAP, "Tried to index node that isn't a map, was: " << type_as_string());
 	auto it = m_.find(node(key));
 	//ASSERT_LOG(it != m_.end(), "Couldn't find key(" << key << ") in map");
 	if(it != m_.end()) {
 		return it->second;
 	}
-	return node();
+	return EmptyNode;
 }
 
 node node::operator()(const node& args)

@@ -19,11 +19,14 @@ objects = \
 	src/font.o \
 	src/gui_elements.o \
 	src/gui_process.o \
+	src/hex_map.o \
+	src/hex_object.o \
+	src/hex_tile.o \
 	src/input_process.o \
 	src/json.o \
 	src/label.o \
 	src/main.o \
-	src/map.o \
+	src/mongoose.o \
 	src/node.o \
 	src/node_utils.o \
 	src/noiseutils.o \
@@ -40,3 +43,38 @@ objects = \
 	src/unit_test.o \
 	src/widget.o \
 	src/wm.o
+
+lua_objects = \
+	src/lua/lapi.o \
+	src/lua/lauxlib.o \
+	src/lua/lbaselib.o \
+	src/lua/lbitlib.o \
+	src/lua/lcode.o \
+	src/lua/lcorolib.o \
+	src/lua/lctype.o \
+	src/lua/ldblib.o \
+	src/lua/ldebug.o \
+	src/lua/ldo.o \
+	src/lua/ldump.o \
+	src/lua/lfunc.o \
+	src/lua/lgc.o \
+	src/lua/linit.o \
+	src/lua/liolib.o \
+	src/lua/llex.o \
+	src/lua/lmathlib.o \
+	src/lua/lmem.o \
+	src/lua/loadlib.o \
+	src/lua/lobject.o \
+	src/lua/lopcodes.o \
+	src/lua/loslib.o \
+	src/lua/lparser.o \
+	src/lua/lstate.o \
+	src/lua/lstring.o \
+	src/lua/lstrlib.o \
+	src/lua/ltable.o \
+	src/lua/ltablib.o \
+	src/lua/ltm.o \
+	src/lua/lua.o \
+	src/lua/lundump.o \
+	src/lua/lvm.o \
+	src/lua/lzio.o

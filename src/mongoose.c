@@ -152,6 +152,14 @@ typedef void *SSL;
 typedef void *SSL_CTX;
 #endif
 
+#ifndef _MSC_VER
+#define _fileno fileno
+#define _strdup strdup
+#define _read read
+#define _write write
+#define _rmdir rmdir
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus

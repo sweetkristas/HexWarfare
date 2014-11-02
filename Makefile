@@ -47,8 +47,6 @@ ifneq ($(USE_SDL2),yes)
 $(error SDL2 not found, SDL-1.2 is not supported)
 endif
 
-USE_LUA?=$(shell pkg-config --exists lua5.2 && echo yes)
-
 # Initial compiler options, used before CXXFLAGS and CPPFLAGS.
 # -Wno-reorder -Wno-unused-variable added to make noiseutils.cpp build
 BASE_CXXFLAGS += -std=c++11 -g -rdynamic -fno-inline-functions \
@@ -63,8 +61,7 @@ endif
 
 # Linker library options.
 LIBS := $(shell pkg-config --libs x11 gl ) \
-	$(shell pkg-config --libs sdl2 glew SDL2_image libpng zlib) -lSDL2_ttf -lSDL2_mixer \
-    -L../bgfx/.build/linux64_gcc/bin
+	$(shell pkg-config --libs sdl2 glew SDL2_image libpng zlib) -lSDL2_ttf -lSDL2_mixer
 
 include Makefile.common
 
@@ -78,12 +75,20 @@ src/%.o : src/%.cpp
 		sed -e 's/^ *//' -e 's/$$/:/' >> src/$*.d
 	@rm -f $*.d.tmp
 
-HexWarfare: $(objects) $(ogl_objects) $(sdl_objects) $(ogl_fixed_objects)
+src/lua/%.o : src/lua/%.c
+	@echo "Building:" $<
+	@$(CCACHE) $(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -c -o $@ $<
+
+HexWarfare: $(objects) $(ogl_objects) $(sdl_objects) liblua.a
 	@echo "Linking : HexWarfare"
 	@$(CCACHE) $(CXX) \
 		$(BASE_CXXFLAGS) $(LDFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) \
 		$(objects) $(ogl_objects) $(sdl_objects) $(ogl_fixed_objects) -o HexWarfare \
 		$(LIBS) -lboost_regex -lboost_system -lboost_filesystem -lboost_thread -lnoise -fthreadsafe-statics
+
+liblua.a: $(lua_objects)
+	@echo "Creating local copy of lua library" 
+	@$(AR) -rcs $@ $(lua_objects)
 
 # pull in dependency info for *existing* .o files
 -include $(objects:.o=.d)

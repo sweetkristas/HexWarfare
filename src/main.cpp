@@ -130,10 +130,10 @@ component_set_ptr create_world(engine& e)
 	const point& cam = e.get_camera();
 	const int screen_width_in_tiles = (e.get_window().width() + e.get_tile_size().x - 1) / e.get_tile_size().x;
 	const int screen_height_in_tiles = (e.get_window().height() + e.get_tile_size().y - 1) / e.get_tile_size().y;
-	rect area = rect::from_coordinates(-screen_width_in_tiles / 2 + cam.x,
-		-screen_height_in_tiles / 2 + cam.y,
-		screen_width_in_tiles / 2 + cam.x,
-		screen_height_in_tiles / 2 + cam.y);
+	//rect area = rect::from_coordinates(-screen_width_in_tiles / 2 + cam.x,
+	//	-screen_height_in_tiles / 2 + cam.y,
+	//	screen_width_in_tiles / 2 + cam.x,
+	//	screen_height_in_tiles / 2 + cam.y);
 	try {
 		world->map->map = hex::hex_map::factory(json::parse_from_file("data/maps/map1.cfg"));
 	} catch(json::parse_error& pe) {
