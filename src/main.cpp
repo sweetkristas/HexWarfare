@@ -138,6 +138,8 @@ component_set_ptr create_world(engine& e)
 		world->map->map = hex::hex_map::factory(json::parse_from_file("data/maps/map1.cfg"));
 	} catch(json::parse_error& pe) {
 		ASSERT_LOG(false, "Error parsing data/maps/map1.cfg: " << pe.what());
+	} catch(std::bad_weak_ptr& e) {
+		ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 	}
 	e.add_entity(world);
 	return world;
@@ -198,7 +200,7 @@ int main(int argc, char* argv[])
 		graphics::texture::manager texture_manager(wm.get_renderer());
 
 		try {
-//			unit::loader(json::parse_from_file("data/units.cfg"));
+			creature::loader(json::parse_from_file("data/units.cfg"));
 		} catch(json::parse_error& pe) {
 			ASSERT_LOG(false, "Error parsing data/units.cfg: " << pe.what());
 		}
@@ -215,11 +217,11 @@ int main(int argc, char* argv[])
 		e.set_tile_size(point(72,72));
 
 //		create_player(e, point(0, 0));
-		try {
-			create_world(e);		
-		} catch(std::bad_weak_ptr& e) {
-			ASSERT_LOG(false, "Bad weak ptr: " << e.what());
-		}
+		create_world(e);
+		e.add_entity(creature::spawn("goblin", point(1, 1)));
+		e.add_entity(creature::spawn("goblin", point(0, 0)));
+		e.add_entity(creature::spawn("goblin", point(1, 0)));
+		e.add_entity(creature::spawn("goblin", point(0, 1)));
 
 		e.add_process(std::make_shared<process::input>());
 		e.add_process(std::make_shared<process::render>());

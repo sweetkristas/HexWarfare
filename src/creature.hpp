@@ -21,6 +21,15 @@
 
 namespace creature
 {
+	class creature;
+	typedef std::shared_ptr<creature> creature_ptr;
+	typedef std::shared_ptr<const creature> const_creature_ptr;
+
+	enum class MovementType
+	{
+		NORMAL,
+	};
+
 	void loader(const node& n);
 
 	component_set_ptr spawn(const std::string& type, const point& pos);

@@ -24,6 +24,7 @@
 #include "SDL.h"
 
 #include "color.hpp"
+#include "creature.hpp"
 #include "geometry.hpp"
 #include "hex_map.hpp"
 #include "node.hpp"
@@ -101,6 +102,7 @@ namespace component
 		int attack;
 		int armour;
 		std::string name;
+		creature::const_creature_ptr unit;
 	};
 
 	struct ai : public component
@@ -121,6 +123,7 @@ namespace component
 			spell,
 			pass,
 		} action;
+		rect mouse_area;
 	};
 
 	struct point_light

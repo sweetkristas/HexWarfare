@@ -32,41 +32,39 @@ namespace process
 
 	bool input::handle_event(const SDL_Event& evt)
 	{
-		if(evt.type == SDL_KEYDOWN) {
-			keys_pressed_.push(evt.key.keysym.scancode);
-			return true;
+		switch(evt.type) {
+			case SDL_KEYDOWN:
+				keys_pressed_.push(evt.key.keysym.scancode);
+				return true;
+			case SDL_MOUSEBUTTONDOWN:
+			case SDL_MOUSEBUTTONUP:
+				mouse_button_events_.push(evt.button);
+				break;
+			case SDL_MOUSEMOTION:
+				mouse_motion_events_.push(evt.motion);
+				return true;
 		}
 		return false;
 	}
 
 	void input::update(engine& eng, double t, const entity_list& elist)
 	{
-		static component_id input_mask 
-			= component::genmask(component::Component::POSITION) 
-			| component::genmask(component::Component::INPUT)
-			| component::genmask(component::Component::PLAYER);
-		for(auto& e : elist) {
-			if((e->mask & input_mask) == input_mask) {
-				auto& inp = e->inp;
-				auto& pos = e->pos;
-				inp->action = component::input::Action::none;
-				if(!keys_pressed_.empty()) {
-					auto key = keys_pressed_.front();
-					keys_pressed_.pop();
-					if(key == SDL_SCANCODE_LEFT) {
-						pos->mov.x -= 1;
-						inp->action = component::input::Action::moved;
-					} else if(key == SDL_SCANCODE_RIGHT) {
-						pos->mov.x += 1;
-						inp->action = component::input::Action::moved;
-					} else if(key == SDL_SCANCODE_UP) {
-						pos->mov.y -= 1;
-						inp->action = component::input::Action::moved;
-					} else if(key == SDL_SCANCODE_DOWN) {
-						pos->mov.y += 1;
-						inp->action = component::input::Action::moved;
-					} else if(key == SDL_SCANCODE_PERIOD) {
-						inp->action = component::input::Action::pass;
+		static component_id input_mask = component::genmask(component::Component::INPUT);
+		static component_id pos_mask = component::genmask(component::Component::INPUT);
+		// Clear the input queue of keystrokes for now.
+		while(!keys_pressed_.empty()) {
+			keys_pressed_.pop();
+		}
+		if(!mouse_button_events_.empty()) {
+			auto button = mouse_button_events_.front(); mouse_button_events_.pop();
+			for(auto& e : elist) {
+				if((e->mask & input_mask) == input_mask) {
+					auto& inp = e->inp;
+					if((e->mask & pos_mask) == pos_mask) {
+						auto& pos = e->pos->pos;
+						if(geometry::pointInRect(point(button.x, button.y), inp->mouse_area+pos)) {
+							
+						}
 					}
 				}
 			}

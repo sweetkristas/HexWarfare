@@ -50,7 +50,7 @@ namespace component
 
 	sprite::sprite(const std::string& filename, const rect& area)
 		: component(Component::SPRITE),
-		  tex(filename, graphics::TextureFlags::NONE, area)
+		  tex("images/" + filename, graphics::TextureFlags::NONE, area)
 	{
 	}
 

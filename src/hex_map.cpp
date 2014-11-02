@@ -49,6 +49,10 @@ namespace hex
 			++index;
 		}
 		p->height_ = p->tiles_.size() / p->width_;
+		
+		for(auto& t : p->tiles_) {
+			t->init_neighbors();
+		}
 		return p;
 	}
 

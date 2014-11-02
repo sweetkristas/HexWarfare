@@ -94,6 +94,7 @@
     <ClCompile Include="..\..\src\json.cpp" />
     <ClCompile Include="..\..\src\label.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\mongoose.c" />
     <ClCompile Include="..\..\src\node.cpp" />
     <ClCompile Include="..\..\src\node_utils.cpp" />
     <ClCompile Include="..\..\src\noiseutils.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="..\..\src\input_process.hpp" />
     <ClInclude Include="..\..\src\json.hpp" />
     <ClInclude Include="..\..\src\label.hpp" />
+    <ClInclude Include="..\..\src\mongoose.h" />
     <ClInclude Include="..\..\src\node.hpp" />
     <ClInclude Include="..\..\src\node_utils.hpp" />
     <ClInclude Include="..\..\src\noiseutils.h" />

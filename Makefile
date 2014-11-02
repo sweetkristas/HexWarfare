@@ -55,14 +55,14 @@ BASE_CXXFLAGS += -std=c++11 -g -rdynamic -fno-inline-functions \
 	-fthreadsafe-statics -Werror -Wall -Wno-reorder -Wno-unused-variable
 
 # Compiler include options, used after CXXFLAGS and CPPFLAGS.
-INC := -Isrc -Iinclude -I../bgfx/include -I../bx/include $(shell pkg-config --cflags x11 sdl2 glew SDL2_image SDL2_ttf libpng zlib)
+INC := -Isrc -Iinclude $(shell pkg-config --cflags x11 sdl2 glew SDL2_image SDL2_ttf libpng zlib)
 
 ifdef STEAM_RUNTIME_ROOT
 	INC += -I$(STEAM_RUNTIME_ROOT)/include
 endif
 
 # Linker library options.
-LIBS := ../bgfx/.build/linux64_gcc/bin/libbgfxRelease.a $(shell pkg-config --libs x11 gl ) \
+LIBS := $(shell pkg-config --libs x11 gl ) \
 	$(shell pkg-config --libs sdl2 glew SDL2_image libpng zlib) -lSDL2_ttf -lSDL2_mixer \
     -L../bgfx/.build/linux64_gcc/bin
 
@@ -78,17 +78,17 @@ src/%.o : src/%.cpp
 		sed -e 's/^ *//' -e 's/$$/:/' >> src/$*.d
 	@rm -f $*.d.tmp
 
-roguelike: $(objects) $(ogl_objects) $(sdl_objects) $(ogl_fixed_objects)
-	@echo "Linking : roguelike"
+HexWarfare: $(objects) $(ogl_objects) $(sdl_objects) $(ogl_fixed_objects)
+	@echo "Linking : HexWarfare"
 	@$(CCACHE) $(CXX) \
 		$(BASE_CXXFLAGS) $(LDFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) \
-		$(objects) $(ogl_objects) $(sdl_objects) $(ogl_fixed_objects) -o roguelike \
+		$(objects) $(ogl_objects) $(sdl_objects) $(ogl_fixed_objects) -o HexWarfare \
 		$(LIBS) -lboost_regex -lboost_system -lboost_filesystem -lboost_thread -lnoise -fthreadsafe-statics
 
 # pull in dependency info for *existing* .o files
 -include $(objects:.o=.d)
 
-all: roguelike
+all: HexWarfare
 
 clean:
-	rm -f src/*.o src/*.d *.o *.d roguelike
+	rm -f src/*.o src/*.d *.o *.d HexWarfare

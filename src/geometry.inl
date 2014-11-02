@@ -172,6 +172,12 @@ namespace geometry
 	}*/
 
 	template<typename T> inline
+	Rect<T> operator+(const Rect<T>& r, const Point<T>& p)
+	{
+		return Rect<T>(r.x()+p.x, r.y()+p.y, r.w(), r.h());
+	}
+
+	template<typename T> inline
 	Rect<T>::Rect(const std::string& str)
 	{
 		if(str.empty()) {

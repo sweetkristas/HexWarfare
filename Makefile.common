@@ -14,11 +14,9 @@ objects = \
 	src/creature.o \
 	src/datetime.o \
 	src/dialog.o \
-	src/dungeon.o \
 	src/engine.o \
 	src/filesystem.o \
 	src/font.o \
-	src/generate_cave.o \
 	src/gui_elements.o \
 	src/gui_process.o \
 	src/input_process.o \
@@ -36,7 +34,6 @@ objects = \
 	src/random.o \
 	src/render_process.o \
 	src/surface.o \
-	src/terrain_generator.o \
 	src/texpack.o \
 	src/texture.o \
 	src/tile.o \

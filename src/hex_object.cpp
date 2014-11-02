@@ -142,17 +142,15 @@ namespace hex
 
 	void hex_object::draw(const point& cam) const
 	{
-		// XXX ignore cam for now. probably be drawing x_-cam.x, y_-cam.y
-
 		// Draw base tile.
 		if(tile_ == NULL) {
 			return;
 		}
 
-		tile_->draw(x_, y_);
+		tile_->draw(x_-cam.x, y_-cam.y);
 
 		for(const NeighborType& neighbor : neighbors_) {
-			neighbor.type->draw_adjacent(x_, y_, neighbor.dirmap);
+			neighbor.type->draw_adjacent(x_-cam.x, y_-cam.y, neighbor.dirmap);
 		}
 	}
 

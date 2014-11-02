@@ -55,7 +55,8 @@ namespace process
 				auto& spr = e->spr;
 				auto& pos = e->pos;
 				if(spr->tex.is_valid()) {
-					spr->tex.blit(rect(screen_centre.x - (cam.x - pos->pos.x) * ts.x - ts.x/2, screen_centre.y - (cam.y - pos->pos.y) * ts.y - ts.y/2, ts.x, ts.y));
+					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
+					spr->tex.blit(rect(pp.x - cam.x * ts.x, pp.y - cam.y * ts.y, ts.x, ts.y));
 				}
 			} else if((e->mask & map_mask) == map_mask) {
 				auto& map = e->map;
