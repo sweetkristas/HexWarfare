@@ -28,6 +28,7 @@
 #include "geometry.hpp"
 #include "hex_map.hpp"
 #include "node.hpp"
+#include "player.hpp"
 #include "texture.hpp"
 #include "widget.hpp"
 
@@ -41,14 +42,11 @@ namespace component
 		POSITION,
 		SPRITE,
 		STATS,
-		AI,
 		INPUT,
 		LIGHTS,
 		MAP,
 		GUI,
 		// tag only values must go at end.
-		PLAYER,
-		ENEMY,
 		COLLISION,
 		MAX_COMPONENTS,
 	};
@@ -105,25 +103,11 @@ namespace component
 		creature::const_creature_ptr unit;
 	};
 
-	struct ai : public component
-	{
-		ai() : component(Component::AI) {}
-		// XXX Need to add some data
-		std::string type;
-	};
-
 	struct input : public component
 	{
-		input() : component(Component::INPUT) {}
-		enum class Action {
-			none,
-			moved,
-			use,
-			attack,
-			spell,
-			pass,
-		} action;
+		input() : component(Component::INPUT), selected(false) {}
 		rect mouse_area;
+		bool selected;
 	};
 
 	struct point_light
@@ -160,19 +144,20 @@ namespace component
 
 	struct component_set
 	{
-		component_set(int z=0) : mask(component_id(0)), zorder(z) {}
+		component_set(int z = 0);
+		size_t entity_id;
 		component_id mask;
 		int zorder;
 		std::shared_ptr<position> pos;
 		std::shared_ptr<sprite> spr;
 		std::shared_ptr<stats> stat;
-		std::shared_ptr<ai> aip;
 		std::shared_ptr<input> inp;
 		std::shared_ptr<mapgrid> map;
 		std::shared_ptr<gui_component> gui;
-		bool is_player() { return (mask & genmask(Component::PLAYER)) == genmask(Component::PLAYER); }
+		player_weak_ptr owner;
 	};
 	typedef std::shared_ptr<component_set> component_set_ptr;
+	typedef std::weak_ptr<component_set> component_set_weak_ptr;
 	
 	inline bool operator<(const component_set_ptr& lhs, const component_set_ptr& rhs)
 	{

@@ -19,6 +19,7 @@
 #include "engine_fwd.hpp"
 #include "geometry.hpp"
 #include "particles.hpp"
+#include "player.hpp"
 #include "process.hpp"
 #include "profile_timer.hpp"
 #include "quadtree.hpp"
@@ -42,6 +43,11 @@ public:
 	
 	void add_entity(component_set_ptr e);
 	void remove_entity(component_set_ptr e);
+
+	// Players are abstract and not entities in this case, since we need special handling.
+	void add_player(player_ptr p);
+	void remove_player(player_ptr p);
+	void replace_player(player_ptr to_be_replaced, player_ptr replacement);
 
 	void add_process(process::process_ptr s);
 	void remove_process(process::process_ptr s);
@@ -83,4 +89,6 @@ private:
 	std::vector<process::process_ptr> process_list_;
 	point tile_size_;
 	particle::particle_system_manager particles_;
+	std::vector<player_ptr> players_;
+	unsigned current_player_;
 };

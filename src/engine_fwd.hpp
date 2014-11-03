@@ -26,5 +26,6 @@ namespace component
 	struct component_set;
 }
 typedef std::shared_ptr<component::component_set> component_set_ptr;
+typedef std::weak_ptr<component::component_set> component_set_weak_ptr;
 
 typedef std::vector<component_set_ptr> entity_list;

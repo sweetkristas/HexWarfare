@@ -56,31 +56,6 @@ namespace process
 		}
 		should_update_ = false;
 		for(auto& e : elist) {
-			static component_id ai_mask = genmask(Component::POSITION) | genmask(Component::AI) | genmask(Component::INPUT);
-
-			if((e->mask & ai_mask) == ai_mask) {
-				auto& pos = e->pos;
-				//auto& aip = e->aip;
-				auto& inp = e->inp;
-			
-				// Set default action to nothing
-				inp->action = input::Action::none;
-
-				// XXX this should be rate limited a bit, so if the player wanted
-				// to do something for 20 turns then we carry out 1 turn/200ms or so
-				// then if the player needed to cancel action they could.
-				// Fortunately we have a useful time parameter t to use.
-				update_turns_ = eng.get_turns() - update_turns_;
-				for(int n = 0; n != update_turns_; ++n) {
-					// XXX add some logic
-					if(generator::get_uniform_int(0,1)) {
-						pos->mov.x += generator::get_uniform_int(-1, 1);
-					} else {
-						pos->mov.y += generator::get_uniform_int(-1, 1);
-					}
-				}
-				inp->action = input::Action::moved;
-			}
 		}
 	}
 }

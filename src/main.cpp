@@ -42,6 +42,7 @@
 #include "input_process.hpp"
 #include "label.hpp"
 #include "node_utils.hpp"
+#include "pathfinding.hpp"
 #include "profile_timer.hpp"
 #include "random.hpp"
 #include "render_process.hpp"
@@ -80,60 +81,15 @@ void draw_perf_stats(engine& eng, double update_time)
 	SDL_DestroyTexture(tex);
 }
 
-void create_player(engine& e, const point& start)
-{
-	component_set_ptr player = std::make_shared<component::component_set>(100);
-	// Player component simply acts as a tag for the entity
-	//font::font_ptr fnt = font::get_font("SourceCodePro-Regular.ttf", 20);
-	player->mask |= component::genmask(component::Component::PLAYER);
-	player->mask |= component::genmask(component::Component::POSITION);
-	player->mask |= component::genmask(component::Component::STATS);
-	player->mask |= component::genmask(component::Component::INPUT);
-	player->mask |= component::genmask(component::Component::SPRITE);
-	player->mask |= component::genmask(component::Component::COLLISION);
-	player->pos = std::make_shared<component::position>(start);
-	e.set_camera(player->pos->pos);
-	player->stat = std::make_shared<component::stats>();
-	player->stat->health = 10;
-	player->inp = std::make_shared<component::input>();
-	//auto surf = std::make_shared<graphics::surface>(font::render_shaded("@", fnt, graphics::color(255,255,255), graphics::color(255,0,0)));
-	auto surf = std::make_shared<graphics::surface>("images/spritely_fellow.png");
-	player->spr = std::make_shared<component::sprite>(surf);
-	e.add_entity(player);
-
-	// Create GUI (needs player stats to we stick it in here for now)
-	component_set_ptr guic = std::make_shared<component::component_set>(900);
-	guic->mask |= component::genmask(component::Component::POSITION);
-	guic->mask |= component::genmask(component::Component::SPRITE);
-	guic->mask |= component::genmask(component::Component::STATS);
-	guic->mask |= component::genmask(component::Component::GUI);
-	guic->pos = std::make_shared<component::position>();
-	guic->spr = std::make_shared<component::sprite>();
-	guic->gui = std::make_shared<component::gui_component>();
-	auto l = std::make_shared<gui::label>(rectf(0.0f, 0.0f), gui::Justify::H_CENTER|gui::Justify::V_CENTER, "Press Me!");
-	l->set_size(24);
-	auto w = std::make_shared<gui::button>(rectf(0.0f, -0.1f), gui::Justify::H_CENTER|gui::Justify::BOTTOM, [](){std::cerr<<"pressed\n";}, l);
-
-	auto dlg = std::make_shared<gui::dialog>(rectf(0.25f, 0.15f, 0.5f, 0.7f), gui::Justify::LEFT|gui::Justify::TOP);
-	dlg->add_widget(w);
-	//guic->gui->widgets.push_back(dlg);
-	guic->stat = player->stat;
-	e.add_entity(guic);
-}
-
 component_set_ptr create_world(engine& e)
 {
 	component_set_ptr world = std::make_shared<component::component_set>(0);
 	world->mask |= component::genmask(component::Component::MAP);
 	world->mask |= component::genmask(component::Component::COLLISION);
 	world->map = std::make_shared<component::mapgrid>();
-	const point& cam = e.get_camera();
-	const int screen_width_in_tiles = (e.get_window().width() + e.get_tile_size().x - 1) / e.get_tile_size().x;
-	const int screen_height_in_tiles = (e.get_window().height() + e.get_tile_size().y - 1) / e.get_tile_size().y;
-	//rect area = rect::from_coordinates(-screen_width_in_tiles / 2 + cam.x,
-	//	-screen_height_in_tiles / 2 + cam.y,
-	//	screen_width_in_tiles / 2 + cam.x,
-	//	screen_height_in_tiles / 2 + cam.y);
+	//const point& cam = e.get_camera();
+	//const int screen_width_in_tiles = (e.get_window().width() + e.get_tile_size().x - 1) / e.get_tile_size().x;
+	//const int screen_height_in_tiles = (e.get_window().height() + e.get_tile_size().y - 1) / e.get_tile_size().y;
 	try {
 		world->map->map = hex::hex_map::factory(json::parse_from_file("data/maps/map1.cfg"));
 	} catch(json::parse_error& pe) {
@@ -143,6 +99,54 @@ component_set_ptr create_world(engine& e)
 	}
 	e.add_entity(world);
 	return world;
+}
+
+void pathfinding_test()
+{
+	std::vector<int> vertices{1,2,3,4,5,6,7,8};
+	pathfinding::DirectedGraph<int>::GraphEdgeList edges;
+	pathfinding::WeightedDirectedGraph<int,float>::EdgeWeights weights;
+
+	edges[1] = {2,3,4};
+	edges[2] = {1,4};
+	edges[3] = {1,4,5};
+	edges[4] = {1,2,3,5,6};
+	edges[5] = {3,4,6,7,8};
+	edges[6] = {4,5,8};
+	edges[7] = {5,8};
+	edges[8] = {5,6,7};
+
+	for(auto& e1 : edges) {
+		for(auto& e2 : e1.second) {
+			weights[pathfinding::EdgePair<int>(e1.first, e2)] = 1.0f;
+		}
+	}
+
+	pathfinding::DirectedGraph<int>::Pointer dg1 = std::make_shared<pathfinding::DirectedGraph<int>>(&vertices, &edges);
+	pathfinding::WeightedDirectedGraph<int, float>::Pointer wg1 = std::make_shared<pathfinding::WeightedDirectedGraph<int, float>>(dg1, &weights);
+	
+	for(auto n : {1,2,3,4,5,6,7,8}) {
+		auto res = pathfinding::path_cost_search<int,float>(wg1, n, 1.0f);
+		std::cerr << "Nodes reachable from " << n << " with cost 1.0: ";
+		for(auto r : res) {
+			std::cerr << r << " ";
+		}
+		std::cerr << "\n";
+	}
+
+	auto res = pathfinding::path_cost_search<int,float>(wg1, 5, 2.0f);
+	std::cerr << "Nodes reachable from " << 5 << " with cost 2.0: ";
+	for(auto r : res) {
+		std::cerr << r << " ";
+	}
+	std::cerr << "\n";
+
+	res = pathfinding::path_cost_search<int,float>(wg1, 1, 0.5f);
+	std::cerr << "Nodes reachable from " << 1 << " with cost 0.5: ";
+	for(auto r : res) {
+		std::cerr << r << " ";
+	}
+	std::cerr << "\n";
 }
 
 int main(int argc, char* argv[])
@@ -216,12 +220,14 @@ int main(int argc, char* argv[])
 		engine e(wm);
 		e.set_tile_size(point(72,72));
 
-//		create_player(e, point(0, 0));
+		auto p1 = std::make_shared<player>(PlayerType::NORMAL, "Player 1");
+		auto b1 = std::make_shared<player>(PlayerType::AI, "Evil Bot");
+
 		create_world(e);
-		e.add_entity(creature::spawn("goblin", point(1, 1)));
-		e.add_entity(creature::spawn("goblin", point(0, 0)));
-		e.add_entity(creature::spawn("goblin", point(1, 0)));
-		e.add_entity(creature::spawn("goblin", point(0, 1)));
+		e.add_entity(creature::spawn(p1, "goblin", point(0, 1)));
+		e.add_entity(creature::spawn(p1, "goblin", point(0, 0)));
+		e.add_entity(creature::spawn(b1, "goblin", point(6, 6)));
+		e.add_entity(creature::spawn(b1, "goblin", point(6, 7)));
 
 		e.add_process(std::make_shared<process::input>());
 		e.add_process(std::make_shared<process::render>());
@@ -231,6 +237,8 @@ int main(int argc, char* argv[])
 		// N.B. entity/map collision needs to come before entity/entity collision
 		e.add_process(std::make_shared<process::em_collision>());
 		e.add_process(std::make_shared<process::ee_collision>());
+
+		//pathfinding_test();
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {

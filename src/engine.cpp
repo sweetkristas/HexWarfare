@@ -37,7 +37,8 @@ engine::engine(graphics::window_manager& wm)
 	  turns_(1),
 	  wm_(wm),
 	  entity_quads_(0, rect(0,0,100,100)),
-	  particles_(wm.get_renderer())
+	  particles_(wm.get_renderer()),
+	  current_player_(0)
 {
 }
 
@@ -74,15 +75,34 @@ void engine::remove_process(process::process_ptr s)
 		[&s](process::process_ptr sp) { return sp == s; }), process_list_.end());
 }
 
+void engine::add_player(player_ptr p)
+{
+	players_.emplace_back(p);
+}
+
+void engine::remove_player(player_ptr p)
+{
+	auto it = std::find(players_.begin(), players_.end(), p);
+	ASSERT_LOG(it != players_.end(), "Attempted to remove player " << p->name() << " failed, player doesn't exist.");
+	players_.erase(it);
+}
+
+void engine::replace_player(player_ptr to_be_replaced, player_ptr replacement)
+{
+	auto it = std::find(players_.begin(), players_.end(), to_be_replaced);
+	ASSERT_LOG(it != players_.end(), "Attempted to remove player " << to_be_replaced->name() << " failed, player doesn't exist.");
+	*it = replacement;
+}
+
 void engine::translate_mouse_coords(SDL_Event* evt)
 {
 	// transform the absolute mouse co-ordinates to a window-size independent quantity.
 	if(evt->type == SDL_MOUSEMOTION) {
-		evt->motion.x = static_cast<Sint32>((evt->motion.x * mouse_event_scale_factor) / wm_.width());
-		evt->motion.y = static_cast<Sint32>((evt->motion.y * mouse_event_scale_factor) / wm_.height());
+		//evt->motion.x = static_cast<Sint32>((evt->motion.x * mouse_event_scale_factor) / wm_.width());
+		//evt->motion.y = static_cast<Sint32>((evt->motion.y * mouse_event_scale_factor) / wm_.height());
 	} else {
-		evt->button.x = static_cast<Sint32>((evt->button.x * mouse_event_scale_factor) / wm_.width());
-		evt->button.y = static_cast<Sint32>((evt->button.y * mouse_event_scale_factor) / wm_.height());
+		//evt->button.x = static_cast<Sint32>((evt->button.x * mouse_event_scale_factor) / wm_.width());
+		//evt->button.y = static_cast<Sint32>((evt->button.y * mouse_event_scale_factor) / wm_.height());
 	}
 }
 

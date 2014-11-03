@@ -86,6 +86,18 @@ namespace hex
 		return res.build();
 	}
 
+	std::vector<hex_object_ptr> hex_map::get_surrounding_tiles(int x, int y) const
+	{
+		std::vector<hex_object_ptr> res;
+		for(auto dir : { NORTH, NORTH_EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, NORTH_WEST }) {
+			auto hp = get_hex_tile(dir, x, y);
+			if(hp != nullptr) {
+				res.emplace_back(hp);
+			}
+		}
+		return res;
+	}
+
 	hex_object_ptr hex_map::get_hex_tile(direction d, int x, int y) const
 	{
 		int ox = x;

@@ -25,7 +25,12 @@ namespace creature
 	class creature : public std::enable_shared_from_this<creature>
 	{
 	public:
-		creature(const node& n) : component_mask_(0), movement_(5), movement_type_(MovementType::NORMAL) {
+		creature(const node& n) 
+			: component_mask_(0), 
+			  initiative_(0), 
+			  movement_(5), 
+			  movement_type_(MovementType::NORMAL) 
+		{
 			using namespace component;
 			ASSERT_LOG(n.is_map(), "Creature definitions must be maps");
 			ASSERT_LOG(n.has_key("name"), "Must supply a 'name' attribute for the creature.");
@@ -71,6 +76,8 @@ namespace creature
 
 				movement_ = stats.has_key("movement") ? stats["movement"].as_int32() : 5;
 
+				initiative_ = stats["initiative"].as_int32(0);
+
 				if(stats.has_key("movement_type")) {
 					const std::string& mt = stats["movement_type"].as_string();
 					if(mt == "normal") {
@@ -79,10 +86,8 @@ namespace creature
 				}
 			}
 
-			if((component_mask_ & genmask(Component::AI)) == genmask(Component::AI)) {
-				if(n.has_key("ai")) {
-					ai_name_ = n["ai"].as_string();
-				}
+			if(n.has_key("ai")) {
+				ai_name_ = n["ai"].as_string();
 			}
 
 			if((component_mask_ & genmask(Component::SPRITE)) == genmask(Component::SPRITE)) {
@@ -98,7 +103,7 @@ namespace creature
 			}
 		}
 
-		component_set_ptr create_instance(const point& pos) {
+		component_set_ptr create_instance(player_weak_ptr owner, const point& pos) {
 			component_set_ptr res = std::make_shared<component::component_set>(80);
 			using namespace component;
 			// XXX fix zorder here.
@@ -117,18 +122,16 @@ namespace creature
 				// The whole sprite mess needs fixed, since it doesn't take an area.
 				res->spr = std::make_shared<sprite>(sprite_name_, sprite_area_);
 			}
-			if((component_mask_ & genmask(Component::AI)) == genmask(Component::AI)) {
-				res->aip = std::make_shared<ai>();
-				res->aip->type = ai_name_;
-			}
 			if((component_mask_ & genmask(Component::LIGHTS)) == genmask(Component::LIGHTS)) {
 				// XXX?
 			}
 			if((component_mask_ & genmask(Component::INPUT)) == genmask(Component::INPUT)) {
 				res->inp = std::make_shared<input>();
-				res->inp->action = input::Action::none;
+				res->inp->mouse_area = sprite_area_;
+				res->inp->selected = false;
 			}
 			res->mask = component_mask_;
+			res->owner = owner;
 			return res;
 		}
 	private:
@@ -139,6 +142,7 @@ namespace creature
 		int attack_min_;
 		int attack_max_;
 		int armour_;
+		int initiative_;
 		int movement_;
 		MovementType movement_type_;
 		// attack type (magic, physical, type of magic, type of physical, etc)
@@ -169,10 +173,10 @@ namespace creature
 		}
 	}
 
-	component_set_ptr spawn(const std::string& type, const point& pos)
+	component_set_ptr spawn(player_weak_ptr owner, const std::string& type, const point& pos)
 	{
 		auto it = get_creature_cache().find(type);
 		ASSERT_LOG(it != get_creature_cache().end(), "Couldn't find a definition for creature of type '" << type << "' in the cache.");
-		return it->second->create_instance(pos);
+		return it->second->create_instance(owner, pos);
 	}
 }

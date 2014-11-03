@@ -35,12 +35,22 @@ namespace process
 		static component_id sprite_mask = genmask(Component::POSITION)  | genmask(Component::SPRITE);
 		static component_id gui_mask = sprite_mask | genmask(Component::GUI);
 		static component_id map_mask = genmask(Component::MAP);
+		static component_id inp_mask = genmask(Component::INPUT);
 		
 		const point& cam = eng.get_camera();
 		const point screen_centre(eng.get_window().width() / 2, eng.get_window().height() / 2);
 		const point& ts = eng.get_tile_size();
 
 		for(auto& e : elist) {
+			if((e->mask & sprite_mask) == sprite_mask && (e->mask & inp_mask) == inp_mask && e->inp->selected) {
+				auto& pos = e->pos;
+				static auto ellipse = graphics::texture("images/misc/ellipse-1.png", graphics::TextureFlags::NONE);
+				auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
+				const int x = pp.x - cam.x * ts.x + (ts.x - ellipse.width())/2;
+				const int y = pp.y - cam.y * ts.y + ts.y - ellipse.height();
+				ellipse.blit(rect(x, y, ellipse.width(), ellipse.height()));
+			}
+
 			if((e->mask & gui_mask) == gui_mask) {
 				auto& spr = e->spr;
 				auto& pos = e->pos;

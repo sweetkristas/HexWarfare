@@ -19,6 +19,22 @@
 
 namespace component
 {
+	namespace 
+	{
+		size_t generate_entity_id()
+		{
+			static size_t id = 100;
+			return id++;
+		}
+	}
+
+	component_set::component_set(int z) 
+		: mask(component_id(0)), 
+		  zorder(z),
+		  entity_id(generate_entity_id())
+	{
+	}
+
 	Component get_component_from_string(const std::string& s)
 	{
 		if(s == "position") {
@@ -27,18 +43,12 @@ namespace component
 			return Component::SPRITE;
 		} else if(s == "stats") {
 			return Component::STATS;
-		} else if(s == "ai") {
-			return Component::AI;
 		} else if(s == "input") {
 			return Component::INPUT;
 		} else if(s == "lights") {
 			return Component::LIGHTS;
 		} else if(s == "map") {
 			return Component::MAP;
-		} else if(s == "player") {
-			return Component::PLAYER;
-		} else if(s == "enemy") {
-			return Component::ENEMY;
 		} else if(s == "gui") {
 			return Component::GUI;
 		} else if(s == "collision") {
@@ -82,31 +92,4 @@ namespace component
 		: component(Component::MAP)
 	{
 	}
-
-	/*mapgrid::mapgrid(const node& n)
-		: component(Component::MAP)
-	{
-		auto mp = n["map"].as_list_strings();
-		map.reserve(mp.size());
-		int y = 0;
-		for(auto& row : mp) {
-			int x = 0;
-			std::vector<MapSymbols> new_row;
-			new_row.reserve(row.size());
-			for(auto& col : row) {
-				MapSymbols sym = convert_map_symbol(col);
-				if(sym == MapSymbols::EXIT) {
-					exits.emplace_back(x, y);
-					sym = MapSymbols::DIRT;
-				} else if(sym == MapSymbols::START) {
-					start = point(x, y);
-					sym = MapSymbols::DIRT;
-				}
-				new_row.emplace_back(sym);
-				++x;
-			}
-			map.emplace_back(new_row);
-			++y;
-		}
-	}*/
 }

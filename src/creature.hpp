@@ -32,5 +32,5 @@ namespace creature
 
 	void loader(const node& n);
 
-	component_set_ptr spawn(const std::string& type, const point& pos);
+	component_set_ptr spawn(player_weak_ptr owner, const std::string& type, const point& pos);
 }

@@ -50,7 +50,7 @@ namespace process
 	void input::update(engine& eng, double t, const entity_list& elist)
 	{
 		static component_id input_mask = component::genmask(component::Component::INPUT);
-		static component_id pos_mask = component::genmask(component::Component::INPUT);
+		static component_id pos_mask = component::genmask(component::Component::POSITION);
 		// Clear the input queue of keystrokes for now.
 		while(!keys_pressed_.empty()) {
 			keys_pressed_.pop();
@@ -58,12 +58,16 @@ namespace process
 		if(!mouse_button_events_.empty()) {
 			auto button = mouse_button_events_.front(); mouse_button_events_.pop();
 			for(auto& e : elist) {
-				if((e->mask & input_mask) == input_mask) {
+				if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
+					auto& pos = e->pos->pos;
 					auto& inp = e->inp;
-					if((e->mask & pos_mask) == pos_mask) {
-						auto& pos = e->pos->pos;
-						if(geometry::pointInRect(point(button.x, button.y), inp->mouse_area+pos)) {
-							
+					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
+					if(button.button == SDL_BUTTON_LEFT 
+						&& button.type == SDL_MOUSEBUTTONUP) {
+						if(geometry::pointInRect(point(button.x, button.y), inp->mouse_area + pp)) {
+							inp->selected = true;
+						} else {
+							inp->selected = false;
 						}
 					}
 				}

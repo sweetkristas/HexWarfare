@@ -46,7 +46,9 @@ namespace hex
 		node write() const;
 
 		bool set_tile(int x, int y, const std::string& tile);
+		const std::vector<hex_object_ptr>& get_tiles() const { return tiles_; }
 
+		std::vector<hex_object_ptr> get_surrounding_tiles(int x, int y) const;
 		hex_object_ptr get_hex_tile(direction d, int x, int y) const;
 		hex_object_ptr get_tile_at(int x, int y) const;
 		hex_object_ptr get_tile_from_pixel_pos(int x, int y) const;
