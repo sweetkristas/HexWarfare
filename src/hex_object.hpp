@@ -31,15 +31,14 @@ namespace hex
 	{
 	public:
 		hex_object(const std::string& type, int x, int y, std::weak_ptr<const hex_map> owner);
-		virtual ~hex_object() {}
 
-		virtual void draw(const point& cam) const;
+		void draw(const point& cam) const;
 	
 		void build();
 		const std::string& type() const { return type_; }
 
-		hex_object_ptr get_tile_in_dir(enum direction d) const;
-		hex_object_ptr get_tile_in_dir(const std::string& s) const;
+		const hex_object* get_tile_in_dir(enum direction d) const;
+		const hex_object* get_tile_in_dir(const std::string& s) const;
 
 		int x() const { return x_; }
 		int y() const { return y_; }
@@ -72,10 +71,5 @@ namespace hex
 		std::string type_;
 		// raw pointer to the map that owns this.
 		std::weak_ptr<const hex_map> owner_map_;
-
-		//forbidden operations
-		hex_object();
-		hex_object(hex_object&);
-		void operator=(const hex_object&);
 	};
 }

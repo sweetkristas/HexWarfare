@@ -41,7 +41,7 @@ public:
 	engine(graphics::window_manager& wm);
 	~engine();
 	
-	void add_entity(component_set_ptr e);
+	component_set_ptr add_entity(component_set_ptr e);
 	void remove_entity(component_set_ptr e);
 
 	// Players are abstract and not entities in this case, since we need special handling.
@@ -71,7 +71,10 @@ public:
 
 	particle::particle_system_manager& get_particles() { return particles_; }
 
+	const entity_list& get_entities() const { return entity_list_; }
 	entity_list entities_in_area(const rect& r);
+
+	const player_ptr& get_current_player() const;
 
 	const point& get_tile_size() const { return tile_size_; }
 	void set_tile_size(const point& p) { tile_size_ = p; }

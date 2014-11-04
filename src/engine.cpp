@@ -46,10 +46,11 @@ engine::~engine()
 {
 }
 
-void engine::add_entity(component_set_ptr e)
+component_set_ptr engine::add_entity(component_set_ptr e)
 {
 	entity_list_.emplace_back(e);
 	std::stable_sort(entity_list_.begin(), entity_list_.end());
+	return e;
 }
 
 void engine::remove_entity(component_set_ptr e1)
@@ -245,4 +246,11 @@ void engine::inc_turns(int cnt)
 	SDL_PushEvent(&user_event);
 
 	turns_ += cnt;
+}
+
+
+const player_ptr& engine::get_current_player() const
+{
+	ASSERT_LOG(current_player_ < players_.size(), "current_player is out of bounds: " << current_player_ << " >= " << players_.size());
+	return players_[current_player_];
 }

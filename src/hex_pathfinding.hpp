@@ -16,13 +16,15 @@
 
 #pragma once
 
+#include "component.hpp"
+#include "engine.hpp"
 #include "hex_map.hpp"
 #include "pathfinding.hpp"
 
 namespace hex
 {
-	typedef pathfinding::WeightedDirectedGraph<hex_object_ptr, float>::Pointer hex_graph_ptr;
+	typedef pathfinding::WeightedDirectedGraph<const hex_object*, float>::Pointer hex_graph_ptr;
 
-	hex_graph_ptr create_graph_from_map(hex_map_ptr map);
-	std::vector<hex_object_ptr> cost_search(hex_graph_ptr graph, hex_object_ptr src, float max_cost);
+	hex_graph_ptr create_graph_from_map(const engine& eng, const component_set_ptr& x, hex_map_ptr map);
+	std::vector<const hex_object*> cost_search(hex_graph_ptr graph, const hex_object* src, float max_cost);
 }

@@ -19,22 +19,48 @@
 #include <memory>
 #include <string>
 
+#include "asserts.hpp"
+#include "color.hpp"
+
 enum class PlayerType {
 	NORMAL,
 	AI,
 };
 
+class team
+{
+public:
+	team(unsigned value, const std::string& name) : team_(value), team_name_(name) {
+	}
+	unsigned id() const { return team_; }
+	const std::string& get_team_name() const { return team_name_; }
+	void set_team_name(const std::string& name) { team_name_ = name; }
+private:
+	// Name of the team that the player is on.
+	std::string team_name_;
+	// players with the same team value are on the same team.
+	unsigned team_;
+};
+
+typedef std::shared_ptr<team> team_ptr;
+
 class player
 {
 public:
-	explicit player(PlayerType pt, const std::string& name);
+	explicit player(team_ptr team, PlayerType pt, const std::string& name);
 	const std::string& name() const { return name_; }
 	PlayerType player_type() const { return player_type_; }
 	bool is_human() const { return player_type_ == PlayerType::NORMAL; }
 	bool is_ai() const { return player_type_ == PlayerType::AI; }
+	const team_ptr& team() const { ASSERT_LOG(team_ != nullptr, "team was null"); return team_; }
+	const graphics::color get_color() const { return color_; }
+	void set_color(graphics::color color) { color_ = color; }
 private:
 	PlayerType player_type_;
 	std::string name_;
+	team_ptr team_;
+	// Color 
+	graphics::color color_;
 };
 
 typedef std::shared_ptr<player> player_ptr;

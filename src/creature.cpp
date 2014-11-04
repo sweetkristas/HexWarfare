@@ -32,6 +32,7 @@ namespace creature
 			  movement_type_(MovementType::NORMAL) 
 		{
 			using namespace component;
+			component_mask_ = genmask(Component::CREATURE);
 			ASSERT_LOG(n.is_map(), "Creature definitions must be maps");
 			ASSERT_LOG(n.has_key("name"), "Must supply a 'name' attribute for the creature.");
 			name_ = n["name"].as_string();

@@ -42,24 +42,25 @@ namespace hex
 	{
 		hex_map_ptr p = std::make_shared<hex_map>(n);
 		int index = 0;
+		p->tiles_.reserve(p->width_ * p->width_);	// approximation
 		for (auto& tile_str : n["tiles"].as_list_strings()) {
 			const int x = index % p->width_;
 			const int y = index / p->width_;
-			p->tiles_.push_back(hex_object_ptr(new hex_object(tile_str, x, y, p)));
+			p->tiles_.emplace_back(tile_str, x, y, p);
 			++index;
 		}
 		p->height_ = p->tiles_.size() / p->width_;
 		
 		for(auto& t : p->tiles_) {
-			t->init_neighbors();
+			t.init_neighbors();
 		}
 		return p;
 	}
 
 	void hex_map::draw(const point& cam) const
 	{
-		for(auto tile_ptr : tiles_) {
-			tile_ptr->draw(cam);
+		for(auto t : tiles_) {
+			t.draw(cam);
 		}
 	}
 
@@ -78,7 +79,7 @@ namespace hex
 
 		std::vector<node> v;
 		for(auto tile : tiles_) {
-			v.push_back(node(tile->type()));
+			v.push_back(node(tile.type()));
 		}
 
 		res.add("tiles", node(&v));
@@ -86,9 +87,9 @@ namespace hex
 		return res.build();
 	}
 
-	std::vector<hex_object_ptr> hex_map::get_surrounding_tiles(int x, int y) const
+	std::vector<const hex_object*> hex_map::get_surrounding_tiles(int x, int y) const
 	{
-		std::vector<hex_object_ptr> res;
+		std::vector<const hex_object*> res;
 		for(auto dir : { NORTH, NORTH_EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, NORTH_WEST }) {
 			auto hp = get_hex_tile(dir, x, y);
 			if(hp != nullptr) {
@@ -98,7 +99,7 @@ namespace hex
 		return res;
 	}
 
-	hex_object_ptr hex_map::get_hex_tile(direction d, int x, int y) const
+	const hex_object* hex_map::get_hex_tile(direction d, int x, int y) const
 	{
 		int ox = x;
 		int oy = y;
@@ -125,12 +126,12 @@ namespace hex
 			ASSERT_LOG(false, "Unrecognised direction: " << d);
 		}
 		if (x < 0 || y < 0 || y >= height_ || x >= width_) {
-			return hex_object_ptr();
+			return nullptr;
 		}
 
 		const int index = y * width_ + x;
 		assert(index >= 0 && index < static_cast<int>(tiles_.size()));
-		return tiles_[index];
+		return &tiles_[index];
 	}
 
 	point hex_map::get_tile_pos_from_pixel_pos(int mx, int my)
@@ -173,7 +174,7 @@ namespace hex
 		return point(x_base + x_modifier, y_base + y_modifier);
 	}
 
-	hex_object_ptr hex_map::get_tile_from_pixel_pos(int mx, int my) const
+	const hex_object* hex_map::get_tile_from_pixel_pos(int mx, int my) const
 	{
 		point p = get_tile_pos_from_pixel_pos(mx, my);
 		return get_tile_at(p.x, p.y);
@@ -188,17 +189,17 @@ namespace hex
 		return point(tx, ty);
 	}
 
-	hex_object_ptr hex_map::get_tile_at(int x, int y) const
+	const hex_object* hex_map::get_tile_at(int x, int y) const
 	{
 		x -= x_;
 		y -= y_;
 		if (x < 0 || y < 0 || y >= height_ || x >= width_) {
-			return hex_object_ptr();
+			return nullptr;
 		}
 
 		const int index = y*width_ + x;
 		assert(index >= 0 && index < static_cast<int>(tiles_.size()));
-		return tiles_[index];
+		return &tiles_[index];
 	}
 
 	bool hex_map::set_tile(int xx, int yy, const std::string& tile)
@@ -210,9 +211,9 @@ namespace hex
 		const int index = yy*width_ + xx;
 		assert(index >= 0 && index < static_cast<int>(tiles_.size()));
 
-		tiles_[index].reset(new hex_object(tile, xx, yy, shared_from_this()));
+		tiles_[index] = hex_object(tile, xx, yy, shared_from_this());
 		for(auto t : tiles_) {
-			t->neighbors_changed();
+			t.neighbors_changed();
 		}
 		return true;
 	}

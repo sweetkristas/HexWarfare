@@ -38,6 +38,7 @@
 #include "font.hpp"
 #include "gui_elements.hpp"
 #include "gui_process.hpp"
+#include "hex_pathfinding.hpp"
 #include "json.hpp"
 #include "input_process.hpp"
 #include "label.hpp"
@@ -91,9 +92,9 @@ component_set_ptr create_world(engine& e)
 	//const int screen_width_in_tiles = (e.get_window().width() + e.get_tile_size().x - 1) / e.get_tile_size().x;
 	//const int screen_height_in_tiles = (e.get_window().height() + e.get_tile_size().y - 1) / e.get_tile_size().y;
 	try {
-		world->map->map = hex::hex_map::factory(json::parse_from_file("data/maps/map1.cfg"));
+		world->map->map = hex::hex_map::factory(json::parse_from_file("data/maps/map4.cfg"));
 	} catch(json::parse_error& pe) {
-		ASSERT_LOG(false, "Error parsing data/maps/map1.cfg: " << pe.what());
+		ASSERT_LOG(false, "Error parsing data/maps/map4.cfg: " << pe.what());
 	} catch(std::bad_weak_ptr& e) {
 		ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 	}
@@ -101,7 +102,7 @@ component_set_ptr create_world(engine& e)
 	return world;
 }
 
-void pathfinding_test()
+/*void pathfinding_test()
 {
 	std::vector<int> vertices{1,2,3,4,5,6,7,8};
 	pathfinding::DirectedGraph<int>::GraphEdgeList edges;
@@ -147,7 +148,7 @@ void pathfinding_test()
 		std::cerr << r << " ";
 	}
 	std::cerr << "\n";
-}
+}*/
 
 int main(int argc, char* argv[])
 {
@@ -220,14 +221,20 @@ int main(int argc, char* argv[])
 		engine e(wm);
 		e.set_tile_size(point(72,72));
 
-		auto p1 = std::make_shared<player>(PlayerType::NORMAL, "Player 1");
-		auto b1 = std::make_shared<player>(PlayerType::AI, "Evil Bot");
+		// Create some teams for the players
+		team_ptr t1 = std::make_shared<team>(1, "Good guys");
+		team_ptr t2 = std::make_shared<team>(2, "Bad guys");
 
-		create_world(e);
-		e.add_entity(creature::spawn(p1, "goblin", point(0, 1)));
-		e.add_entity(creature::spawn(p1, "goblin", point(0, 0)));
-		e.add_entity(creature::spawn(b1, "goblin", point(6, 6)));
-		e.add_entity(creature::spawn(b1, "goblin", point(6, 7)));
+		auto p1 = std::make_shared<player>(t1, PlayerType::NORMAL, "Player 1");
+		e.add_player(p1);
+		auto b1 = std::make_shared<player>(t2, PlayerType::AI, "Evil Bot");
+		e.add_player(b1);
+
+		auto world = create_world(e);
+		auto g1 = e.add_entity(creature::spawn(p1, "goblin", point(1, 1)));
+		auto g2 = e.add_entity(creature::spawn(p1, "goblin", point(0, 0)));
+		auto g3 = e.add_entity(creature::spawn(b1, "goblin", point(6, 6)));
+		auto g4 = e.add_entity(creature::spawn(b1, "goblin", point(6, 7)));
 
 		e.add_process(std::make_shared<process::input>());
 		e.add_process(std::make_shared<process::render>());
@@ -240,6 +247,12 @@ int main(int argc, char* argv[])
 
 		//pathfinding_test();
 
+		auto graph = hex::create_graph_from_map(e, g3, world->map->map);
+		auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.1f);
+		for(auto& r : res) {
+			std::cerr << r->x() << "," << r->y() << "\n";
+		}
+
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {
 			Uint32 cycle_start_tick = SDL_GetTicks();
@@ -251,6 +264,14 @@ int main(int argc, char* argv[])
 			} catch(std::bad_weak_ptr& e) {
 				ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 			}
+			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 255, 0, 255);
+			for(auto& r : res) {
+				auto& ts = e.get_tile_size();
+				point p(hex::hex_map::get_pixel_pos_from_tile_pos(r->x(), r->y()));
+				SDL_Rect dest = {p.x+ts.x/4, p.y+ts.x/4, ts.x/2, ts.y/2};
+				SDL_RenderDrawRect(wm.get_renderer(), &dest);
+			}
+			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 			draw_perf_stats(e, tm.get_time());
 			SDL_RenderPresent(wm.get_renderer());
 	

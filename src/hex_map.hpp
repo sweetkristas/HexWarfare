@@ -30,8 +30,6 @@ namespace hex
 	public:
 		hex_map() : x_(0), y_(0), width_(0), height_(0), zorder_(-1000) {}
 		explicit hex_map(const node& n);
-		virtual ~hex_map()
-		{}
 		int zorder() const { return zorder_; }
 		void set_zorder(int zorder) { zorder_ = zorder; }
 
@@ -46,12 +44,12 @@ namespace hex
 		node write() const;
 
 		bool set_tile(int x, int y, const std::string& tile);
-		const std::vector<hex_object_ptr>& get_tiles() const { return tiles_; }
+		const std::vector<hex_object>& get_tiles() const { return tiles_; }
 
-		std::vector<hex_object_ptr> get_surrounding_tiles(int x, int y) const;
-		hex_object_ptr get_hex_tile(direction d, int x, int y) const;
-		hex_object_ptr get_tile_at(int x, int y) const;
-		hex_object_ptr get_tile_from_pixel_pos(int x, int y) const;
+		std::vector<const hex_object*> get_surrounding_tiles(int x, int y) const;
+		const hex_object* get_hex_tile(direction d, int x, int y) const;
+		const hex_object* get_tile_at(int x, int y) const;
+		const hex_object* get_tile_from_pixel_pos(int x, int y) const;
 		static point get_tile_pos_from_pixel_pos(int x, int y);
 		static point get_pixel_pos_from_tile_pos(int x, int y);
 
@@ -62,7 +60,7 @@ namespace hex
 	private:
 		hex_map(const hex_map&);
 		void operator=(const hex_map&);
-		std::vector<hex_object_ptr> tiles_;
+		std::vector<hex_object> tiles_;
 		int x_;
 		int y_;
 		int width_;

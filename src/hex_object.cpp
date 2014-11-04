@@ -115,14 +115,14 @@ namespace hex
 		ASSERT_LOG(tile_, "Could not find tile: " << type_);
 	}
 
-	hex_object_ptr hex_object::get_tile_in_dir(enum direction d) const
+	const hex_object* hex_object::get_tile_in_dir(enum direction d) const
 	{
 		auto owner = owner_map_.lock();
 		ASSERT_LOG(owner != nullptr, "owner_map_ was null");
 		return owner->get_hex_tile(d, x_, y_);
 	}
 
-	hex_object_ptr hex_object::get_tile_in_dir(const std::string& s) const
+	const hex_object* hex_object::get_tile_in_dir(const std::string& s) const
 	{
 		if(s == "north" || s == "n") {
 			return get_tile_in_dir(NORTH);
@@ -137,7 +137,7 @@ namespace hex
 		} else if(s == "south_east" || s == "se" || s == "southeast") {
 			return get_tile_in_dir(SOUTH_EAST);
 		}
-		return hex_object_ptr();
+		return nullptr;
 	}
 
 	void hex_object::draw(const point& cam) const
@@ -164,7 +164,7 @@ namespace hex
 	void hex_object::init_neighbors()
 	{
 		for(int n = 0; n < 6; ++n) {
-			hex_object_ptr obj = get_tile_in_dir(static_cast<direction>(n));
+			const hex_object* obj = get_tile_in_dir(static_cast<direction>(n));
 			if(obj && obj->tile() && obj->tile()->height() > tile()->height()) {
 				NeighborType* neighbor = NULL;
 				for(NeighborType& candidate : neighbors_) {

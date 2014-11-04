@@ -19,6 +19,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <queue>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -134,8 +135,9 @@ namespace pathfinding
 
 	template<typename N>
 	struct EdgePair {
+		typedef std::size_t result_type;
 		EdgePair(const N& p1, const N& p2) : e1(p1), e2(p2) {}
-		bool operator=(const EdgePair<N>& e) const {
+		bool operator==(const EdgePair<N>& e) const {
 			return e.e1 == e1 && e.e2 == e2;
 		}
 		bool operator<(const EdgePair<N>& e) const {
@@ -145,12 +147,23 @@ namespace pathfinding
 		N e2;
 	};
 
+	template<typename N>
+	struct EdgePairHash
+	{
+		typedef std::size_t result_type;
+		result_type operator()(EdgePair<N> const& e) const {
+			const result_type h1 = std::hash<N>()(e.e1);
+			const result_type h2 = std::hash<N>()(e.e2);
+			return h1 ^ (h2 << 1);
+		}
+	};
+
 	template<typename N, typename T>
 	class WeightedDirectedGraph
 	{
 	public:
 		typedef std::shared_ptr<WeightedDirectedGraph> Pointer;
-		typedef std::unordered_map<N, typename GraphNode<N, T>::GraphNodePtr> VertexList;
+		typedef std::map<N, typename GraphNode<N, T>::GraphNodePtr> VertexList;
 		typedef std::map<typename EdgePair<N>, T> EdgeWeights;
 
 		WeightedDirectedGraph(typename DirectedGraph<N>::Pointer dg, EdgeWeights* weights) 
@@ -214,7 +227,7 @@ namespace pathfinding
 	std::vector<N> path_cost_search(typename WeightedDirectedGraph<N,T>::Pointer wg, const N& src_node, const T& max_cost)
 	{
 		std::vector<N> reachable;
-		std::priority_queue<GraphNode<N,T>::GraphNodePtr> open_list;
+		std::priority_queue<typename GraphNode<N,T>::GraphNodePtr> open_list;
 
 		bool searching = true;
 		try {

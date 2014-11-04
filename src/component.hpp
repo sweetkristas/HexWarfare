@@ -47,6 +47,7 @@ namespace component
 		MAP,
 		GUI,
 		// tag only values must go at end.
+		CREATURE,
 		COLLISION,
 		MAX_COMPONENTS,
 	};
