@@ -24,8 +24,10 @@
 
 namespace 
 {
-	const double mouse_event_scale_factor = 65535.0;
+	const float camera_scale_factors[] = { 4.0f, 2.0f, 1.0f, 0.5f, 0.25f, 0.125f };
+#define camera_scale_factors_size		sizeof(camera_scale_factors)/sizeof(camera_scale_factors[0])
 }
+
 
 double get_mouse_scale_factor()
 {
@@ -35,6 +37,7 @@ double get_mouse_scale_factor()
 engine::engine(graphics::window_manager& wm)
 	: state_(EngineState::PLAY),
 	  turns_(1),
+	  camera_scale_(2),
 	  wm_(wm),
 	  entity_quads_(0, rect(0,0,100,100)),
 	  particles_(wm.get_renderer()),
@@ -95,15 +98,22 @@ void engine::replace_player(player_ptr to_be_replaced, player_ptr replacement)
 	*it = replacement;
 }
 
+float engine::get_zoom() const
+{
+	ASSERT_LOG(camera_scale_ >= 0 && camera_scale_ < camera_scale_factors_size,
+		"Camera scale is out of bounds: 0 <= " << camera_scale_ << " < " << camera_scale_factors_size);
+	return camera_scale_factors[camera_scale_];
+}
+
 void engine::translate_mouse_coords(SDL_Event* evt)
 {
 	// transform the absolute mouse co-ordinates to a window-size independent quantity.
 	if(evt->type == SDL_MOUSEMOTION) {
-		//evt->motion.x = static_cast<Sint32>((evt->motion.x * mouse_event_scale_factor) / wm_.width());
-		//evt->motion.y = static_cast<Sint32>((evt->motion.y * mouse_event_scale_factor) / wm_.height());
+		evt->motion.x = static_cast<Sint32>((evt->motion.x / get_zoom()));
+		evt->motion.y = static_cast<Sint32>((evt->motion.y / get_zoom()));
 	} else {
-		//evt->button.x = static_cast<Sint32>((evt->button.x * mouse_event_scale_factor) / wm_.width());
-		//evt->button.y = static_cast<Sint32>((evt->button.y * mouse_event_scale_factor) / wm_.height());
+		evt->button.x = static_cast<Sint32>((evt->button.x / get_zoom()));
+		evt->button.y = static_cast<Sint32>((evt->button.y / get_zoom()));
 	}
 }
 
@@ -119,6 +129,15 @@ void engine::process_events()
 				translate_mouse_coords(&evt);
 				break;
 			case SDL_MOUSEWHEEL:
+				if(evt.wheel.y > 0) {
+					if(--camera_scale_ <= 0) {
+						camera_scale_ = 0;
+					}
+				} else if(evt.wheel.y < 0) {
+					if(++camera_scale_ >= camera_scale_factors_size) {
+						camera_scale_ = camera_scale_factors_size-1;
+					}
+				}
 				break;
 			case SDL_QUIT:
 				set_state(EngineState::QUIT);
@@ -253,4 +272,14 @@ const player_ptr& engine::get_current_player() const
 {
 	ASSERT_LOG(current_player_ < players_.size(), "current_player is out of bounds: " << current_player_ << " >= " << players_.size());
 	return players_[current_player_];
+}
+
+// Does end of turn processing. Like incrementing to the next player.
+void engine::end_turn()
+{	
+	//players_[current_player_]->end_turn();
+	if(++current_player_ >= players_.size()) {
+		current_player_ = 0;
+	}
+	//players_[current_player_]->new_turn();
 }

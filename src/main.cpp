@@ -82,7 +82,7 @@ void draw_perf_stats(engine& eng, double update_time)
 	SDL_DestroyTexture(tex);
 }
 
-component_set_ptr create_world(engine& e)
+component_set_ptr create_world(engine& e, const std::string& world_file)
 {
 	component_set_ptr world = std::make_shared<component::component_set>(0);
 	world->mask |= component::genmask(component::Component::MAP);
@@ -92,9 +92,9 @@ component_set_ptr create_world(engine& e)
 	//const int screen_width_in_tiles = (e.get_window().width() + e.get_tile_size().x - 1) / e.get_tile_size().x;
 	//const int screen_height_in_tiles = (e.get_window().height() + e.get_tile_size().y - 1) / e.get_tile_size().y;
 	try {
-		world->map->map = hex::hex_map::factory(json::parse_from_file("data/maps/map4.cfg"));
+		world->map->map = hex::hex_map::factory(json::parse_from_file(world_file));
 	} catch(json::parse_error& pe) {
-		ASSERT_LOG(false, "Error parsing data/maps/map4.cfg: " << pe.what());
+		ASSERT_LOG(false, "Error parsing " << world_file << ": " << pe.what());
 	} catch(std::bad_weak_ptr& e) {
 		ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 	}
@@ -230,7 +230,8 @@ int main(int argc, char* argv[])
 		auto b1 = std::make_shared<player>(t2, PlayerType::AI, "Evil Bot");
 		e.add_player(b1);
 
-		auto world = create_world(e);
+		//auto world = create_world(e, "data/maps/map2.cfg");		// 512x512
+		auto world = create_world(e, "data/maps/map4.cfg");			// 32x32
 		auto g1 = e.add_entity(creature::spawn(p1, "goblin", point(1, 1)));
 		auto g2 = e.add_entity(creature::spawn(p1, "goblin", point(0, 0)));
 		auto g3 = e.add_entity(creature::spawn(b1, "goblin", point(6, 6)));

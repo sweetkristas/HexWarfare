@@ -61,6 +61,8 @@ public:
 	void set_state(EngineState state) { state_ = state; }
 	EngineState get_state() const { return state_; }
 
+	void end_turn();
+
 	bool update(double time);
 
 	int get_turns() const { return turns_; }
@@ -68,6 +70,10 @@ public:
 
 	void set_camera(const point& cam) { camera_ = cam; }
 	const point& get_camera() { return camera_; }
+
+	void set_camera_scale(int scale) { camera_scale_ = scale; }
+	int get_camera_scale() const { return camera_scale_; }
+	float get_zoom() const;
 
 	particle::particle_system_manager& get_particles() { return particles_; }
 
@@ -86,6 +92,7 @@ private:
 	EngineState state_;
 	int turns_;
 	point camera_;
+	int camera_scale_;
 	graphics::window_manager& wm_;
 	entity_list entity_list_;
 	quadtree<component_set_ptr> entity_quads_;

@@ -38,8 +38,11 @@ namespace process
 		static component_id inp_mask = genmask(Component::INPUT);
 		
 		const point& cam = eng.get_camera();
+		const float zoom = eng.get_zoom();
 		const point screen_centre(eng.get_window().width() / 2, eng.get_window().height() / 2);
 		const point& ts = eng.get_tile_size();
+
+		SDL_RenderSetScale(eng.get_renderer(), zoom, zoom);
 
 		for(auto& e : elist) {
 			if((e->mask & sprite_mask) == sprite_mask && (e->mask & inp_mask) == inp_mask && e->inp->selected) {
@@ -81,5 +84,7 @@ namespace process
 				map->map->draw(cam);
 			}
 		}
+		
+		SDL_RenderSetScale(eng.get_renderer(), 1.0f, 1.0f);
 	}
 }
