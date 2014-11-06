@@ -98,6 +98,7 @@ component_set_ptr create_world(engine& e, const std::string& world_file)
 	} catch(std::bad_weak_ptr& e) {
 		ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 	}
+	e.set_extents(rect(0, 0, world->map->map->width(), world->map->map->height()));
 	e.add_entity(world);
 	return world;
 }
@@ -232,9 +233,10 @@ int main(int argc, char* argv[])
 
 		//auto world = create_world(e, "data/maps/map2.cfg");		// 512x512
 		auto world = create_world(e, "data/maps/map4.cfg");			// 32x32
+		//auto world = create_world(e, "data/maps/map5.cfg");			// 8x8
 		auto g1 = e.add_entity(creature::spawn(p1, "goblin", point(1, 1)));
-		auto g2 = e.add_entity(creature::spawn(p1, "goblin", point(0, 0)));
-		auto g3 = e.add_entity(creature::spawn(b1, "goblin", point(6, 6)));
+		auto g2 = e.add_entity(creature::spawn(p1, "goblin", point(2, 2)));
+		auto g3 = e.add_entity(creature::spawn(b1, "goblin", point(12, 12)));
 		auto g4 = e.add_entity(creature::spawn(b1, "goblin", point(6, 7)));
 
 		e.add_process(std::make_shared<process::input>());
@@ -248,11 +250,12 @@ int main(int argc, char* argv[])
 
 		//pathfinding_test();
 
-		auto graph = hex::create_graph_from_map(e, g3, world->map->map);
-		auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.1f);
-		for(auto& r : res) {
-			std::cerr << r->x() << "," << r->y() << "\n";
-		}
+		//auto graph = hex::create_graph_from_map(world->map->map);
+		//auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 2.0f);
+		auto res = hex::find_available_moves(world->map->map, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
+		//for(auto& r : res) {
+		//	std::cerr << r->x() << "," << r->y() << "\n";
+		//}
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {
@@ -269,8 +272,10 @@ int main(int argc, char* argv[])
 			for(auto& r : res) {
 				auto& ts = e.get_tile_size();
 				point p(hex::hex_map::get_pixel_pos_from_tile_pos(r->x(), r->y()));
-				SDL_Rect dest = {p.x+ts.x/4, p.y+ts.x/4, ts.x/2, ts.y/2};
-				SDL_RenderDrawRect(wm.get_renderer(), &dest);
+				SDL_Rect dest = {p.x+ts.x/8-e.get_camera().x*ts.x, p.y+ts.x/8-e.get_camera().y*ts.y, ts.x/4, ts.y/4};
+				SDL_RenderSetScale(e.get_renderer(), e.get_zoom(), e.get_zoom());
+				SDL_RenderFillRect(wm.get_renderer(), &dest);
+				SDL_RenderSetScale(e.get_renderer(), 1.0f, 1.0f);
 			}
 			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 			draw_perf_stats(e, tm.get_time());

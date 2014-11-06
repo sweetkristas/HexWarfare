@@ -29,11 +29,6 @@ namespace
 }
 
 
-double get_mouse_scale_factor()
-{
-	return mouse_event_scale_factor;
-}
-
 engine::engine(graphics::window_manager& wm)
 	: state_(EngineState::PLAY),
 	  turns_(1),
@@ -155,6 +150,22 @@ void engine::process_events()
 				if(evt.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
 					set_state(EngineState::QUIT);
 					return;
+				} else if(evt.key.keysym.scancode == SDL_SCANCODE_W) {
+					if(--camera_.y <= extents_.y()) {
+						camera_.y = extents_.y();
+					}
+				} else if(evt.key.keysym.scancode == SDL_SCANCODE_A) {
+					if(--camera_.x <= extents_.x()) {
+						camera_.x = extents_.x();
+					}
+				} else if(evt.key.keysym.scancode == SDL_SCANCODE_S) {
+					if(++camera_.y >= extents_.y2()) {
+						camera_.y = extents_.y2();
+					}
+				} else if(evt.key.keysym.scancode == SDL_SCANCODE_D) {
+					if(++camera_.x >= extents_.x2()) {
+						camera_.x = extents_.x2();
+					}
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_P) {
 					if(SDL_GetModState() & KMOD_CTRL) {
 						if(get_state() == EngineState::PLAY) {

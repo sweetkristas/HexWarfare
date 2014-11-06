@@ -180,9 +180,11 @@ std::string node::as_string() const
 	return "";
 }
 
-float node::as_float() const
+float node::as_float(float value) const
 {
 	switch(type()) {
+	case NODE_TYPE_NULL:
+		return value;
 	case NODE_TYPE_INTEGER:
 		return float(i_);
 	case NODE_TYPE_FLOAT:

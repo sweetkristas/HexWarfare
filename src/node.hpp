@@ -65,7 +65,7 @@ public:
 	std::string as_string() const;
 	int as_int32(int value=0) const;
 	int64_t as_int(int value=0) const;
-	float as_float() const;
+	float as_float(float value=0) const;
 	bool as_bool() const;
 	const node_list& as_list() const;
 	const node_map& as_map() const;

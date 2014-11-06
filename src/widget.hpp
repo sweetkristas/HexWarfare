@@ -25,8 +25,6 @@
 #include "geometry.hpp"
 #include "texture.hpp"
 
-extern double get_mouse_scale_factor();
-
 namespace gui
 {
 	enum class Justify {

@@ -31,10 +31,12 @@ namespace hex
 	static const int HexTileSize = 72;
 
 	hex_map::hex_map(const node& value)
-		: zorder_(value["zorder"].as_int32(-1000)),
-		x_(value["x"].as_int32(0)),
-		y_(value["y"].as_int32(0)),
-		width_(value["width"].as_int32()), height_(0)
+		: x_(value["x"].as_int32(0)),
+		  y_(value["y"].as_int32(0)),
+		  width_(value["width"].as_int32()), 
+		  height_(0),
+		  zorder_(value["zorder"].as_int32(-1000)),
+		  border_(value["border"].as_int32(0))
 	{
 	}
 
@@ -59,9 +61,10 @@ namespace hex
 
 	void hex_map::draw(const point& cam) const
 	{
-		for(auto t : tiles_) {
+		for(auto& t : tiles_) {
 			t.draw(cam);
 		}
+		// Need to draw border here -- as applicable.
 	}
 
 	node hex_map::write() const
@@ -75,6 +78,10 @@ namespace hex
 		}
 		if(zorder_ != -1000) {
 			res.add("zorder", zorder_);
+		}
+
+		if(border_ != 0) {
+			res.add("border", border_);
 		}
 
 		std::vector<node> v;

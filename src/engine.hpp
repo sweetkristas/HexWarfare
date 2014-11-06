@@ -68,6 +68,9 @@ public:
 	int get_turns() const { return turns_; }
 	void inc_turns(int cnt = 1);
 
+	void set_extents(const rect& extents) { extents_ = extents; }
+	const rect& get_extents() const { return extents_; }
+
 	void set_camera(const point& cam) { camera_ = cam; }
 	const point& get_camera() { return camera_; }
 
@@ -98,6 +101,7 @@ private:
 	quadtree<component_set_ptr> entity_quads_;
 	std::vector<process::process_ptr> process_list_;
 	point tile_size_;
+	rect extents_;
 	particle::particle_system_manager particles_;
 	std::vector<player_ptr> players_;
 	unsigned current_player_;

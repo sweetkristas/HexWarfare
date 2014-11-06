@@ -23,8 +23,10 @@
 
 namespace hex
 {
-	typedef pathfinding::WeightedDirectedGraph<const hex_object*, float>::Pointer hex_graph_ptr;
+	typedef std::shared_ptr<pathfinding::WeightedDirectedGraph<const hex_object*,float>> hex_graph_ptr;
 
-	hex_graph_ptr create_graph_from_map(const engine& eng, const component_set_ptr& x, hex_map_ptr map);
+	hex_graph_ptr create_graph_from_map(hex_map_ptr map);
 	std::vector<const hex_object*> cost_search(hex_graph_ptr graph, const hex_object* src, float max_cost);
+
+	std::vector<const hex_object*> find_available_moves(hex_map_ptr map, const hex_object* src, float max_cost);
 }

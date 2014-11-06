@@ -57,6 +57,8 @@ namespace hex
 
 		const std::vector<int>& sheet_indexes() const { return sheet_indexes_; }
 
+		float get_cost() const { return cost_; }
+
 		void draw(int x, int y) const;
 
 		//The lowest bit of adjmap indicates if this tile type occurs to the north
@@ -71,6 +73,7 @@ namespace hex
 		std::string id_;
 		tile_sheet_ptr sheet_;
 		float height_;
+		float cost_;
 
 		std::vector<int> sheet_indexes_;
 

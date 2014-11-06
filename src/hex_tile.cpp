@@ -53,7 +53,8 @@ namespace hex
 	tile_type::tile_type(const std::string& id, const node& value)
 	  : id_(id), 
 	    sheet_(new tile_sheet(value)),
-	    height_(value["height"].as_float())
+	    height_(value["height"].as_float()),
+		cost_(value["cost"].as_float(1.0f))
 	{
 		for (const std::string& index_str : value["sheet_pos"].as_list_strings()) {
 			const int index = strtol(index_str.c_str(), NULL, 36);

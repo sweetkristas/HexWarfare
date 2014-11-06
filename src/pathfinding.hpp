@@ -59,7 +59,7 @@ namespace pathfinding
 			  on_open_list_(false), 
 			  on_closed_list_(false)
 		{}
-		bool operator<(const GraphNode& rhs) const { return f_ < rhs.f_; }
+		//bool operator<(const GraphNode& rhs) const { return f_ < rhs.f_; }
 		const N& getNodeValue() const { return src_; }
 		T F() const { return f_; }
 		T G() const { return g_; }
@@ -92,6 +92,12 @@ namespace pathfinding
 		bool on_closed_list_;
 	};
 
+	template<typename N, typename T> inline
+	bool operator<(const typename GraphNode<N,T>::GraphNodePtr& lhs, const typename GraphNode<N,T>::GraphNodePtr& rhs) {
+		return lhs->F() < rhs->F();
+	}
+	
+
 	template<typename N, typename T> inline 
 	std::ostream& operator<<(std::ostream& out, const GraphNode<N,T>& n) {
 		out << "GNODE: " << n.getNodeValue() << " : cost( " << n.F() << "," << n.G() << "," << n.H() 
@@ -101,8 +107,12 @@ namespace pathfinding
 	}
 
 	template<typename N, typename T>
-	bool graph_node_cmp(const typename GraphNode<N,T>::graph_node_ptr& lhs, 
-		const typename GraphNode<N,T>::GraphNodePtr& rhs);
+	struct GraphNodeCmp 
+	{
+		bool operator()(const typename GraphNode<N,T>::GraphNodePtr& lhs, const typename GraphNode<N,T>::GraphNodePtr& rhs) const {
+			return lhs->F() < rhs->F();
+		}
+	};
 
 	template<typename N, typename T> T manhattan_distance(const N& p1, const N& p2);
 
@@ -121,16 +131,17 @@ namespace pathfinding
 		}
 		const GraphEdgeList* getEdges() const { return &edges_; }
 		const std::vector<N>& getVertices() const { return vertices_; }
-		std::vector<N> getEdgesFromNode(const N& node) const {
+		const std::vector<N>& getEdgesFromNode(const N& node) const {
 			auto e = edges_.find(node);
 			if(e != edges_.end()) {
 				return e->second;
 			}
-			return std::vector<N>();
+			return empty_vector;
 		}
 	private:
 		std::vector<N> vertices_;
 		GraphEdgeList edges_;
+		const std::vector<N> empty_vector;
 	};
 
 	template<typename N>
@@ -227,30 +238,30 @@ namespace pathfinding
 	std::vector<N> path_cost_search(typename WeightedDirectedGraph<N,T>::Pointer wg, const N& src_node, const T& max_cost)
 	{
 		std::vector<N> reachable;
-		std::priority_queue<typename GraphNode<N,T>::GraphNodePtr> open_list;
+		std::priority_queue<typename GraphNode<N,T>::GraphNodePtr, std::vector<typename GraphNode<N,T>::GraphNodePtr>, GraphNodeCmp<N,T>> open_list;
 
 		bool searching = true;
 		try {
 			GraphNode<N,T>::GraphNodePtr current = wg->getGraphNode(src_node);
 			current->setCost(T(0), T(0));
 			current->setOnOpenList(true);
-			open_list.push(current);
+			open_list.emplace(current);
 
 			while(searching && !open_list.empty()) {
 				current = open_list.top(); open_list.pop();
 				current->setOnOpenList(false);
 				if(current->G() <= max_cost) {
-					reachable.push_back(current->getNodeValue());
+					reachable.emplace_back(current->getNodeValue());
 				}
 
 				// Push lowest f node to the closed list so we don't consider it anymore.
 				current->setOnClosedList(true);
-				for(const N& e : wg->getEdgesFromNode(current->getNodeValue())) {
-					GraphNode<N,T>::GraphNodePtr neighbour_node = wg->getGraphNode(e);
+				for(const auto& e : wg->getEdgesFromNode(current->getNodeValue())) {
+					auto& neighbour_node = wg->getGraphNode(e);
 					T g_cost(wg->getWeight(current->getNodeValue(), e) + current->G());
 					if(neighbour_node->isOnClosedList() || neighbour_node->isOnOpenList()) {
 						if(g_cost < neighbour_node->G()) {
-							neighbour_node->G(g_cost);
+							neighbour_node->setCost(g_cost, T(0));
 							neighbour_node->setParent(current);
 						}
 					} else {
@@ -261,7 +272,7 @@ namespace pathfinding
 							neighbour_node->setOnClosedList(true);
 						} else {
 							neighbour_node->setOnOpenList(true);
-							open_list.push(neighbour_node);
+							open_list.emplace(neighbour_node);
 						}
 					}
 				}

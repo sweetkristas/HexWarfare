@@ -33,71 +33,28 @@ namespace hex
 	// e is the engine we are using to drive this, from this we can get a list of all entities and the current player.
 	// x is the entity we are considering. 
 	// map is the current map we are considering.
-	hex_graph_ptr create_graph_from_map(const engine& eng, const component_set_ptr& x, hex_map_ptr map)
+	hex_graph_ptr create_graph_from_map(hex_map_ptr map)
 	{
 		using namespace component;
 		profile::manager pman("create_graph_from_map");
 		static const component_id unit_mask = genmask(Component::POSITION) | genmask(Component::CREATURE);
-		player_ptr current_player = eng.get_current_player();
-		auto& entities = eng.get_entities();
 
 		vertex_list vertices;
 		edge_list edges;
 		edge_weights weights;
 
 		vertices.reserve(map->get_tiles().size());
-		{
 		//profile::manager pman("create_graph_from_map - verts");
 		// Create the vertex list and edge list.
-		//vertices = map->get_tiles();
 		for(const auto& tile : map->get_tiles()) {
-			bool add_tile = true;
-			/*for(auto entity : entities) {
-				if((entity->mask & unit_mask) == unit_mask) {
-					auto& pos = entity->pos->pos;
-					if(pos.x == tile.x() && pos.y == tile.y()) {
-						if(x != entity) {
-							add_tile = false;
-							break;
-						}
-					}
-				}
-			}*/
-			if(add_tile) {
-				vertices.emplace_back(&tile);
-				auto surrounds = map->get_surrounding_tiles(tile.x(), tile.y());
-				edges[&tile] = surrounds;
-				for(auto& edge : surrounds) {
-					// XXX replace 1.0f below with a value for the terrain being traversed to.
-					//weights[edge_pair(tile, edge)] = 1.0f;
-					weights.emplace(edge_pair(&tile, edge), 1.0f);
-				}
+			const hex_object* t = &tile;
+			vertices.emplace_back(t);
+			auto surrounds = map->get_surrounding_tiles(tile.x(), tile.y());
+			edges[t] = surrounds;
+			for(auto& edge : surrounds) {
+				// XXX replace 1.0f below with a value for the terrain being traversed to.
+				weights[edge_pair(t, edge)] = 1.0f;///edge->tile()->get_cost();
 			}
-		}
-		}
-		// Remove ZoC edges
-		{
-		//profile::manager pman("create_graph_from_map - zoc");
-		for(auto e : entities) {
-			if((e->mask & unit_mask) == unit_mask) {
-				auto x_owner = x->owner.lock();
-				auto e_owner = e->owner.lock();
-				auto& pos = e->pos->pos;
-				ASSERT_LOG(x_owner != nullptr && e_owner != nullptr, "Unit entity with no owner.");
-				if(x_owner->team()->id() != e_owner->team()->id()) {
-					auto tiles1 = map->get_surrounding_tiles(pos.x, pos.y);
-					for(auto& t1 : tiles1) {
-						auto tiles2 = map->get_surrounding_tiles(t1->x(), t1->y());
-						for(auto& t2 : tiles2) {
-							auto it = weights.find(edge_pair(t1, t2));
-							if(it != weights.end()) {
-								weights.erase(it);
-							}
-						}
-					}
-				}
-			}
-		}
 		}
 		//profile::manager pman1("create_graph_from_map - xxx");
 		pathfinding::DirectedGraph<const hex_object*>::Pointer dg = std::make_shared<pathfinding::DirectedGraph<const hex_object*>>(&vertices, &edges);
@@ -108,5 +65,29 @@ namespace hex
 	{
 		profile::manager pman("cost_search");
 		return pathfinding::path_cost_search<const hex_object*,float>(graph, src, max_cost);
+	}
+
+	void explore(std::vector<const hex_object*>* res, hex_map_ptr map, std::vector<const hex_object*>& tiles, float cost, float max_cost)
+	{
+		for(auto& t : tiles) {
+			float t_cost = cost + t->tile()->get_cost();
+			if(t_cost <= max_cost) {
+				res->emplace_back(t);
+				explore(res, map, map->get_surrounding_tiles(t->x(), t->y()), t_cost, max_cost);
+			}
+		}
+	}
+
+	// Quick and simple function to finds all moves up to and including a cost of max_cost.
+	std::vector<const hex_object*> find_available_moves(hex_map_ptr map, const hex_object* src, float max_cost)
+	{
+		profile::manager pman("find_available_moves");
+		std::vector<const hex_object*> res;
+		std::deque<const hex_object*> exploration;
+		exploration.emplace_back(src);
+
+		explore(&res, map, map->get_surrounding_tiles(src->x(), src->y()), 0.0f, max_cost);
+
+		return res;
 	}
 }

@@ -66,5 +66,6 @@ namespace hex
 		int width_;
 		int height_;
 		int zorder_;
+		int border_;
 	};
 }

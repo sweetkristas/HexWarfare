@@ -40,7 +40,8 @@ namespace gui
 
 	bool widget::in_widget(const point& p)
 	{
-		pointf pf(static_cast<float>(p.x/get_mouse_scale_factor()), static_cast<float>(p.y/get_mouse_scale_factor()));
+		//pointf pf(static_cast<float>(p.x/get_mouse_scale_factor()), static_cast<float>(p.y/get_mouse_scale_factor()));
+		pointf pf(static_cast<float>(p.x), static_cast<float>(p.y));
 		return geometry::pointInRect(pf, real_area_ * get_scale());
 	}
 
