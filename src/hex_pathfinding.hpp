@@ -28,5 +28,5 @@ namespace hex
 	hex_graph_ptr create_graph_from_map(hex_map_ptr map);
 	std::vector<const hex_object*> cost_search(hex_graph_ptr graph, const hex_object* src, float max_cost);
 
-	std::vector<const hex_object*> find_available_moves(hex_map_ptr map, const hex_object* src, float max_cost);
+	std::vector<const hex_object*> find_available_moves(const engine& eng, hex_map_ptr map, const hex_object* src, float max_cost);
 }

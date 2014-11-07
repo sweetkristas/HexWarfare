@@ -7,13 +7,13 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+#*.dll
 
 # Compiled Static libraries
 *.lai
 *.la
 *.a
-*.lib
+#*.lib
 
 # Executables
 *.exe
@@ -36,11 +36,13 @@ HexWarfare
 *.user
 *.unsuccessfulbuild
 *.opensdf
+*.def
+*.exp
 vs2013/HexWarfare/Debug
 vs2013/HexWarfare/Release
 vs2012/HexWarfare/Debug
 vs2012/HexWarfare/Release
 
 # exclude any temporary files.
-images/temp
+images/temp/*.png
 data/temp

@@ -67,26 +67,10 @@ namespace hex
 		return pathfinding::path_cost_search<const hex_object*,float>(graph, src, max_cost);
 	}
 
-	void explore(std::vector<const hex_object*>* res, hex_map_ptr map, std::vector<const hex_object*>& tiles, float cost, float max_cost)
-	{
-		for(auto& t : tiles) {
-			float t_cost = cost + t->tile()->get_cost();
-			if(t_cost <= max_cost) {
-				res->emplace_back(t);
-				explore(res, map, map->get_surrounding_tiles(t->x(), t->y()), t_cost, max_cost);
-			}
-		}
-	}
-
 	// Quick and simple function to finds all moves up to and including a cost of max_cost.
-	std::vector<const hex_object*> find_available_moves(hex_map_ptr map, const hex_object* src, float max_cost)
+	std::vector<const hex_object*> find_available_moves(const engine& eng, hex_map_ptr map, const hex_object* src, float max_cost)
 	{
-		profile::manager pman("find_available_moves");
 		std::vector<const hex_object*> res;
-		std::deque<const hex_object*> exploration;
-		exploration.emplace_back(src);
-
-		explore(&res, map, map->get_surrounding_tiles(src->x(), src->y()), 0.0f, max_cost);
 
 		return res;
 	}

@@ -307,5 +307,14 @@
     <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2.lib" />
     <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2main.lib" />
     <Library Include="..\lua\Debug\Win32\lua.lib" />
+    <Library Include="..\..\external\lib\libprotobuf.lib" />
+    <Library Include="..\..\external\lib\libprotobuf-lite.lib" />
+    <Library Include="..\..\external\lib\libprotoc.lib" />
+    <Library Include="..\..\external\lib\librtmp.lib" />
+    <Library Include="..\..\external\lib\libssh2.lib" />
+    <Library Include="..\..\external\lib\ssleay32.lib" />
+    <Library Include="..\..\external\lib\libcurl.lib" />
+    <Library Include="..\..\external\lib\libeay32.lib" />
+    <Library Include="..\..\external\lib\libidn-11.lib" />
   </ItemGroup>
 </Project>

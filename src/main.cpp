@@ -21,6 +21,8 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include <curl/curl.h>
+
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -151,6 +153,21 @@ component_set_ptr create_world(engine& e, const std::string& world_file)
 	std::cerr << "\n";
 }*/
 
+void curl_test()
+{
+    CURL *curl;
+    CURLcode res;
+
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, "http://www.google.com");
+        res = curl_easy_perform(curl);
+
+        /* always cleanup */
+        curl_easy_cleanup(curl);
+    }
+}
+
 int main(int argc, char* argv[])
 {
 	std::vector<std::string> args;
@@ -173,6 +190,8 @@ int main(int argc, char* argv[])
 			width = boost::lexical_cast<int>(arg_value);
 		} else if(arg_name == "--height") {
 			height = boost::lexical_cast<int>(arg_value);
+		} else if(arg_name == "--utility") {
+			// spawn the appropriate utility.
 		}
 	}
 
@@ -249,13 +268,15 @@ int main(int argc, char* argv[])
 		e.add_process(std::make_shared<process::ee_collision>());
 
 		//pathfinding_test();
+		curl_test();
 
-		//auto graph = hex::create_graph_from_map(world->map->map);
-		//auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 2.0f);
-		auto res = hex::find_available_moves(world->map->map, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
-		//for(auto& r : res) {
-		//	std::cerr << r->x() << "," << r->y() << "\n";
-		//}
+		auto graph = hex::create_graph_from_map(world->map->map);
+		auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 2.5f);
+		//auto res = hex::find_available_moves(e, world->map->map, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 2.0f);
+		std::cerr << "Found " << res.size() << " nodes\n";
+		for(auto& r : res) {
+			std::cerr << r->x() << "," << r->y() << "\n";
+		}
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {
@@ -272,7 +293,7 @@ int main(int argc, char* argv[])
 			for(auto& r : res) {
 				auto& ts = e.get_tile_size();
 				point p(hex::hex_map::get_pixel_pos_from_tile_pos(r->x(), r->y()));
-				SDL_Rect dest = {p.x+ts.x/8-e.get_camera().x*ts.x, p.y+ts.x/8-e.get_camera().y*ts.y, ts.x/4, ts.y/4};
+				SDL_Rect dest = {p.x+ts.x/4-e.get_camera().x*ts.x, p.y+ts.x/4-e.get_camera().y*ts.y, ts.x/2, ts.y/2};
 				SDL_RenderSetScale(e.get_renderer(), e.get_zoom(), e.get_zoom());
 				SDL_RenderFillRect(wm.get_renderer(), &dest);
 				SDL_RenderSetScale(e.get_renderer(), 1.0f, 1.0f);

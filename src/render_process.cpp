@@ -44,6 +44,8 @@ namespace process
 
 		SDL_RenderSetScale(eng.get_renderer(), zoom, zoom);
 
+		hex::hex_map_ptr game_map = nullptr;
+
 		for(auto& e : elist) {
 			if((e->mask & sprite_mask) == sprite_mask && (e->mask & inp_mask) == inp_mask && e->inp->selected) {
 				auto& pos = e->pos;
@@ -82,8 +84,25 @@ namespace process
 				//	screen_height_in_tiles / 2 + cam.y);
 
 				map->map->draw(cam);
+
+				game_map = map->map; 
 			}
 		}
+
+		// draw cursor, aligned to hexes. -- should do this better.
+		if(game_map) {
+			int x, y;
+			SDL_GetMouseState(&x, &y);
+			x = static_cast<int>(x / eng.get_zoom());
+			y = static_cast<int>(y / eng.get_zoom());
+			auto tile_pos = game_map->get_tile_from_pixel_pos(x - cam.x * ts.x, y - cam.y * ts.y);
+			if(tile_pos) {
+				static auto overlay = graphics::texture("images/misc/overlay1.png", graphics::TextureFlags::NONE);
+				point p = game_map->get_pixel_pos_from_tile_pos(tile_pos->x(), tile_pos->y());
+				overlay.blit(rect(p.x - cam.x * ts.x, p.y - cam.x * ts.y, ts.x, ts.y));
+			}
+		}
+
 		
 		SDL_RenderSetScale(eng.get_renderer(), 1.0f, 1.0f);
 	}

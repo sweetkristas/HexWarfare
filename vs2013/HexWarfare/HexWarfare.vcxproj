@@ -69,7 +69,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>c:\Projects\boost\;c:\projects\SDL\include;c:\projects\SDL_mixer;c:\projects\SDL_ttf;c:\projects\SDL_image;C:\Projects\HexWarfare\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>c:\Projects\boost\;c:\projects\SDL\include;..\..\external\include;c:\projects\SDL_mixer;c:\projects\SDL_ttf;c:\projects\SDL_image;C:\Projects\HexWarfare\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -186,7 +186,16 @@
     <Library Include="..\..\..\SDL_image\VisualC\Win32\Debug\SDL2_image.lib" />
     <Library Include="..\..\..\SDL_mixer\VisualC\Release\SDL2_mixer.lib" />
     <Library Include="..\..\..\SDL_ttf\VisualC\Win32\Debug\SDL2_ttf.lib" />
+    <Library Include="..\..\external\lib\libcurl.lib" />
+    <Library Include="..\..\external\lib\libeay32.lib" />
+    <Library Include="..\..\external\lib\libidn-11.lib" />
     <Library Include="..\..\external\lib\libnoise.lib" />
+    <Library Include="..\..\external\lib\libprotobuf-lite.lib" />
+    <Library Include="..\..\external\lib\libprotobuf.lib" />
+    <Library Include="..\..\external\lib\libprotoc.lib" />
+    <Library Include="..\..\external\lib\librtmp.lib" />
+    <Library Include="..\..\external\lib\libssh2.lib" />
+    <Library Include="..\..\external\lib\ssleay32.lib" />
     <Library Include="..\lua\Debug\Win32\lua.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
