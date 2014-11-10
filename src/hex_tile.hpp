@@ -59,11 +59,11 @@ namespace hex
 
 		float get_cost() const { return cost_; }
 
-		void draw(int x, int y) const;
+		void draw(int x, int y, const point& cam) const;
 
 		//The lowest bit of adjmap indicates if this tile type occurs to the north
 		//of the target tile, the next lowest for the north-east and so forth.
-		void draw_adjacent(int x, int y, unsigned char adjmap) const;
+		void draw_adjacent(int x, int y, const point& cam, unsigned char adjmap) const;
 
 		float height() const { return height_; }
 

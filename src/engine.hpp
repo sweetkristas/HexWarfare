@@ -68,8 +68,8 @@ public:
 	int get_turns() const { return turns_; }
 	void inc_turns(int cnt = 1);
 
-	void set_extents(const rect& extents) { extents_ = extents; }
-	const rect& get_extents() const { return extents_; }
+	void set_extents(const rect& extents);
+	const rect& get_extents() const;
 
 	void set_camera(const point& cam) { camera_ = cam; }
 	const point& get_camera() { return camera_; }

@@ -51,8 +51,8 @@ namespace process
 				auto& pos = e->pos;
 				static auto ellipse = graphics::texture("images/misc/ellipse-1.png", graphics::TextureFlags::NONE);
 				auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
-				const int x = pp.x - cam.x * ts.x + (ts.x - ellipse.width())/2;
-				const int y = pp.y - cam.y * ts.y + ts.y - ellipse.height();
+				const int x = pp.x - cam.x + (ts.x - ellipse.width())/2;
+				const int y = pp.y - cam.y + ts.y - ellipse.height();
 				ellipse.blit(rect(x, y, ellipse.width(), ellipse.height()));
 			}
 
@@ -71,7 +71,7 @@ namespace process
 				auto& pos = e->pos;
 				if(spr->tex.is_valid()) {
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
-					spr->tex.blit(rect(pp.x - cam.x * ts.x, pp.y - cam.y * ts.y, ts.x, ts.y));
+					spr->tex.blit(rect(pp.x - cam.x, pp.y - cam.y, ts.x, ts.y));
 				}
 			} else if((e->mask & map_mask) == map_mask) {
 				auto& map = e->map;
@@ -95,11 +95,12 @@ namespace process
 			SDL_GetMouseState(&x, &y);
 			x = static_cast<int>(x / eng.get_zoom());
 			y = static_cast<int>(y / eng.get_zoom());
-			auto tile_pos = game_map->get_tile_from_pixel_pos(x - cam.x * ts.x, y - cam.y * ts.y);
+			auto tile_pos = game_map->get_tile_from_pixel_pos(x + cam.x, y + cam.y);
+			//std::cerr << "XXX: (" << x << "," << y << "), (" << cam.x << "," << cam.y << "), (" << tile_pos->x() << "," << tile_pos->y() << ")\n";
 			if(tile_pos) {
 				static auto overlay = graphics::texture("images/misc/overlay1.png", graphics::TextureFlags::NONE);
 				point p = game_map->get_pixel_pos_from_tile_pos(tile_pos->x(), tile_pos->y());
-				overlay.blit(rect(p.x - cam.x * ts.x, p.y - cam.x * ts.y, ts.x, ts.y));
+				overlay.blit(rect(p.x - cam.x, p.y - cam.y, ts.x, ts.y));
 			}
 		}
 

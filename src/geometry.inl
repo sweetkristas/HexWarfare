@@ -154,6 +154,12 @@ namespace geometry
 	}
 
 	template<typename T> inline
+	Rect<T> operator*(const Rect<T>& lhs, const Point<T>& p)
+	{
+		return Rect<T>(lhs.x(), lhs.y(), lhs.w()*p.x, lhs.h()*p.y);
+	}
+
+	template<typename T> inline
 	Rect<T> operator*(const Rect<T>& lhs, float scalar)
 	{
 		return Rect<T>(lhs.x(), lhs.y(), static_cast<T>(lhs.w()*scalar), static_cast<T>(lhs.h()*scalar));

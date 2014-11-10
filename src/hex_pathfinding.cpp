@@ -53,7 +53,7 @@ namespace hex
 			edges[t] = surrounds;
 			for(auto& edge : surrounds) {
 				// XXX replace 1.0f below with a value for the terrain being traversed to.
-				weights[edge_pair(t, edge)] = 1.0f;///edge->tile()->get_cost();
+				weights[edge_pair(t, edge)] = edge->tile()->get_cost();
 			}
 		}
 		//profile::manager pman1("create_graph_from_map - xxx");
@@ -65,6 +65,14 @@ namespace hex
 	{
 		profile::manager pman("cost_search");
 		return pathfinding::path_cost_search<const hex_object*,float>(graph, src, max_cost);
+	}
+
+	std::vector<const hex_object*> find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst)
+	{
+		profile::manager pman("find_path");
+		return pathfinding::a_star_search<const hex_object*,float>(graph, src, dst, [](const hex_object* n1, const hex_object* n2){
+			return (abs(n1->x() - n2->x()) + abs(n1->y() - n2->y()) + abs(n1->x() + n1->y() - n2->x() - n2->y())) / 2.0f;
+		});
 	}
 
 	// Quick and simple function to finds all moves up to and including a cost of max_cost.

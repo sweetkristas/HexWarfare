@@ -147,10 +147,10 @@ namespace hex
 			return;
 		}
 
-		tile_->draw(x_-cam.x, y_-cam.y);
+		tile_->draw(x_, y_, cam);
 
 		for(const NeighborType& neighbor : neighbors_) {
-			neighbor.type->draw_adjacent(x_-cam.x, y_-cam.y, neighbor.dirmap);
+			neighbor.type->draw_adjacent(x_, y_, cam, neighbor.dirmap);
 		}
 	}
 

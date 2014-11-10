@@ -486,6 +486,7 @@ int main(int argc, char* argv[])
 		//auto world = create_world(e, "data/maps/map2.cfg");		// 512x512
 		auto world = create_world(e, "data/maps/map4.cfg");			// 32x32
 		//auto world = create_world(e, "data/maps/map5.cfg");			// 8x8
+		//auto world = create_world(e, "data/maps/map6.cfg");			// 128x128
 		auto g1 = e.add_entity(creature::spawn(p1, "goblin", point(1, 1)));
 		auto g2 = e.add_entity(creature::spawn(p1, "goblin", point(2, 2)));
 		auto g3 = e.add_entity(creature::spawn(b1, "goblin", point(12, 12)));
@@ -504,12 +505,20 @@ int main(int argc, char* argv[])
 		lws_test();
 
 		auto graph = hex::create_graph_from_map(world->map->map);
-		auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 2.5f);
+		auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
 		//auto res = hex::find_available_moves(e, world->map->map, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 2.0f);
 		std::cerr << "Found " << res.size() << " nodes\n";
-		for(auto& r : res) {
-			std::cerr << r->x() << "," << r->y() << "\n";
-		}
+		//for(auto& r : res) {
+		//	std::cerr << r->x() << "," << r->y() << "\n";
+		//}
+
+		//auto dest = world->map->map->get_tile_at(126,126);
+		//ASSERT_LOG(dest != nullptr, "No destination tile.");
+		//res = hex::find_path(graph,  world->map->map->get_tile_at(0,0), dest);
+		//std::cerr << "Path has " << res.size() << " nodes\n";
+		//for(auto& r : res) {
+		//	std::cerr << r->x() << "," << r->y() << "\n";
+		//}
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {
@@ -526,7 +535,7 @@ int main(int argc, char* argv[])
 			for(auto& r : res) {
 				auto& ts = e.get_tile_size();
 				point p(hex::hex_map::get_pixel_pos_from_tile_pos(r->x(), r->y()));
-				SDL_Rect dest = {p.x+ts.x/4-e.get_camera().x*ts.x, p.y+ts.x/4-e.get_camera().y*ts.y, ts.x/2, ts.y/2};
+				SDL_Rect dest = {p.x+ts.x/4-e.get_camera().x, p.y+ts.x/4-e.get_camera().y, ts.x/2, ts.y/2};
 				SDL_RenderSetScale(e.get_renderer(), e.get_zoom(), e.get_zoom());
 				SDL_RenderFillRect(wm.get_renderer(), &dest);
 				SDL_RenderSetScale(e.get_renderer(), 1.0f, 1.0f);

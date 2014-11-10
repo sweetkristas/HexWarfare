@@ -143,6 +143,7 @@ namespace graphics
 
 	void window_manager::update_window_size()
 	{
+		// In some cases this should be SDL_GL_GetDrawableSize
 		SDL_GetWindowSize(window_, &width_, &height_);
 		area_ = rect(0, 0, width_, height_);
 	}

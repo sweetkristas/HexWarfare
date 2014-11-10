@@ -59,7 +59,6 @@ namespace pathfinding
 			  on_open_list_(false), 
 			  on_closed_list_(false)
 		{}
-		//bool operator<(const GraphNode& rhs) const { return f_ < rhs.f_; }
 		const N& getNodeValue() const { return src_; }
 		T F() const { return f_; }
 		T G() const { return g_; }
@@ -92,12 +91,6 @@ namespace pathfinding
 		bool on_closed_list_;
 	};
 
-	template<typename N, typename T> inline
-	bool operator<(const typename GraphNode<N,T>::GraphNodePtr& lhs, const typename GraphNode<N,T>::GraphNodePtr& rhs) {
-		return lhs->F() < rhs->F();
-	}
-	
-
 	template<typename N, typename T> inline 
 	std::ostream& operator<<(std::ostream& out, const GraphNode<N,T>& n) {
 		out << "GNODE: " << n.getNodeValue() << " : cost( " << n.F() << "," << n.G() << "," << n.H() 
@@ -106,11 +99,12 @@ namespace pathfinding
 		return out;
 	}
 
+	// This is a greater than compare function, since by default std::priority_queue returns the maximum element.
 	template<typename N, typename T>
 	struct GraphNodeCmp 
 	{
 		bool operator()(const typename GraphNode<N,T>::GraphNodePtr& lhs, const typename GraphNode<N,T>::GraphNodePtr& rhs) const {
-			return lhs->F() < rhs->F();
+			return lhs->F() > rhs->F();
 		}
 	};
 
@@ -219,21 +213,6 @@ namespace pathfinding
 		VertexList graph_node_list_;
 	};
 
-/*	variant a_star_search(WeightedDirectedGraphPtr wg, 
-		const variant src_node, 
-		const variant dst_node, 
-		game_logic::ExpressionPtr heuristic, 
-		game_logic::MapFormulaCallablePtr callable);
-
-	variant a_star_find_path(LevelPtr lvl, const point& src, 
-		const point& dst, 
-		game_logic::ExpressionPtr heuristic, 
-		game_logic::ExpressionPtr weight_expr, 
-		game_logic::MapFormulaCallablePtr callable, 
-		const int tile_size_x, 
-		const int tile_size_y);
-*/
-
 	template<typename N, typename T> inline
 	std::vector<N> path_cost_search(typename WeightedDirectedGraph<N,T>::Pointer wg, const N& src_node, const T& max_cost)
 	{
@@ -242,7 +221,7 @@ namespace pathfinding
 
 		bool searching = true;
 		try {
-			GraphNode<N,T>::GraphNodePtr current = wg->getGraphNode(src_node);
+			auto& current = wg->getGraphNode(src_node);
 			current->setCost(T(0), T(0));
 			current->setOnOpenList(true);
 			open_list.emplace(current);
@@ -282,5 +261,70 @@ namespace pathfinding
 		}
 		wg->resetGraph();
 		return reachable;
+	}
+
+	template<typename N, typename T> inline
+	std::vector<N> a_star_search(typename WeightedDirectedGraph<N,T>::Pointer wg, const N& src, const N& dst, std::function<T(const N&,const N&)> heuristic)
+	{
+		std::vector<N> path;
+		std::priority_queue<typename GraphNode<N,T>::GraphNodePtr, std::vector<typename GraphNode<N,T>::GraphNodePtr>, GraphNodeCmp<N,T>> open_list;
+
+		bool searching = true;
+		try {
+			auto& current = wg->getGraphNode(src);
+			current->setCost(T(0), heuristic(current->getNodeValue(), dst));
+			current->setOnOpenList(false);
+			open_list.emplace(current);
+
+			while(searching) {
+				// open list is empty node not found.
+				if(open_list.empty()) {
+					PathfindingException<N> path_error = {
+						"Open list was empty -- no path found. ", 
+						src, 
+						dst
+					};
+					throw path_error;
+				}
+				current = open_list.top(); open_list.pop();
+				current->setOnOpenList(false);
+
+				if(current->getNodeValue() == dst) {
+					// Found the path to our node.
+					searching = false;
+					auto p = current->getParent();
+					path.emplace_back(dst);
+					while(p != nullptr) {
+						path.insert(path.begin(), p->getNodeValue());
+						p = p->getParent();
+					}
+
+				} else {
+					// Push lowest f node to the closed list so we don't consider it anymore.
+					current->setOnClosedList(true);
+
+					for(const auto& e : wg->getEdgesFromNode(current->getNodeValue())) {
+						auto& neighbour_node = wg->getGraphNode(e);
+						T g_cost(wg->getWeight(current->getNodeValue(), e) + current->G());
+						if(neighbour_node->isOnClosedList() || neighbour_node->isOnOpenList()) {
+							if(g_cost < neighbour_node->G()) {
+								neighbour_node->setCost(g_cost, heuristic(current->getNodeValue(), dst));
+								neighbour_node->setParent(current);
+							}
+						} else {
+							// not on open or closed lists.
+							neighbour_node->setParent(current);
+							neighbour_node->setCost(g_cost, heuristic(current->getNodeValue(), dst));
+							neighbour_node->setOnOpenList(true);
+							open_list.emplace(neighbour_node);
+						}
+					}
+				}
+			}
+		} catch (PathfindingException<N>& e) {
+			std::cerr << e.msg << " " << e.src << ", " << e.dest << std::endl;
+		}
+		wg->resetGraph();
+		return path;
 	}
 }
