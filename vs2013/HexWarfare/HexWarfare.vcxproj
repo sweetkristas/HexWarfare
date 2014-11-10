@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>c:\Projects\boost\;c:\projects\SDL\include;c:\projects\SDL_mixer;c:\projects\SDL_ttf;c:\projects\SDL_image;C:\Projects\HexWarfare\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>c:\Projects\boost\;c:\projects\SDL\include;c:\projects\SDL_mixer;c:\projects\SDL_ttf;c:\projects\SDL_image;C:\Projects\HexWarfare\include;..\..\external\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -104,7 +104,6 @@
     <ClCompile Include="..\..\src\json.cpp" />
     <ClCompile Include="..\..\src\label.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
-    <ClCompile Include="..\..\src\mongoose.c" />
     <ClCompile Include="..\..\src\node.cpp" />
     <ClCompile Include="..\..\src\node_utils.cpp" />
     <ClCompile Include="..\..\src\noiseutils.cpp" />
@@ -152,7 +151,6 @@
     <ClInclude Include="..\..\src\input_process.hpp" />
     <ClInclude Include="..\..\src\json.hpp" />
     <ClInclude Include="..\..\src\label.hpp" />
-    <ClInclude Include="..\..\src\mongoose.h" />
     <ClInclude Include="..\..\src\node.hpp" />
     <ClInclude Include="..\..\src\node_utils.hpp" />
     <ClInclude Include="..\..\src\noiseutils.h" />
@@ -181,21 +179,16 @@
     <None Include="..\..\src\geometry.inl" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="..\..\..\libwebsockets\build\lib\Release\websockets.lib" />
     <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2.lib" />
     <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2main.lib" />
     <Library Include="..\..\..\SDL_image\VisualC\Win32\Debug\SDL2_image.lib" />
     <Library Include="..\..\..\SDL_mixer\VisualC\Release\SDL2_mixer.lib" />
     <Library Include="..\..\..\SDL_ttf\VisualC\Win32\Debug\SDL2_ttf.lib" />
-    <Library Include="..\..\external\lib\libcurl.lib" />
-    <Library Include="..\..\external\lib\libeay32.lib" />
-    <Library Include="..\..\external\lib\libidn-11.lib" />
     <Library Include="..\..\external\lib\libnoise.lib" />
     <Library Include="..\..\external\lib\libprotobuf-lite.lib" />
     <Library Include="..\..\external\lib\libprotobuf.lib" />
     <Library Include="..\..\external\lib\libprotoc.lib" />
-    <Library Include="..\..\external\lib\librtmp.lib" />
-    <Library Include="..\..\external\lib\libssh2.lib" />
-    <Library Include="..\..\external\lib\ssleay32.lib" />
     <Library Include="..\lua\Debug\Win32\lua.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
