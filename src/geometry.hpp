@@ -159,6 +159,9 @@ namespace geometry
 	Rect<T> operator*(const Rect<T>& lhs, D scalar);
 
 	template<typename T> inline
+	Rect<T> operator*(const Rect<T>& lhs, const Point<T>& scalar);
+
+	template<typename T> inline
 	Rect<T> operator+(const Rect<T>& r, const Point<T>& p);
 
 	/*template<> inline 

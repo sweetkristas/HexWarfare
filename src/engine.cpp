@@ -147,24 +147,29 @@ void engine::process_events()
 				}
 				break;
 			case SDL_KEYDOWN:
+				//std::cerr << "Camera(before): (" << camera_.x << "," << camera_.y << ")\n";
 				if(evt.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
 					set_state(EngineState::QUIT);
 					return;
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_W) {
-					if(--camera_.y <= extents_.y()) {
+					camera_.y -= tile_size_.y;
+					if(camera_.y <= extents_.y()) {
 						camera_.y = extents_.y();
 					}
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_A) {
-					if(--camera_.x <= extents_.x()) {
+					camera_.x -= tile_size_.x;
+					if(camera_.x <= extents_.x()) {
 						camera_.x = extents_.x();
 					}
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_S) {
-					if(++camera_.y >= extents_.y2()) {
-						camera_.y = extents_.y2();
+					camera_.y += tile_size_.y;
+					if(camera_.y >= extents_.y2() - wm_.height()) {
+						camera_.y = extents_.y2() - wm_.height();
 					}
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_D) {
-					if(++camera_.x >= extents_.x2()) {
-						camera_.x = extents_.x2();
+					camera_.x += tile_size_.x;
+					if(camera_.x >= extents_.x2() - wm_.width()) {
+						camera_.x = extents_.x2() - wm_.width();
 					}
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_P) {
 					if(SDL_GetModState() & KMOD_CTRL) {
@@ -194,6 +199,7 @@ void engine::process_events()
 					nb.add("emitter", em.build());
 					particles_.add_system(particle::particle_system::create(pos, nb.build()));
 				}
+				//std::cerr << "Camera(after) : (" << camera_.x << "," << camera_.y << ")\n";
 				break;
 		}
 		if(!claimed) {
@@ -293,4 +299,17 @@ void engine::end_turn()
 		current_player_ = 0;
 	}
 	//players_[current_player_]->new_turn();
+}
+
+void engine::set_extents(const rect& extents) 
+{ 
+	extents_ = rect(extents.x(), 
+		extents.y(), 
+		(extents.w() * 3 * tile_size_.x)/4 + tile_size_.x/4,
+		extents.h() * tile_size_.y + tile_size_.y/2);
+}
+
+const rect& engine::get_extents() const 
+{ 
+	return extents_; 
 }

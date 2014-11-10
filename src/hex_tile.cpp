@@ -117,7 +117,7 @@ namespace hex
 		}
 	}
 
-	void tile_type::draw(int x, int y) const
+	void tile_type::draw(int x, int y, const point& cam) const
 	{
 		if(sheet_indexes_.empty()) {
 			return;
@@ -132,10 +132,10 @@ namespace hex
 		point p(hex_map::get_pixel_pos_from_tile_pos(x, y));
 		rect area = sheet_->get_area(sheet_indexes_[index]);
 	
-		sheet_->get_texture().blit(area, rect(p.x, p.y, area.w(), area.h()));
+		sheet_->get_texture().blit(area, rect(p.x - cam.x, p.y - cam.y, area.w(), area.h()));
 	}
 
-	void tile_type::draw_adjacent(int x, int y, unsigned char adjmap) const
+	void tile_type::draw_adjacent(int x, int y, const point& cam, unsigned char adjmap) const
 	{
 		const AdjacencyPattern& pattern = adjacency_patterns_[adjmap];
 		assert(pattern.init);
@@ -143,7 +143,7 @@ namespace hex
 			point p(hex_map::get_pixel_pos_from_tile_pos(x, y));
 			rect area = sheet_->get_area(index);
 	
-			sheet_->get_texture().blit(area, rect(p.x, p.y, area.w(), area.h()));
+			sheet_->get_texture().blit(area, rect(p.x - cam.x, p.y - cam.y, area.w(), area.h()));
 		}
 	}
 

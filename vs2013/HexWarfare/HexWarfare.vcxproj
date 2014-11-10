@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>c:\Projects\boost\;c:\projects\SDL\include;c:\projects\SDL_mixer;c:\projects\SDL_ttf;c:\projects\SDL_image;C:\Projects\HexWarfare\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>c:\Projects\boost\;c:\projects\SDL\include;c:\projects\SDL_mixer;c:\projects\SDL_ttf;c:\projects\SDL_image;C:\Projects\HexWarfare\include;..\..\external\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
