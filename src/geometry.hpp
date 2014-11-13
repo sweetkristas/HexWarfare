@@ -51,6 +51,8 @@ namespace geometry
 	bool operator<(const Point<T>& a, const Point<T>& b);
 	template<typename T> inline
 	Point<T> operator+(const Point<T>& lhs, const Point<T>& rhs);
+	template<typename T> inline
+	Point<T> operator-(const Point<T>& lhs, const Point<T>& rhs);
 	template<typename T, typename D> inline
 	Point<T> operator*(const Point<T>& lhs, const Point<D>& rhs);
 	template<typename T> inline

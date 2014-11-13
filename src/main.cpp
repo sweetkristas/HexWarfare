@@ -32,6 +32,7 @@
 #include "ai_process.hpp"
 #include "asserts.hpp"
 #include "button.hpp"
+#include "castles.hpp"
 #include "collision_process.hpp"
 #include "component.hpp"
 #include "creature.hpp"
@@ -469,6 +470,12 @@ int main(int argc, char* argv[])
 			ASSERT_LOG(false, "Error parsing data/gui.cfg: " << pe.what());
 		}
 
+		try {
+			castle::loader(wm.get_renderer(), json::parse_from_file("data/castles.cfg"));
+		} catch(json::parse_error& pe) {
+			ASSERT_LOG(false, "Error parsing data/castles.cfg: " << pe.what());
+		}
+
 		// XX engine should take the renderer as a parameter, expose it as a get function, then pass itself
 		// to the update function.
 		engine e(wm);
@@ -502,7 +509,7 @@ int main(int argc, char* argv[])
 		e.add_process(std::make_shared<process::ee_collision>());
 
 		//pathfinding_test();
-		lws_test();
+		//lws_test();
 
 		auto graph = hex::create_graph_from_map(world->map->map);
 		auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
@@ -531,7 +538,7 @@ int main(int argc, char* argv[])
 			} catch(std::bad_weak_ptr& e) {
 				ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 			}
-			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 255, 0, 255);
+			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 255, 0, 127);
 			for(auto& r : res) {
 				auto& ts = e.get_tile_size();
 				point p(hex::hex_map::get_pixel_pos_from_tile_pos(r->x(), r->y()));

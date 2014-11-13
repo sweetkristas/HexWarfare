@@ -95,6 +95,12 @@ namespace geometry
 		return Point<T>(lhs.x+rhs.x,lhs.y+rhs.y);
 	}
 
+	template<typename T> inline
+	Point<T> operator-(const Point<T>& lhs, const Point<T>& rhs)
+	{
+		return Point<T>(lhs.x-rhs.x,lhs.y-rhs.y);
+	}
+
 	// Assumes that D is a scaling factor for T
 	template<typename T, typename D> inline
 	Point<T> operator*(const Point<T>& lhs, const Point<D>& rhs)

@@ -241,10 +241,8 @@ const node_map& node::as_map() const
 	if(type() == NODE_TYPE_MAP) {
 		return m_;
 	}
-		static const std::map<node,node>* EmptyMap = new std::map<node,node>;
-		return *EmptyMap;
-//	ASSERT_LOG(type() == NODE_TYPE_MAP, "as_map() type conversion error from " << type_as_string() << " to map");
-//	return m_;
+	static const std::map<node,node>* EmptyMap = new std::map<node,node>;
+	return *EmptyMap;
 }
 
 node_list& node::as_mutable_list()

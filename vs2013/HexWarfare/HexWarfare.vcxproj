@@ -85,6 +85,7 @@
     <ClCompile Include="..\..\src\action_process.cpp" />
     <ClCompile Include="..\..\src\ai_process.cpp" />
     <ClCompile Include="..\..\src\button.cpp" />
+    <ClCompile Include="..\..\src\castles.cpp" />
     <ClCompile Include="..\..\src\collision_process.cpp" />
     <ClCompile Include="..\..\src\color.cpp" />
     <ClCompile Include="..\..\src\component.cpp" />
@@ -127,6 +128,7 @@
     <ClInclude Include="..\..\src\ai_process.hpp" />
     <ClInclude Include="..\..\src\basic_dir_monitor.hpp" />
     <ClInclude Include="..\..\src\button.hpp" />
+    <ClInclude Include="..\..\src\castles.hpp" />
     <ClInclude Include="..\..\src\collision_process.hpp" />
     <ClInclude Include="..\..\src\color.hpp" />
     <ClInclude Include="..\..\src\component.hpp" />
@@ -136,6 +138,7 @@
     <ClInclude Include="..\..\src\dir_monitor.hpp" />
     <ClInclude Include="..\..\src\engine.hpp" />
     <ClInclude Include="..\..\src\engine_fwd.hpp" />
+    <ClInclude Include="..\..\src\enum_iterator.hpp" />
     <ClInclude Include="..\..\src\filesystem.hpp" />
     <ClInclude Include="..\..\src\font.hpp" />
     <ClInclude Include="..\..\src\formatter.hpp" />
