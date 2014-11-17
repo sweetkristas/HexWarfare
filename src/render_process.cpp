@@ -16,10 +16,27 @@
 
 #include "component.hpp"
 #include "engine.hpp"
+#include "font.hpp"
 #include "render_process.hpp"
 
 namespace process
 {
+	namespace
+	{
+		void draw_position_text(SDL_Renderer* r, int w, int h, const hex::hex_object* tile)
+		{
+			font::font_ptr fnt = font::get_font("SourceCodePro-Regular.ttf", 12);
+			std::stringstream ss1;
+			ss1 << "Tile under mouse: " << tile->x() << ", " << tile->y();
+			auto surf = font::render_shaded(ss1.str(), fnt, graphics::color(1.0f, 1.0f, 0.5f), graphics::color(0, 0, 0));
+			auto tex = SDL_CreateTextureFromSurface(r, surf);
+			SDL_Rect dst = {0, h - surf->h, surf->w, surf->h};
+			SDL_RenderCopy(r, tex, NULL, &dst);
+			SDL_FreeSurface(surf);
+			SDL_DestroyTexture(tex);
+		}
+	}
+
 	render::render() 
 		: process(ProcessPriority::render) 
 	{
@@ -74,6 +91,8 @@ namespace process
 					spr->tex.blit(rect(pp.x - cam.x, pp.y - cam.y, ts.x, ts.y));
 				}
 			} else if((e->mask & map_mask) == map_mask) {
+				// XXX It'd probably be better to remove the map as being an entity and just store it as a singleton.
+				// Then we can collision detect/draw it from there.
 				auto& map = e->map;
 
 				const int screen_width_in_tiles = (eng.get_window().width() + eng.get_tile_size().x - 1) / eng.get_tile_size().x;
@@ -101,6 +120,7 @@ namespace process
 				static auto overlay = graphics::texture("images/misc/overlay1.png", graphics::TextureFlags::NONE);
 				point p = game_map->get_pixel_pos_from_tile_pos(tile_pos->x(), tile_pos->y());
 				overlay.blit(rect(p.x - cam.x, p.y - cam.y, ts.x, ts.y));
+				draw_position_text(eng.get_renderer(), eng.get_window().width(), eng.get_window().height(), tile_pos);
 			}
 		}
 

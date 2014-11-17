@@ -38,6 +38,10 @@ namespace hex
 		  zorder_(value["zorder"].as_int32(-1000)),
 		  border_(value["border"].as_int32(0))
 	{
+		for(auto c : value["castles"].as_map()) {
+			// c.first is a name
+			castles_.emplace_back(castle::castle::factory(c.second));
+		}
 	}
 
 	hex_map_ptr hex_map::factory(const node& n)
@@ -63,6 +67,9 @@ namespace hex
 	{
 		for(auto& t : tiles_) {
 			t.draw(cam);
+		}
+		for(auto& c : castles_) {
+			c->draw(cam);
 		}
 		// Need to draw border here -- as applicable.
 	}

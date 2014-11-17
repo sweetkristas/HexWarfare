@@ -470,6 +470,7 @@ int main(int argc, char* argv[])
 			ASSERT_LOG(false, "Error parsing data/gui.cfg: " << pe.what());
 		}
 
+		hex::loader();
 		try {
 			castle::loader(wm.get_renderer(), json::parse_from_file("data/castles.cfg"));
 		} catch(json::parse_error& pe) {

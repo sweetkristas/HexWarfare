@@ -14,12 +14,14 @@
    limitations under the License.
 */
 
+#include <sstream>
 #include <tuple>
 
 #include "asserts.hpp"
 #include "castles.hpp"
 #include "enum_iterator.hpp"
 #include "hex_fwd.hpp"
+#include "hex_object.hpp"
 #include "json.hpp"
 #include "surface.hpp"
 #include "texpack.hpp"
@@ -66,6 +68,13 @@ namespace castle
 			return res;
 		}
 
+		typedef std::map<std::string, hex::tile_type_ptr> base_texture_type;
+		base_texture_type& get_base_texture() 
+		{
+			static base_texture_type res;
+			return res;
+		}
+
 		Hexant get_hexant_from_string(const std::string& s) 
 		{
 			if(s == "topleft" || s == "tl" || s == "TL" || s == "top-left") {
@@ -97,6 +106,34 @@ namespace castle
 				hexants.emplace_back("left");
 			}
 			return hexants[static_cast<std::vector<std::string>::size_type>(h)];
+		}
+
+		Hexant opposite_hexant(Hexant h) 
+		{
+			switch (h)
+			{
+				case Hexant::TOP_LEFT:		return Hexant::BOTTOM_RIGHT;
+				case Hexant::TOP_RIGHT:		return Hexant::BOTTOM_LEFT;
+				case Hexant::RIGHT:			return Hexant::LEFT;
+				case Hexant::BOTTOM_RIGHT:	return Hexant::TOP_LEFT;
+				case Hexant::BOTTOM_LEFT:	return Hexant::TOP_RIGHT;
+				case Hexant::LEFT:			return Hexant::RIGHT;
+				default: break;
+			}
+			ASSERT_LOG(false, "Unrecognised hexant value: " << static_cast<int>(h));
+			return Hexant::First;
+		}
+
+		std::ostream& operator<<(std::ostream& os, const Curvature& c) 
+		{
+			os << (c == Curvature::CONCAVE ? "concave" : "convex");
+			return os;
+		}
+
+		std::ostream& operator<<(std::ostream& os, const tile_key& tk) 
+		{
+			os << "('" << tk.name << "', " << tk.c << ", " << get_hexant_string(tk.h) << ")";
+			return os;
 		}
 
 		tile_key decode_name_string(const std::string& key)
@@ -156,6 +193,11 @@ namespace castle
 
 	void loader(SDL_Renderer* renderer, const node& n)
 	{
+		point offset;
+		if(n.has_key("offset") && n["offset"].is_list() && n["offset"].num_elements() == 2) {
+			offset.x = n["offset"][0].as_int32();
+			offset.y = n["offset"][1].as_int32();
+		}
 		ASSERT_LOG(n.type() == node::NODE_TYPE_MAP, "castle::loader: Node type must be map. " << n.type_as_string());
 		std::vector<std::pair<std::string, surface_ptr>> surfs;
 		for(auto& m : n.as_map()) {
@@ -177,6 +219,10 @@ namespace castle
 			for(auto& keep : m.second["keep"].as_map()) {
 				// todo.
 			}
+			ASSERT_LOG(m.second.has_key("base"), "No 'base' attribute found.");
+			auto tile_ptr = hex::hex_object::get_hex_tile(m.second["base"].as_string());
+			ASSERT_LOG(tile_ptr != nullptr, "No base tile found named '" << m.second["base"].as_string() << "'");
+			get_base_texture()[name] = tile_ptr;
 		}
 
 		SDL_RendererInfo info;
@@ -185,38 +231,71 @@ namespace castle
 
 		for(auto& vtex : graphics::packer(surfs, info.max_texture_width, info.max_texture_height)) {
 			for(auto& tex : vtex) {
-				get_tile_map()[decode_name_string(tex.get_name())] = tile(tex);
+				get_tile_map()[decode_name_string(tex.get_name())] = tile(tex, offset);
 			}
 		}
 	}
 
 	castle::castle(const node& value)
 	{
+		ASSERT_LOG(value.has_key("type"), "castle section must 'type' attribute.");
+		tile_key tk;
+		tk.name = value["type"].as_string();
+		hex::tile_type_ptr base_tile = get_base_texture()[tk.name];
+		ASSERT_LOG(base_tile != nullptr, "Couldn't find a reference to a base tile named '" << tk.name << "'");
+
 		// tiles is a list of position
 		ASSERT_LOG(value.has_key("tiles"), "No 'tiles' attribute found.");
 		ASSERT_LOG(value["tiles"].is_list(), "'tiles' attribute must be a list.");
 		for(auto& t : value["tiles"].as_list()) {
 			ASSERT_LOG(t.is_list() && t.num_elements() == 2, "Inner elements for tiles must be two-element lists.");
 			ASSERT_LOG(t[0].is_int() && t[1].is_int(), "Elements inside tiles must be integers.");
-			base_positions_.emplace(point(t[0].as_int32(), t[1].as_int32()));
+			point p(t[0].as_int32(), t[1].as_int32());
+			base_positions_.emplace(p);
+			base_tiles_.emplace_back(std::make_pair(p, base_tile));
 		}
 
 		// Complicated bit here.
 		for(auto& p : base_positions_) {
 			for(auto hexant : Enum<Hexant>()) {
+				tk.h = opposite_hexant(hexant);
 				point o1, o2;
 				std::tie(o1,o2) = get_offsets_in_hexant(hexant);
 				bool b1 = base_positions_.find(p+o1) != base_positions_.end();
 				bool b2 = base_positions_.find(p+o2) != base_positions_.end();
-				if(b1) {
-					// There is a castle tile at b1
-					// So if b2 isn't occupied it will be concave
-				} else {
-					// There is NOT a castle tile at b1
-					// So if b2 isn't occupied this will be convex
+				int index = b1 ? 1 : 0 + b2 ? 2 : 0;
+				const static bool has_convex_tile_at_t1[]  = { true, false, false, false };
+				const static bool has_concave_tile_at_t1[] = { false, true, false, false };
+				const static bool has_convex_tile_at_t2[]  = { true, false, false, false };
+				const static bool has_concave_tile_at_t2[] = { false, false, true, false };
+				if(has_convex_tile_at_t1[index]) {
+					tk.c = Curvature::CONVEX;
+					auto tm = get_tile_map().find(tk);
+					ASSERT_LOG(tm != get_tile_map().end(), "Unable to find tile matching this key: " << tk);
+					tiles_.emplace_back(std::make_pair(p+o1, tm->second));
+					std::cerr << "ADDED: " << tk << " at " << (p+o1) << " : " << b1 << "/" << b2 << "\n";
+				} else if(has_concave_tile_at_t1[index]) {
+					tk.c = Curvature::CONCAVE;
+					auto tm = get_tile_map().find(tk);
+					ASSERT_LOG(tm != get_tile_map().end(), "Unable to find tile matching this key: " << tk);
+					tiles_.emplace_back(std::make_pair(p+o1, tm->second));
+					std::cerr << "ADDED: " << tk << " at " << (p+o1) << " : " << b1 << "/" << b2 << "\n";
+				}
+
+				if(has_convex_tile_at_t2[index]) {
+					tk.c = Curvature::CONVEX;
+					auto tm = get_tile_map().find(tk);
+					ASSERT_LOG(tm != get_tile_map().end(), "Unable to find tile matching this key: " << tk);
+					tiles_.emplace_back(std::make_pair(p+o2, tm->second));
+					std::cerr << "ADDED: " << tk << " at " << (p+o2) << " : " << b1 << "/" << b2 << "\n";
+				} else if(has_concave_tile_at_t2[index]) {
+					tk.c = Curvature::CONCAVE;
+					auto tm = get_tile_map().find(tk);
+					ASSERT_LOG(tm != get_tile_map().end(), "Unable to find tile matching this key: " << tk);
+					tiles_.emplace_back(std::make_pair(p+o2, tm->second));
+					std::cerr << "ADDED: " << tk << " at " << (p+o2) << " : " << b1 << "/" << b2 << "\n";
 				}
 			}
-			
 		}
 	}
 
@@ -225,11 +304,16 @@ namespace castle
 		return std::make_shared<castle>(value);
 	}
 
-	void castle::draw(const point& p) const
+	void castle::draw(const point& cam) const
 	{
+		for(auto& t : base_tiles_) {
+			t.second->draw(t.first.x, t.first.y, cam);
+		}
+
 		// XXX draw base tile here.
 		for(auto& t : tiles_) {
-			t.second.texture().blit(rect(t.first - p));
+			point p(hex::hex_map::get_pixel_pos_from_tile_pos(t.first.x, t.first.y));
+			t.second.texture().blit(rect(p.x - cam.x - t.second.offset().x, p.y - cam.y - t.second.offset().y));
 		}
 	}
 
@@ -243,8 +327,9 @@ namespace castle
 	{
 	}
 
-	tile::tile(const graphics::texture& t)
-		: tex_(t)
+	tile::tile(const graphics::texture& t, const point& offset)
+		: tex_(t),
+		  offset_(offset)
 	{
 	}
 }

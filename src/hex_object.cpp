@@ -107,10 +107,18 @@ namespace hex
 		}
 	}
 
+	void loader()
+	{
+		try {
+			generate_hex_engine();
+		} catch(json::parse_error& pe) {
+			ASSERT_LOG(false, "Error parsing data/hex_tiles.cfg: " << pe.what());
+		}
+	}
+
 	hex_object::hex_object(const std::string& type, int x, int y, std::weak_ptr<const hex_map> owner) 
 		: owner_map_(owner), x_(x), y_(y), type_(type)
 	{
-		generate_hex_engine();
 		tile_ = get_tile_type_map()[type_];
 		ASSERT_LOG(tile_, "Could not find tile: " << type_);
 	}
@@ -202,8 +210,7 @@ namespace hex
 
 	tile_type_ptr hex_object::get_hex_tile(const std::string& type)
 	{
-		std::map<std::string, tile_type_ptr>::const_iterator it 
-			= get_editor_hex_tile_map().find(type);
+		auto it = get_editor_hex_tile_map().find(type);
 		if(it == get_editor_hex_tile_map().end()) {
 			it = get_tile_type_map().find(type);
 			if(it == get_tile_type_map().end()) {

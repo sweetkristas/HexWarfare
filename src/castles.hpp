@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "geometry.hpp"
+#include "hex_fwd.hpp"
 #include "node.hpp"
 #include "texture.hpp"
 
@@ -34,10 +35,12 @@ namespace castle
 	{
 	public:
 		tile();
-		explicit tile(const graphics::texture& t);
+		explicit tile(const graphics::texture& t, const point& p=point());
+		const point& offset() const { return offset_; }
 		const graphics::texture& texture() const { return tex_; }
 	private:
 		graphics::texture tex_;
+		point offset_;
 	};
 
 	class castle
@@ -52,6 +55,8 @@ namespace castle
 		node write() const;
 	private:
 		std::vector<std::pair<point, tile>> tiles_;
+		// XXX don't like this should unify castle::tile and hex::tile_type
+		std::vector<std::pair<point, hex::tile_type_ptr>> base_tiles_;
 		std::set<point> base_positions_;
 	};
 

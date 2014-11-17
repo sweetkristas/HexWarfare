@@ -27,6 +27,8 @@
 
 namespace hex 
 {
+	void loader();
+
 	class hex_object 
 	{
 	public:

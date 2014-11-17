@@ -18,6 +18,7 @@
 
 #include <vector>
 
+#include "castles.hpp"
 #include "geometry.hpp"
 #include "hex_fwd.hpp"
 #include "hex_object.hpp"
@@ -67,5 +68,6 @@ namespace hex
 		int height_;
 		int zorder_;
 		int border_;
+		std::vector<castle::castle_ptr> castles_;
 	};
 }
