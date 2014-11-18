@@ -189,18 +189,24 @@ namespace castle
 			ASSERT_LOG(false, "Unrecognised direction: " << static_cast<int>(h));
 			return std::make_tuple<point,point>(point(),point());
 		}
+
+		struct tile_info
+		{
+			std::string name;
+			point offset;
+		};
 	}
 
 	void loader(SDL_Renderer* renderer, const node& n)
 	{
-		point offset;
-		if(n.has_key("offset") && n["offset"].is_list() && n["offset"].num_elements() == 2) {
-			offset.x = n["offset"][0].as_int32();
-			offset.y = n["offset"][1].as_int32();
-		}
 		ASSERT_LOG(n.type() == node::NODE_TYPE_MAP, "castle::loader: Node type must be map. " << n.type_as_string());
-		std::vector<std::pair<std::string, surface_ptr>> surfs;
+		std::vector<std::pair<tile_info, surface_ptr>> surfs;
 		for(auto& m : n.as_map()) {
+			point offset;
+			if(m.second.has_key("offset") && m.second["offset"].is_list() && m.second["offset"].num_elements() == 2) {
+				offset.x = m.second["offset"][0].as_int32();
+				offset.y = m.second["offset"][1].as_int32();
+			}
 			const std::string name = m.first.as_string();
 			ASSERT_LOG(m.second.has_key("convex") && m.second.has_key("concave") && m.second.has_key("keep"), 
 				"Must have 'convex', 'concave' and 'keep' keys.");
@@ -208,13 +214,15 @@ namespace castle
 				auto hexant = get_hexant_from_string(convex.first.as_string());
 				auto& hexant_str = get_hexant_string(hexant);
 				std::string key = name + "|convex|" + hexant_str;
-				surfs.emplace_back(std::make_pair(key, std::make_shared<graphics::surface>("images/" + convex.second.as_string())));
+				tile_info ti = { key, offset };
+				surfs.emplace_back(std::make_pair(ti, std::make_shared<graphics::surface>("images/" + convex.second.as_string())));
 			}
 			for(auto& concave : m.second["concave"].as_map()) {
 				auto hexant = get_hexant_from_string(concave.first.as_string());
 				auto& hexant_str = get_hexant_string(hexant);
 				std::string key = name + "|concave|" + hexant_str;
-				surfs.emplace_back(std::make_pair(key, std::make_shared<graphics::surface>("images/" + concave.second.as_string())));
+				tile_info ti = { key, offset };
+				surfs.emplace_back(std::make_pair(ti, std::make_shared<graphics::surface>("images/" + concave.second.as_string())));
 			}
 			for(auto& keep : m.second["keep"].as_map()) {
 				// todo.
@@ -229,9 +237,9 @@ namespace castle
 		int res = SDL_GetRendererInfo(renderer, &info);
 		ASSERT_LOG(res == 0, "Failed to get renderer info: " << SDL_GetError());
 
-		for(auto& vtex : graphics::packer(surfs, info.max_texture_width, info.max_texture_height)) {
+		for(auto& vtex : graphics::packer<tile_info>(surfs, info.max_texture_width, info.max_texture_height)) {
 			for(auto& tex : vtex) {
-				get_tile_map()[decode_name_string(tex.get_name())] = tile(tex, offset);
+				get_tile_map()[decode_name_string(tex.first.name)] = tile(tex.second, tex.first.offset);
 			}
 		}
 	}

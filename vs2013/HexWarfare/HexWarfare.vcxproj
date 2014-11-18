@@ -116,7 +116,6 @@
     <ClCompile Include="..\..\src\random.cpp" />
     <ClCompile Include="..\..\src\render_process.cpp" />
     <ClCompile Include="..\..\src\surface.cpp" />
-    <ClCompile Include="..\..\src\texpack.cpp" />
     <ClCompile Include="..\..\src\texture.cpp" />
     <ClCompile Include="..\..\src\tile.cpp" />
     <ClCompile Include="..\..\src\unit_test.cpp" />

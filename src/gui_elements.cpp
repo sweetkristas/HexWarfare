@@ -47,9 +47,9 @@ namespace gui
 			for(auto& s : n["sections"].as_list()) {
 				surfs.emplace_back(std::make_pair(s["name"].as_string(), std::make_shared<graphics::surface>(s["image"].as_string())));
 			}
-			for(auto& vtex : graphics::packer(surfs, info.max_texture_width, info.max_texture_height)) {
+			for(auto& vtex : graphics::packer<std::string>(surfs, info.max_texture_width, info.max_texture_height)) {
 				for(auto& tex : vtex) {
-					get_section_map()[tex.get_name()] = tex;
+					get_section_map()[tex.first] = tex.second;
 				}
 			}
 		}
