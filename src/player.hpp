@@ -44,6 +44,19 @@ private:
 
 typedef std::shared_ptr<team> team_ptr;
 
+inline bool operator==(const team& lhs, const team& rhs) {
+	return lhs.id() == rhs.id();
+}
+inline bool operator!=(const team& lhs, const team& rhs) {
+	return !operator==(lhs, rhs);
+}
+inline bool operator==(const team_ptr& lhs, const team_ptr& rhs) {
+	return lhs->id() == rhs->id();
+}
+inline bool operator!=(const team_ptr& lhs, const team_ptr& rhs) {
+	return !operator==(lhs, rhs);
+}
+
 class player
 {
 public:

@@ -54,6 +54,7 @@ namespace castle
 
 		node write() const;
 	private:
+		std::string type_;
 		std::vector<std::pair<point, tile>> tiles_;
 		// XXX don't like this should unify castle::tile and hex::tile_type
 		std::vector<std::pair<point, hex::tile_type_ptr>> base_tiles_;

@@ -512,9 +512,9 @@ int main(int argc, char* argv[])
 		//pathfinding_test();
 		//lws_test();
 
-		auto graph = hex::create_graph_from_map(world->map->map);
-		auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
-		//auto res = hex::find_available_moves(e, world->map->map, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 2.0f);
+		//auto graph = hex::create_graph_from_map(world->map->map);
+		//auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
+		auto res = hex::find_available_moves(e, world->map->map, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 2.0f);
 		std::cerr << "Found " << res.size() << " nodes\n";
 		//for(auto& r : res) {
 		//	std::cerr << r->x() << "," << r->y() << "\n";

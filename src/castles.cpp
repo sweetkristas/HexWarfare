@@ -23,6 +23,7 @@
 #include "hex_fwd.hpp"
 #include "hex_object.hpp"
 #include "json.hpp"
+#include "node_utils.hpp"
 #include "surface.hpp"
 #include "texpack.hpp"
 
@@ -248,9 +249,10 @@ namespace castle
 	{
 		ASSERT_LOG(value.has_key("type"), "castle section must 'type' attribute.");
 		tile_key tk;
-		tk.name = value["type"].as_string();
-		hex::tile_type_ptr base_tile = get_base_texture()[tk.name];
-		ASSERT_LOG(base_tile != nullptr, "Couldn't find a reference to a base tile named '" << tk.name << "'");
+		type_ = value["type"].as_string();
+		tk.name = type_;
+		hex::tile_type_ptr base_tile = get_base_texture()[type_];
+		ASSERT_LOG(base_tile != nullptr, "Couldn't find a reference to a base tile named '" << type_ << "'");
 
 		// tiles is a list of position
 		ASSERT_LOG(value.has_key("tiles"), "No 'tiles' attribute found.");
@@ -327,8 +329,13 @@ namespace castle
 
 	node castle::write() const
 	{
-		/// XXX 
-		return node();
+		node_builder res;
+		res.add("type", type_);
+		for(auto& t : base_positions_) {
+			std::vector<node> pos = {node(t.x), node(t.y)};
+			res.add("tile", node(&pos));
+		}
+		return res.build();
 	}
 
 	tile::tile()
