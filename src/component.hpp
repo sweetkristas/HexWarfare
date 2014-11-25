@@ -157,11 +157,12 @@ namespace component
 		std::shared_ptr<gui_component> gui;
 		player_weak_ptr owner;
 	};
-	typedef std::shared_ptr<component_set> component_set_ptr;
-	typedef std::weak_ptr<component_set> component_set_weak_ptr;
 	
 	inline bool operator<(const component_set_ptr& lhs, const component_set_ptr& rhs)
 	{
 		return lhs->zorder == rhs->zorder ? lhs.get() < rhs.get() : lhs->zorder < rhs->zorder;
 	}
 }
+
+typedef std::shared_ptr<component::component_set> component_set_ptr;
+typedef std::weak_ptr<component::component_set> component_set_weak_ptr;

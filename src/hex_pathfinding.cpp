@@ -59,13 +59,13 @@ namespace hex
 		return std::make_shared<pathfinding::WeightedDirectedGraph<const hex_object*,float>>(dg, &weights);
 	}
 
-	std::vector<const hex_object*> cost_search(hex_graph_ptr graph, const hex_object* src, float max_cost)
+	result_list cost_search(hex_graph_ptr graph, const hex_object* src, float max_cost)
 	{
 		profile::manager pman("cost_search");
 		return pathfinding::path_cost_search<const hex_object*,float>(graph, src, max_cost);
 	}
 
-	std::vector<const hex_object*> find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst)
+	result_list find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst)
 	{
 		profile::manager pman("find_path");
 		return pathfinding::a_star_search<const hex_object*,float>(graph, src, dst, [](const hex_object* n1, const hex_object* n2){
@@ -74,7 +74,7 @@ namespace hex
 	}
 
 	// Quick and simple function to finds all moves up to and including a cost of max_cost.
-	std::vector<const hex_object*> find_available_moves(const engine& eng, hex_map_ptr map, const hex_object* src, float max_cost)
+	std::tuple<result_list,hex_graph_ptr> find_available_moves(const engine& eng, hex_map_ptr map, const hex_object* src, float max_cost)
 	{
 		profile::manager pman("find_available_moves");
 		
@@ -82,13 +82,13 @@ namespace hex
 		static const component_id unit_mask = genmask(Component::POSITION) | genmask(Component::CREATURE);
 
 		std::vector<const hex_object*> res;
-		int max_area = static_cast<int>(max_cost*2.0f+1.0f);
+		int max_area = static_cast<int>(max_cost*4.0f+1.0f);
 		int x = src->x() - max_area/2;
 		int w = max_area;
 		if(x < 0) {
 			w = w + x;
 			x = 0;
-		} else if(x >= map->width()) {
+		} else if(x >= static_cast<int>(map->width())) {
 			w = w - (x - map->width() - 1);
 			x = map->width() - 1;
 		}
@@ -97,7 +97,7 @@ namespace hex
 		if(y < 0) {
 			h = h + y;
 			y = 0;
-		} else if(y >= map->height()) {
+		} else if(y >= static_cast<int>(map->height())) {
 			h = h - (y - map->height() - 1);
 			y = map->height() - 1;
 		}
@@ -142,36 +142,47 @@ namespace hex
 			}
 		}
 
+		auto it = enemy_units.find(point(src->x(), src->y()));
+		ASSERT_LOG(it == enemy_units.end(), "src node in enemies list.");
+
+		// find vertices and edges to construct the graph.
 		vertices.reserve(w*h);
-		for(int m = 0; m != h; ++m) {
-			for(int n = 0; n != w; ++n) {
+		for(int m = y; m != y+h; ++m) {
+			for(int n = x; n != x+w; ++n) {
 				auto t = map->get_tile_at(n, m);
 				auto surrounds = map->get_surrounding_tiles(t->x(), t->y());
 				// scan through entities for units at t
 				auto it = enemy_units.find(point(t->x(), t->y()));
+				const bool in_zoc = surrounding_positions.find(point(t->x(), t->y())) != surrounding_positions.end();
 				if(it == enemy_units.end()) {
 					vertices.emplace_back(t);
-					std::vector<const hex_object*> list_of_surrounding_tiles(surrounds.size());
+					std::vector<const hex_object*> list_of_surrounding_tiles;
+					list_of_surrounding_tiles.reserve(surrounds.size());
 					for(auto& edge : surrounds) {
-						weights[edge_pair(t, edge)] = edge->tile()->get_cost();
-					}				
-					edges[t] = list_of_surrounding_tiles;
-				} else {
-					// There should be no edges from surrounding tiles to the rest of the board.
-					for(auto& surr : surrounds) {
-						
+						if(edge->x() >= x && edge->x() < x+w 
+							&& edge->y() >= y && edge->y() < y+h
+							&& enemy_units.find(point(edge->x(),edge->y())) == enemy_units.end()) {
+							if(!(in_zoc && surrounding_positions.find(point(edge->x(), edge->y())) != surrounding_positions.end())) {
+								weights[edge_pair(t, edge)] = edge->tile()->get_cost();
+								list_of_surrounding_tiles.emplace_back(edge);
+							}
+						}
 					}
+					edges[t] = list_of_surrounding_tiles;
 				}
 			}
 		}
 
-		// XXX Do path cost search here
+		// path cost search
+		auto dg = std::make_shared<pathfinding::DirectedGraph<const hex_object*>>(&vertices, &edges);
+		auto wdg = std::make_shared<pathfinding::WeightedDirectedGraph<const hex_object*,float>>(dg, &weights);
+		res = pathfinding::path_cost_search<const hex_object*>(wdg, src, max_cost);
 
 		// remove tiles that have friendly entities on them, from the results.
 		res.erase(std::remove_if(res.begin(), res.end(), [&friendly_units](const hex_object* t){ 
-			return friendly_units.find(point(t->x(), t->y())) == friendly_units.end();
+			return friendly_units.find(point(t->x(), t->y())) != friendly_units.end();
 		}), res.end());
 
-		return res;
+		return std::make_tuple(res, wdg);
 	}
 }

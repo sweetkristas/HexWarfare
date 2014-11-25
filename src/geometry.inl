@@ -126,6 +126,14 @@ namespace geometry
 	}
 
 	template<typename T> inline
+	Point<T> normalize(const Point<T>& p)
+	{
+		T length = std::sqrt(p.x*p.x + p.y*p.y);
+		return Point<T>(p.x/length, p.y/length);
+	}
+
+
+	template<typename T> inline
 	Rect<T> Rect<T>::FromCoordinates(T x1, T y1, T x2, T y2)
 	{
 		if(x1 > x2+1) {

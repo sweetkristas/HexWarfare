@@ -496,8 +496,8 @@ int main(int argc, char* argv[])
 		//auto world = create_world(e, "data/maps/map5.cfg");			// 8x8
 		//auto world = create_world(e, "data/maps/map6.cfg");			// 128x128
 		auto g1 = e.add_entity(creature::spawn(p1, "goblin", point(1, 1)));
-		auto g2 = e.add_entity(creature::spawn(p1, "goblin", point(2, 2)));
-		auto g3 = e.add_entity(creature::spawn(b1, "goblin", point(12, 12)));
+		auto g2 = e.add_entity(creature::spawn(b1, "goblin", point(12, 13)));
+		auto g3 = e.add_entity(creature::spawn(p1, "goblin", point(12, 12)));
 		auto g4 = e.add_entity(creature::spawn(b1, "goblin", point(6, 7)));
 
 		e.add_process(std::make_shared<process::input>());
@@ -514,8 +514,8 @@ int main(int argc, char* argv[])
 
 		//auto graph = hex::create_graph_from_map(world->map->map);
 		//auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
-		auto res = hex::find_available_moves(e, world->map->map, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 2.0f);
-		std::cerr << "Found " << res.size() << " nodes\n";
+		auto res = hex::find_available_moves(e, world->map->map, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
+		std::cerr << "Found " << std::get<0>(res).size() << " nodes\n";
 		//for(auto& r : res) {
 		//	std::cerr << r->x() << "," << r->y() << "\n";
 		//}
@@ -540,7 +540,7 @@ int main(int argc, char* argv[])
 				ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 			}
 			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 255, 0, 127);
-			for(auto& r : res) {
+			for(auto& r : std::get<0>(res)) {
 				auto& ts = e.get_tile_size();
 				point p(hex::hex_map::get_pixel_pos_from_tile_pos(r->x(), r->y()));
 				SDL_Rect dest = {p.x+ts.x/4-e.get_camera().x, p.y+ts.x/4-e.get_camera().y, ts.x/2, ts.y/2};
@@ -553,6 +553,17 @@ int main(int argc, char* argv[])
 			SDL_RenderPresent(wm.get_renderer());
 	
 			Uint32 delay = SDL_GetTicks() - cycle_start_tick;
+
+			// hack to draw an arrow
+			{
+				int x, y;
+				SDL_GetMouseState(&x, &y);
+				x = static_cast<int>(x / e.get_zoom());
+				y = static_cast<int>(y / e.get_zoom());
+				auto destination_tile = world->map->map->get_tile_from_pixel_pos(x + e.get_camera().x, y + e.get_camera().y);
+				auto path = hex::find_path(std::get<1>(res), world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), destination_tile);
+				render_arrows(path);
+			}
 
 			if(delay > FRAME_RATE) {
 				//std::cerr << "CYCLE TOO LONG: " << delay << std::endl;

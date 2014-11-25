@@ -92,6 +92,7 @@
     <ClCompile Include="..\..\src\creature.cpp" />
     <ClCompile Include="..\..\src\datetime.cpp" />
     <ClCompile Include="..\..\src\dialog.cpp" />
+    <ClCompile Include="..\..\src\draw_primitives.cpp" />
     <ClCompile Include="..\..\src\engine.cpp" />
     <ClCompile Include="..\..\src\filesystem.cpp" />
     <ClCompile Include="..\..\src\font.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="..\..\src\datetime.hpp" />
     <ClInclude Include="..\..\src\dialog.hpp" />
     <ClInclude Include="..\..\src\dir_monitor.hpp" />
+    <ClInclude Include="..\..\src\draw_primitives.hpp" />
     <ClInclude Include="..\..\src\engine.hpp" />
     <ClInclude Include="..\..\src\engine_fwd.hpp" />
     <ClInclude Include="..\..\src\enum_iterator.hpp" />

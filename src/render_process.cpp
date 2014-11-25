@@ -120,11 +120,11 @@ namespace process
 				static auto overlay = graphics::texture("images/misc/overlay1.png", graphics::TextureFlags::NONE);
 				point p = game_map->get_pixel_pos_from_tile_pos(tile_pos->x(), tile_pos->y());
 				overlay.blit(rect(p.x - cam.x, p.y - cam.y, ts.x, ts.y));
+				SDL_RenderSetScale(eng.get_renderer(), 1.0f, 1.0f);
 				draw_position_text(eng.get_renderer(), eng.get_window().width(), eng.get_window().height(), tile_pos);
 			}
 		}
 
-		
-		SDL_RenderSetScale(eng.get_renderer(), 1.0f, 1.0f);
+		SDL_RenderSetScale(eng.get_renderer(), 1.0f, 1.0f);	
 	}
 }

@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <tuple>
+
 #include "component.hpp"
 #include "engine.hpp"
 #include "hex_map.hpp"
@@ -24,10 +26,11 @@
 namespace hex
 {
 	typedef std::shared_ptr<pathfinding::WeightedDirectedGraph<const hex_object*,float>> hex_graph_ptr;
+	typedef std::vector<const hex_object*> result_list;
 
 	hex_graph_ptr create_graph_from_map(hex_map_ptr map);
-	std::vector<const hex_object*> cost_search(hex_graph_ptr graph, const hex_object* src, float max_cost);
-	std::vector<const hex_object*> find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst);
+	result_list cost_search(hex_graph_ptr graph, const hex_object* src, float max_cost);
+	result_list find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst);
 
-	std::vector<const hex_object*> find_available_moves(const engine& eng, hex_map_ptr map, const hex_object* src, float max_cost);
+	std::tuple<result_list,hex_graph_ptr> find_available_moves(const engine& eng, hex_map_ptr map, const hex_object* src, float max_cost);
 }

@@ -63,6 +63,9 @@ namespace geometry
 	template<typename T> inline
 	std::ostream& operator<<(std::ostream& os, const Point<T>& p);
 
+	template<typename T> inline
+	Point<T> normalize(const Point<T>& p);
+
 	//template<> inline Point<int>::Point(const variant& v)
 	//{
 	//	*this = Point<int>(v.as_list_int());
