@@ -19,6 +19,10 @@
 
 namespace graphics
 {
+	DrawPrimitive::DrawPrimitive()
+	{
+	}
+
 	DrawPrimitive::DrawPrimitive(const node& n)
 	{
 	}
@@ -41,9 +45,9 @@ namespace graphics
 	ArrowPrimitive::ArrowPrimitive(const node& n)
 		: DrawPrimitive(n),
 		  granularity_(static_cast<float>(n["granularity"].as_float(0.005f))),
-		  width_base_(static_cast<float>(n["width_base"].as_float(12.0))),
-		  width_head_(static_cast<float>(n["width_head"].as_float(5))),
-		  arrow_head_length_(n["arrow_head_length"].as_float(10)),
+		  width_base_(static_cast<float>(n["width_base"].as_float(12.0f))),
+		  width_head_(static_cast<float>(n["width_head"].as_float(5.0f))),
+		  arrow_head_length_(n["arrow_head_length"].as_float(10.0f)),
 		  arrow_head_width_(static_cast<float>(n["arrow_head_width"].as_float(2.0f))),
 		  fade_in_length_(n["fade_in_length"].as_int32(50)),
 		  color_(255,255,255,255)
@@ -61,13 +65,29 @@ namespace graphics
 		init();
 	}
 
+	ArrowPrimitive::ArrowPrimitive(const std::vector<point>& points)
+		: DrawPrimitive(),
+		  points_(points),
+		  granularity_(0.005f),
+		  width_base_(12.0f),
+		  width_head_(5.0f),
+		  arrow_head_length_(10.0f),
+		  arrow_head_width_(2.0f),
+		  fade_in_length_(50),
+		  color_(255,0,0,255)
+	{
+		init();
+	}
+
 	void ArrowPrimitive::handleDraw(const engine& eng, const point& cam) const
 	{
 		if(points_.size() < 3) {
 			return;
 		}
 
+		SDL_SetRenderDrawColor(const_cast<SDL_Renderer*>(eng.get_renderer()), color_.r(), color_.g(), color_.b(), color_.a());
 		SDL_RenderFillRects(const_cast<SDL_Renderer*>(eng.get_renderer()), &rects_[0], rects_.size());
+		SDL_SetRenderDrawColor(const_cast<SDL_Renderer*>(eng.get_renderer()), 0, 0, 0, 255);
 	}
 	
 	void ArrowPrimitive::init()
@@ -75,6 +95,8 @@ namespace graphics
 		if(points_.size() < 3) {
 			return;
 		}
+		rects_.clear();
+
 		std::vector<pointf> path;
 
 		for(unsigned n = 1; n < points_.size()-1; ++n) {
@@ -90,8 +112,8 @@ namespace graphics
 					const float ratio = static_cast<float>(n)/static_cast<float>(overlap);
 					pointf& value = path[(path.size() - overlap) + n];
 					pointf new_value = new_path[n];
-					value[0] = value[0]*(1.0f-ratio) + new_value[0]*ratio;
-					value[1] = value[1]*(1.0f-ratio) + new_value[1]*ratio;
+					value.x = value.x*(1.0f-ratio) + new_value.x*ratio;
+					value.y = value.y*(1.0f-ratio) + new_value.y*ratio;
 				}
 
 				path.insert(path.end(), new_path.begin() + overlap, new_path.end());
@@ -124,11 +146,18 @@ namespace graphics
 			}
 
 			lr_path.emplace_back(std::make_pair(pointf(p.x + normal_direction_left.x*arrow_width, p.y + normal_direction_left.y*arrow_width),
-				pointf(p.x + normal_direction_right.x*arrow_width, p.y + normal_direction_right.y*arrow_width));
+				pointf(p.x + normal_direction_right.x*arrow_width, p.y + normal_direction_right.y*arrow_width)));
 		}
 
 		for(auto& p : lr_path) {
-			rects_.emplace_back(p.first.x, p.second.x, p.first.y, p.second.y);
+			if(p.first.x > p.second.x) {
+				std::swap(p.first.x, p.second.x);
+			}
+			if(p.first.y > p.second.y) {
+				std::swap(p.first.y, p.second.y);
+			}
+			SDL_Rect r = { p.first.x, p.first.y, p.second.x - p.first.x, p.second.y - p.first.y };
+			rects_.emplace_back(r);
 		}
 	}
 
@@ -151,5 +180,36 @@ namespace graphics
 			out->emplace_back((1.0f-t)*(1.0f-t)*p0.x + 2.0f*(1.0f-t)*t*p1.x + t*t*p2.x, 
 				(1.0f-t)*(1.0f-t)*p0.y + 2.0f*(1.0f-t)*t*p1.y + t*t*p2.y);
 		}
+	}
+
+	void ArrowPrimitive::setGranularity(float g)
+	{
+		granularity_ = g;
+		init();
+	}
+
+	void ArrowPrimitive::setWidth(float base, float head)
+	{
+		width_base_ = base;
+		width_head_ = head;
+		init();
+	}
+
+	void ArrowPrimitive::setArrowHead(float width, float length)
+	{
+		arrow_head_width_ = width;
+		arrow_head_length_ = length;
+		init();
+	}
+
+	void ArrowPrimitive::setFadeIn(int fade)
+	{
+		fade_in_length_ = fade;
+		init();
+	}
+
+	void ArrowPrimitive::setColor(color c)
+	{
+		color_ = c;
 	}
 }

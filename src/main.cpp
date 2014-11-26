@@ -37,6 +37,7 @@
 #include "component.hpp"
 #include "creature.hpp"
 #include "dialog.hpp"
+#include "draw_primitives.hpp"
 #include "engine.hpp"
 #include "font.hpp"
 #include "gui_elements.hpp"
@@ -549,21 +550,29 @@ int main(int argc, char* argv[])
 				SDL_RenderSetScale(e.get_renderer(), 1.0f, 1.0f);
 			}
 			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
+			
+			// hack to draw an arrow
+			{
+				//int x, y;
+				//SDL_GetMouseState(&x, &y);
+				//x = static_cast<int>(x / e.get_zoom());
+				//y = static_cast<int>(y / e.get_zoom());
+				//auto destination_tile = world->map->map->get_tile_from_pixel_pos(x + e.get_camera().x, y + e.get_camera().y);
+				//auto tile_path = hex::find_path(std::get<1>(res), world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), destination_tile);
+				std::vector<point> pixel_path;
+				for(int n = 0; n < 5; n++) {
+					auto p = hex::hex_map::get_pixel_pos_from_tile_pos(n, n) + point(e.get_tile_size().x/2, e.get_tile_size().y/2);
+					pixel_path.emplace_back(p);
+				}
+				graphics::ArrowPrimitive ap(pixel_path);
+				ap.draw(e, e.get_camera());
+			}
+
 			draw_perf_stats(e, tm.get_time());
+
 			SDL_RenderPresent(wm.get_renderer());
 	
 			Uint32 delay = SDL_GetTicks() - cycle_start_tick;
-
-			// hack to draw an arrow
-			{
-				int x, y;
-				SDL_GetMouseState(&x, &y);
-				x = static_cast<int>(x / e.get_zoom());
-				y = static_cast<int>(y / e.get_zoom());
-				auto destination_tile = world->map->map->get_tile_from_pixel_pos(x + e.get_camera().x, y + e.get_camera().y);
-				auto path = hex::find_path(std::get<1>(res), world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), destination_tile);
-				render_arrows(path);
-			}
 
 			if(delay > FRAME_RATE) {
 				//std::cerr << "CYCLE TOO LONG: " << delay << std::endl;

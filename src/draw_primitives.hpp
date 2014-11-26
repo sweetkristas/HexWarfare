@@ -29,12 +29,12 @@ namespace graphics
 	class DrawPrimitive
 	{
 	public:
+		DrawPrimitive();
 		explicit DrawPrimitive(const node& n);
 		static DrawPrimitivePtr factory(const node& n);
 		void draw(const engine& eng, const point& cam) const;
 	private:
 		virtual void handleDraw(const engine& eng, const point& cam) const = 0;
-		DrawPrimitive();
 		DrawPrimitive(const DrawPrimitive&);
 		void operator=(const DrawPrimitive&);
 	};
@@ -42,7 +42,13 @@ namespace graphics
 	class ArrowPrimitive : public DrawPrimitive
 	{
 	public:
+		explicit ArrowPrimitive(const std::vector<point>& points);
 		explicit ArrowPrimitive(const node& n);
+		void setGranularity(float g);
+		void setWidth(float base, float head);
+		void setArrowHead(float width, float length);
+		void setFadeIn(int fade);
+		void setColor(color c);
 	private:
 		void handleDraw(const engine& eng, const point& cam) const override;
 
