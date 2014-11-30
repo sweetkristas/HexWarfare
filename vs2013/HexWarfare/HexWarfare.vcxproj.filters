@@ -281,9 +281,6 @@
     <ClInclude Include="..\..\src\player.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\pathfinding.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\hex_pathfinding.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

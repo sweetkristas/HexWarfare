@@ -28,7 +28,7 @@ namespace creature
 		creature(const node& n) 
 			: component_mask_(0), 
 			  initiative_(0), 
-			  movement_(5), 
+			  movement_(5.0f), 
 			  movement_type_(MovementType::NORMAL) 
 		{
 			using namespace component;
@@ -75,7 +75,7 @@ namespace creature
 					
 				armour_ = stats.has_key("armour") ? stats["armour"].as_int32() : 0;
 
-				movement_ = stats.has_key("movement") ? stats["movement"].as_int32() : 5;
+				movement_ = stats["movement"].as_float(5.0f);
 
 				initiative_ = stats["initiative"].as_int32(0);
 
@@ -114,6 +114,7 @@ namespace creature
 				res->stat->attack = generator::get_uniform_int(attack_min_, attack_max_);
 				res->stat->armour = armour_;
 				res->stat->name = name_;
+				res->stat->move = static_cast<float>(movement_);
 				res->stat->unit = shared_from_this();
 			}
 			if((component_mask_ & genmask(Component::POSITION)) == genmask(Component::POSITION)) {
@@ -144,7 +145,7 @@ namespace creature
 		int attack_max_;
 		int armour_;
 		int initiative_;
-		int movement_;
+		float movement_;
 		MovementType movement_type_;
 		// attack type (magic, physical, type of magic, type of physical, etc)
 		// has ranged attack

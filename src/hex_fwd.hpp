@@ -31,4 +31,9 @@ namespace hex
 	typedef std::shared_ptr<hex_map> hex_map_ptr;
 	typedef std::shared_ptr<const tile_sheet> tile_sheet_ptr;
 	typedef std::shared_ptr<tile_type> tile_type_ptr;
+
+	typedef std::vector<const hex_object*> result_list;
+
+	struct graph_t;
+	typedef std::shared_ptr<graph_t> hex_graph_ptr;
 }

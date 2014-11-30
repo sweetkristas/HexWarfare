@@ -47,8 +47,6 @@ namespace component
 			return Component::INPUT;
 		} else if(s == "lights") {
 			return Component::LIGHTS;
-		} else if(s == "map") {
-			return Component::MAP;
 		} else if(s == "gui") {
 			return Component::GUI;
 		} else if(s == "collision") {
@@ -85,11 +83,6 @@ namespace component
 	}
 
 	lights::~lights()
-	{
-	}
-
-	mapgrid::mapgrid()
-		: component(Component::MAP)
 	{
 	}
 }

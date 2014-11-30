@@ -32,8 +32,10 @@ namespace graphics
 		DrawPrimitive();
 		explicit DrawPrimitive(const node& n);
 		static DrawPrimitivePtr factory(const node& n);
+		// XXX should take the renderer not the engine here.
 		void draw(const engine& eng, const point& cam) const;
 	private:
+		// XXX should take the renderer not the engine here.
 		virtual void handleDraw(const engine& eng, const point& cam) const = 0;
 		DrawPrimitive(const DrawPrimitive&);
 		void operator=(const DrawPrimitive&);
@@ -49,7 +51,9 @@ namespace graphics
 		void setArrowHead(float width, float length);
 		void setFadeIn(int fade);
 		void setColor(color c);
+		void clear() { points_.clear(); rects_.clear(); }
 	private:
+		// XXX should take the renderer not the engine here.
 		void handleDraw(const engine& eng, const point& cam) const override;
 
 		void init();

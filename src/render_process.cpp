@@ -15,6 +15,7 @@
 */
 
 #include "component.hpp"
+#include "draw_primitives.hpp"
 #include "engine.hpp"
 #include "font.hpp"
 #include "render_process.hpp"
@@ -51,7 +52,6 @@ namespace process
 		using namespace component;
 		static component_id sprite_mask = genmask(Component::POSITION)  | genmask(Component::SPRITE);
 		static component_id gui_mask = sprite_mask | genmask(Component::GUI);
-		static component_id map_mask = genmask(Component::MAP);
 		static component_id inp_mask = genmask(Component::INPUT);
 		
 		const point& cam = eng.get_camera();
@@ -61,16 +61,36 @@ namespace process
 
 		SDL_RenderSetScale(eng.get_renderer(), zoom, zoom);
 
-		hex::hex_map_ptr game_map = nullptr;
+		hex::hex_map_ptr game_map = eng.get_map();
+		if(game_map) {
+			game_map->draw(cam);
+		}
 
 		for(auto& e : elist) {
 			if((e->mask & sprite_mask) == sprite_mask && (e->mask & inp_mask) == inp_mask && e->inp->selected) {
 				auto& pos = e->pos;
+				auto& inp = e->inp;
 				static auto ellipse = graphics::texture("images/misc/ellipse-1.png", graphics::TextureFlags::NONE);
 				auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
 				const int x = pp.x - cam.x + (ts.x - ellipse.width())/2;
 				const int y = pp.y - cam.y + ts.y - ellipse.height();
 				ellipse.blit(rect(x, y, ellipse.width(), ellipse.height()));
+
+				if(inp->selected && !inp->possible_moves.empty()) {
+					SDL_SetRenderDrawColor(eng.get_renderer(), 0, 255, 0, 127);
+					for(auto& r : inp->possible_moves) {
+						point p(hex::hex_map::get_pixel_pos_from_tile_pos(r->x(), r->y()));
+						SDL_Rect dest = {p.x+ts.x/4-cam.x, p.y+ts.x/4-cam.y, ts.x/2, ts.y/2};
+						SDL_RenderFillRect(eng.get_renderer(), &dest);
+					}
+					SDL_SetRenderDrawColor(eng.get_renderer(), 0, 0, 0, 255);
+				}
+
+				if(!inp->arrow_path.empty()) {
+					// XXX this should probably be directly in the input component.
+					graphics::ArrowPrimitive ap(inp->arrow_path);
+					ap.draw(eng, cam);
+				}
 			}
 
 			if((e->mask & gui_mask) == gui_mask) {
@@ -90,21 +110,6 @@ namespace process
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
 					spr->tex.blit(rect(pp.x - cam.x, pp.y - cam.y, ts.x, ts.y));
 				}
-			} else if((e->mask & map_mask) == map_mask) {
-				// XXX It'd probably be better to remove the map as being an entity and just store it as a singleton.
-				// Then we can collision detect/draw it from there.
-				auto& map = e->map;
-
-				const int screen_width_in_tiles = (eng.get_window().width() + eng.get_tile_size().x - 1) / eng.get_tile_size().x;
-				const int screen_height_in_tiles = (eng.get_window().height() + eng.get_tile_size().y - 1) / eng.get_tile_size().y;
-				//rect area = rect::from_coordinates(-screen_width_in_tiles / 2 + cam.x, 
-				//	-screen_height_in_tiles / 2 + cam.y,
-				//	screen_width_in_tiles / 2 + cam.x,
-				//	screen_height_in_tiles / 2 + cam.y);
-
-				map->map->draw(cam);
-
-				game_map = map->map; 
 			}
 		}
 

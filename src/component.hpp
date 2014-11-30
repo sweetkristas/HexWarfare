@@ -27,6 +27,7 @@
 #include "creature.hpp"
 #include "geometry.hpp"
 #include "hex_map.hpp"
+#include "hex_pathfinding.hpp"
 #include "node.hpp"
 #include "player.hpp"
 #include "texture.hpp"
@@ -44,7 +45,6 @@ namespace component
 		STATS,
 		INPUT,
 		LIGHTS,
-		MAP,
 		GUI,
 		// tag only values must go at end.
 		CREATURE,
@@ -96,10 +96,11 @@ namespace component
 
 	struct stats : public component
 	{
-		stats() : component(Component::STATS), health(1), attack(0), armour(0) {}
+		stats() : component(Component::STATS), health(1), attack(0), armour(0), move(1.0f) {}
 		int health;
 		int attack;
 		int armour;
+		float move;
 		std::string name;
 		creature::const_creature_ptr unit;
 	};
@@ -109,6 +110,9 @@ namespace component
 		input() : component(Component::INPUT), selected(false) {}
 		rect mouse_area;
 		bool selected;
+		hex::result_list possible_moves;
+		hex::hex_graph_ptr graph;
+		std::vector<point> arrow_path;
 	};
 
 	struct point_light
@@ -131,12 +135,6 @@ namespace component
 		graphics::texture tex;
 	};
 
-	struct mapgrid : public component
-	{
-		mapgrid();
-		hex::hex_map_ptr map;
-	};
-
 	struct gui_component : public component
 	{
 		gui_component() : component(Component::GUI) {}
@@ -153,7 +151,6 @@ namespace component
 		std::shared_ptr<sprite> spr;
 		std::shared_ptr<stats> stat;
 		std::shared_ptr<input> inp;
-		std::shared_ptr<mapgrid> map;
 		std::shared_ptr<gui_component> gui;
 		player_weak_ptr owner;
 	};

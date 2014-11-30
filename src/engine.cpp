@@ -230,10 +230,9 @@ void engine::populate_quadtree()
 		= (1 << component::Component::POSITION)
 		| (1 << component::Component::SPRITE)
 		| (1 << component::Component::COLLISION);
-	static component_id collision_map_mask = collision_mask | (1 << component::Component::MAP);
 
 	for(auto& e : entity_list_) {
-		if((e->mask & collision_map_mask) == collision_mask) {
+		if((e->mask & collision_mask) == collision_mask) {
 			auto& pos = e->pos->pos;
 			auto& spr = e->spr;
 			entity_quads_.insert(e, rect(pos.x, pos.y, tile_size_.x, tile_size_.y));

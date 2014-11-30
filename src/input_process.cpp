@@ -50,7 +50,7 @@ namespace process
 	void input::update(engine& eng, double t, const entity_list& elist)
 	{
 		static component_id input_mask = component::genmask(component::Component::INPUT);
-		static component_id pos_mask = component::genmask(component::Component::POSITION);
+		static component_id pos_mask = component::genmask(component::Component::POSITION) | component::genmask(component::Component::STATS);
 		// Clear the input queue of keystrokes for now.
 		while(!keys_pressed_.empty()) {
 			keys_pressed_.pop();
@@ -61,13 +61,54 @@ namespace process
 				if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
 					auto& pos = e->pos->pos;
 					auto& inp = e->inp;
+					auto& stats = e->stat;
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
 					if(button.button == SDL_BUTTON_LEFT 
 						&& button.type == SDL_MOUSEBUTTONUP) {
 						if(geometry::pointInRect(point(button.x, button.y), inp->mouse_area + pp)) {
 							inp->selected = true;
+							auto owner = e->owner.lock();
+							// if it is current players turn and current_player owns the entity and
+							// the entity still has some movement allowance left.
+							if(eng.get_current_player() == owner /* && is_players_turn && unit_move_not_zero */) {
+								inp->graph = hex::create_cost_graph(eng, eng.get_map(), pos.x, pos.y, stats->move);
+								inp->possible_moves = hex::find_available_moves(inp->graph, eng.get_map()->get_tile_at(pos.x, pos.y), stats->move);
+							}
 						} else {
 							inp->selected = false;
+							inp->possible_moves.clear();
+							inp->graph.reset();
+						}
+					}
+				}
+			}
+		}
+
+		if(!mouse_motion_events_.empty()) {
+			auto motion = mouse_motion_events_.front(); mouse_motion_events_.pop();
+			for(auto& e : elist) {
+				if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
+					auto& pos = e->pos->pos;
+					auto& inp = e->inp;
+					auto& stats = e->stat;
+					//auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
+					if(inp->selected && !inp->possible_moves.empty() && inp->graph != nullptr) {
+						//int x, y;
+						//SDL_GetMouseState(&x, &y);
+						//x = static_cast<int>(x / e.get_zoom());
+						//y = static_cast<int>(y / e.get_zoom());
+						int x = motion.x;
+						int y = motion.y;
+						auto destination_tile = eng.get_map()->get_tile_from_pixel_pos(x + eng.get_camera().x, y + eng.get_camera().y);
+						if(destination_tile) {
+							if(std::find(inp->possible_moves.begin(), inp->possible_moves.end(), destination_tile) != inp->possible_moves.end()) {
+								auto tile_path = hex::find_path(inp->graph, eng.get_map()->get_tile_at(pos.x, pos.y), destination_tile);
+								inp->arrow_path.clear();
+								for(auto& t : tile_path) {
+									auto p = hex::hex_map::get_pixel_pos_from_tile_pos(t->x(), t->y()) + point(eng.get_tile_size().x/2, eng.get_tile_size().y/2);
+									inp->arrow_path.emplace_back(p);
+								}
+							}
 						}
 					}
 				}

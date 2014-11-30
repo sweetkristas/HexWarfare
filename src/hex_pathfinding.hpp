@@ -23,7 +23,6 @@
 #include "component.hpp"
 #include "engine.hpp"
 #include "hex_map.hpp"
-#include "pathfinding.hpp"
 
 namespace hex
 {
@@ -44,12 +43,8 @@ namespace hex
 	};
 	typedef std::shared_ptr<graph_t> hex_graph_ptr;
 
-	//typedef std::shared_ptr<pathfinding::WeightedDirectedGraph<const hex_object*,float>> hex_graph_ptr;
-	typedef std::vector<const hex_object*> result_list;
-
-	//hex_graph_ptr create_graph_from_map(hex_map_ptr map);
-	//result_list cost_search(hex_graph_ptr graph, const hex_object* src, float max_cost);
-	//result_list find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst);
-
-	std::tuple<result_list,hex_graph_ptr> find_available_moves(const engine& eng, hex_map_ptr map, const hex_object* src, float max_cost);
+	hex_graph_ptr create_cost_graph(const engine& eng, hex_map_ptr map, int srcx, int srcy, float max_cost);
+	hex_graph_ptr create_graph(const engine& eng, hex_map_ptr map, int x=0, int y=0, int w=0, int h=0);
+	result_list find_available_moves(hex_graph_ptr graph, const hex_object* src, float max_cost);
+	result_list find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst);
 }

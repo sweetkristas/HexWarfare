@@ -18,6 +18,7 @@
 
 #include "engine_fwd.hpp"
 #include "geometry.hpp"
+#include "hex_fwd.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "process.hpp"
@@ -88,6 +89,9 @@ public:
 	const point& get_tile_size() const { return tile_size_; }
 	void set_tile_size(const point& p) { tile_size_ = p; }
 
+	hex::hex_map_ptr get_map() const { return map_; }
+	void set_map(hex::hex_map_ptr map) { map_ = map; }
+
 private:
 	void translate_mouse_coords(SDL_Event* evt);
 	void process_events();
@@ -105,4 +109,5 @@ private:
 	particle::particle_system_manager particles_;
 	std::vector<player_ptr> players_;
 	unsigned current_player_;
+	hex::hex_map_ptr map_;
 };

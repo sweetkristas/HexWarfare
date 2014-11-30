@@ -162,7 +162,7 @@ namespace graphics
 			if(p.first.y > p.second.y) {
 				std::swap(p.first.y, p.second.y);
 			}
-			SDL_Rect r = { p.first.x, p.first.y, p.second.x - p.first.x, p.second.y - p.first.y };
+			SDL_Rect r = { static_cast<int>(p.first.x), static_cast<int>(p.first.y), static_cast<int>(p.second.x - p.first.x), static_cast<int>(p.second.y - p.first.y) };
 			rects_.emplace_back(r);
 		}
 	}

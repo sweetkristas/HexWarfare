@@ -162,7 +162,6 @@
     <ClInclude Include="..\..\src\parameters.hpp" />
     <ClInclude Include="..\..\src\particles.hpp" />
     <ClInclude Include="..\..\src\particles_fwd.hpp" />
-    <ClInclude Include="..\..\src\pathfinding.hpp" />
     <ClInclude Include="..\..\src\player.hpp" />
     <ClInclude Include="..\..\src\process.hpp" />
     <ClInclude Include="..\..\src\profile_timer.hpp" />

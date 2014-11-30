@@ -194,40 +194,23 @@ namespace hex
 		return std::make_tuple(res, wdg);
 	}*/
 
-	std::tuple<result_list,hex_graph_ptr> find_available_moves(const engine& eng, hex_map_ptr map, const hex_object* src, float max_cost)
+	hex_graph_ptr create_graph(const engine& eng, hex_map_ptr map, int x, int y, int w, int h)
 	{
-		profile::manager pman("find_available_moves");
+		profile::manager pman("create_graph");
 		
 		using namespace component;
 		static const component_id unit_mask = genmask(Component::POSITION) | genmask(Component::CREATURE);
 
-		std::vector<const hex_object*> res;
-		int max_area = static_cast<int>(max_cost*4.0f+1.0f);
-		int x = src->x() - max_area/2;
-		int w = max_area;
-		if(x < 0) {
-			w = w + x;
-			x = 0;
-		} else if(x >= static_cast<int>(map->width())) {
-			w = w - (x - map->width() - 1);
-			x = map->width() - 1;
-		}
-		int y = src->y() - max_area/2;
-		int h = max_area;
-		if(y < 0) {
-			h = h + y;
-			y = 0;
-		} else if(y >= static_cast<int>(map->height())) {
-			h = h - (y - map->height() - 1);
-			y = map->height() - 1;
-		}
-
-		//vertex_list vertices;
 		std::vector<const hex_object*> vertices;
-		//edge_list edges;
-		//edge_weights weights;
 		std::vector<edge> edges;
 		std::vector<cost> weights;
+
+		if(w == 0) {
+			w = map->width();
+		}
+		if(h == 0) {
+			h = map->height();
+		}
 
 		// Scan through enemy entities add to dictionary keyed on position.
 		// For each valid surrounding position of the enemy entity add this to a set of positions.
@@ -236,7 +219,7 @@ namespace hex
 		// have edges to them.
 		// XXX todo.
 
-		std::set<point> friendly_units;
+		//std::set<point> friendly_units;
 		std::map<point, component_set_ptr> enemy_units;
 		std::set<point> surrounding_positions;
 		for(auto& e : eng.get_entities()) {
@@ -250,7 +233,7 @@ namespace hex
 						surrounding_positions.emplace(t->x(), t->y());
 					}
 				} else {
-					friendly_units.emplace(pos);
+					//friendly_units.emplace(pos);
 				}
 			}
 		}
@@ -264,9 +247,6 @@ namespace hex
 				}
 			}
 		}
-
-		auto it = enemy_units.find(point(src->x(), src->y()));
-		ASSERT_LOG(it == enemy_units.end(), "src node in enemies list.");
 
 		std::map<const hex_object*, int> reverse_map;
 
@@ -308,18 +288,47 @@ namespace hex
 			weightmap[e] = weights[n++];
 		}
 
+		return graph;
+	}
+
+	hex_graph_ptr create_cost_graph(const engine& eng, hex_map_ptr map, int srcx, int srcy, float max_cost)
+	{
+		std::vector<const hex_object*> res;
+		int max_area = static_cast<int>(max_cost*4.0f+1.0f);
+		int x = srcx - max_area/2;
+		int w = max_area;
+		if(x < 0) {
+			w = w + x;
+			x = 0;
+		} else if(x >= static_cast<int>(map->width())) {
+			w = w - (x - map->width() - 1);
+			x = map->width() - 1;
+		}
+		int y = srcy - max_area/2;
+		int h = max_area;
+		if(y < 0) {
+			h = h + y;
+			y = 0;
+		} else if(y >= static_cast<int>(map->height())) {
+			h = h - (y - map->height() - 1);
+			y = map->height() - 1;
+		}
+
+		return create_graph(eng, map, x, y, w, h);
+	}
+
+	result_list find_available_moves(hex_graph_ptr graph, const hex_object* src, float max_cost)
+	{
+		profile::manager pman("find_available_moves");
+		
+		std::vector<const hex_object*> res;
+
 		std::vector<cost> d(boost::num_vertices(graph->graph));
 		std::vector<vertex> p(boost::num_vertices(graph->graph));
-		boost::dijkstra_shortest_paths(graph->graph, graph->reverse_map[src], 
+		boost::dijkstra_shortest_paths(graph->graph, graph->reverse_map[src],
 			boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, graph->graph)))
 				.distance_map(boost::make_iterator_property_map(d.begin(), boost::get(boost::vertex_index, graph->graph))));
 		
-		/*boost::graph_traits<hex_graph>::edge_iterator ei, ei_end;
-		for(boost::tie(ei, ei_end) = boost::edges(*g); ei != ei_end; ++ei) {
-			boost::graph_traits<hex_graph>::edge_descriptor e = *ei;
-			boost::graph_traits<hex_graph>::vertex_descriptor u = boost::source(e, *g), v = boost::target(e, *g);
-		}*/
-
 		boost::graph_traits<hex_graph>::vertex_iterator vi, vend;
 		for (boost::tie(vi, vend) = boost::vertices(graph->graph); vi != vend; ++vi) {
 			if(d[*vi] < max_cost) {
@@ -328,23 +337,23 @@ namespace hex
 		}
 
 		// remove tiles that have friendly entities on them, from the results.
-		//res.erase(std::remove_if(res.begin(), res.end(), [&friendly_units](const hex_object* t){ 
-		//	return friendly_units.find(point(t->x(), t->y())) != friendly_units.end();
-		//}), res.end());
+		/*res.erase(std::remove_if(res.begin(), res.end(), [&friendly_units](const hex_object* t){ 
+			return friendly_units.find(point(t->x(), t->y())) != friendly_units.end();
+		}), res.end());*/
 
-		return std::make_tuple(res, graph);
+		return res;
 	}
 
 
 	struct found_goal {}; // exception for termination
 
 	// visitor that terminates when we find the goal
-	template <class Vertex>
+	template<typename Vertex>
 	class astar_goal_visitor : public boost::default_astar_visitor
 	{
 	public:
 		astar_goal_visitor(Vertex goal) : goal_(goal) {}
-		template <class Graph> void examine_vertex(Vertex u, Graph& g) {
+		template<typename Graph> void examine_vertex(Vertex u, Graph& g) {
 			if(u == goal_) {
 				throw found_goal();
 			}
@@ -353,23 +362,25 @@ namespace hex
 		Vertex goal_;
 	};
 
-	// euclidean distance heuristic
-	template <class Graph, class CostType, class LocMap>
-	class distance_heuristic : public astar_heuristic<Graph, CostType>
+	template <class Graph, class CostType>
+	class astar_heuristic : public std::unary_function<typename boost::graph_traits<Graph>::vertex_descriptor, CostType>
 	{
 	public:
-		typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
-		distance_heuristic(LocMap l, Vertex goal)
-			: location_(l), goal_(goal) {}
-		CostType operator()(Vertex u)
-		{
-			CostType dx = location_[goal_].x - location_[u].x;
-			CostType dy = location_[goal_].y - location_[u].y;
-			return ::sqrt(dx * dx + dy * dy);
+		typedef typename boost::graph_traits<Graph>::vertex_descriptor Vertex;
+		astar_heuristic(Vertex goal, const std::vector<const hex_object*>& vertices) 
+			: goal_x_(vertices[goal]->x()), 
+			  goal_y_(vertices[goal]->y()), 
+			  vertices_(vertices) {}
+		CostType operator()(Vertex u) 
+		{ 
+			const auto u_x = vertices_[u]->x();
+			const auto u_y = vertices_[u]->y();
+			return static_cast<CostType>((abs(u_x - goal_x_) + abs(u_y - goal_y_) + abs(u_x + u_y - goal_x_ - goal_y_)) / 2.0f);
 		}
 	private:
-		LocMap location_;
-		Vertex goal_;
+		int goal_x_;
+		int goal_y_;
+		const std::vector<const hex_object*>& vertices_;
 	};
 
 	result_list find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst)
@@ -388,15 +399,16 @@ namespace hex
 		std::vector<vertex> p(boost::num_vertices(graph->graph));
 		std::vector<cost> d(boost::num_vertices(graph->graph));
 		try {
-			boost::astar_search_tree(graph->graph, *src_it, distance_heuristic<hex_graph_ptr, cost, location*>(locations, *dst_it), 
+			boost::astar_search_tree(graph->graph, src_it->second, astar_heuristic<hex_graph, cost>(dst_it->second, graph->vertices), 
 				boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, graph->graph))).
 				distance_map(boost::make_iterator_property_map(d.begin(), boost::get(boost::vertex_index, graph->graph))).
-				visitor(astar_goal_visitor<int>(*dst_it)));
-		} catch(found_goal fg) {
+				visitor(astar_goal_visitor<vertex>(dst_it->second)));
+		} catch(found_goal /*fg*/) {
 			std::vector<const hex_object*> shortest_path;
-			for(auto v = *dst_it;; v = p[v]) {
+			for(auto v = dst_it->second;; v = p[v]) {
 				shortest_path.emplace_back(graph->vertices[v]);
 				if(p[v] == v) {
+					std::reverse(shortest_path.begin(), shortest_path.end());
 					return shortest_path;
 				}
 			}

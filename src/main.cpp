@@ -86,25 +86,16 @@ void draw_perf_stats(engine& eng, double update_time)
 	SDL_DestroyTexture(tex);
 }
 
-component_set_ptr create_world(engine& e, const std::string& world_file)
+void create_world(engine& e, const std::string& world_file)
 {
-	component_set_ptr world = std::make_shared<component::component_set>(0);
-	world->mask |= component::genmask(component::Component::MAP);
-	world->mask |= component::genmask(component::Component::COLLISION);
-	world->map = std::make_shared<component::mapgrid>();
-	//const point& cam = e.get_camera();
-	//const int screen_width_in_tiles = (e.get_window().width() + e.get_tile_size().x - 1) / e.get_tile_size().x;
-	//const int screen_height_in_tiles = (e.get_window().height() + e.get_tile_size().y - 1) / e.get_tile_size().y;
 	try {
-		world->map->map = hex::hex_map::factory(json::parse_from_file(world_file));
+		e.set_map(hex::hex_map::factory(json::parse_from_file(world_file)));
 	} catch(json::parse_error& pe) {
 		ASSERT_LOG(false, "Error parsing " << world_file << ": " << pe.what());
 	} catch(std::bad_weak_ptr& e) {
 		ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 	}
-	e.set_extents(rect(0, 0, world->map->map->width(), world->map->map->height()));
-	e.add_entity(world);
-	return world;
+	e.set_extents(rect(0, 0, e.get_map()->width(), e.get_map()->height()));
 }
 
 /*void pathfinding_test()
@@ -492,10 +483,10 @@ int main(int argc, char* argv[])
 		auto b1 = std::make_shared<player>(t2, PlayerType::AI, "Evil Bot");
 		e.add_player(b1);
 
-		//auto world = create_world(e, "data/maps/map2.cfg");		// 512x512
-		auto world = create_world(e, "data/maps/map4.cfg");			// 32x32
-		//auto world = create_world(e, "data/maps/map5.cfg");			// 8x8
-		//auto world = create_world(e, "data/maps/map6.cfg");			// 128x128
+		//create_world(e, "data/maps/map2.cfg");		// 512x512
+		create_world(e, "data/maps/map4.cfg");			// 32x32
+		//create_world(e, "data/maps/map5.cfg");			// 8x8
+		//create_world(e, "data/maps/map6.cfg");			// 128x128
 		auto g1 = e.add_entity(creature::spawn(p1, "goblin", point(1, 1)));
 		auto g2 = e.add_entity(creature::spawn(b1, "goblin", point(12, 13)));
 		auto g3 = e.add_entity(creature::spawn(p1, "goblin", point(12, 12)));
@@ -513,13 +504,9 @@ int main(int argc, char* argv[])
 		//pathfinding_test();
 		//lws_test();
 
-		//auto graph = hex::create_graph_from_map(world->map->map);
-		//auto res = hex::cost_search(graph, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
-		auto res = hex::find_available_moves(e, world->map->map, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
-		std::cerr << "Found " << std::get<0>(res).size() << " nodes\n";
-		//for(auto& r : res) {
-		//	std::cerr << r->x() << "," << r->y() << "\n";
-		//}
+		//auto g = hex::create_cost_graph(e, world->map->map, g3->pos->pos.x, g3->pos->pos.y, 5.0f);
+		//auto res = hex::find_available_moves(g, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
+		//std::cerr << "Found " << res.size() << " nodes\n";
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {
@@ -532,8 +519,9 @@ int main(int argc, char* argv[])
 			} catch(std::bad_weak_ptr& e) {
 				ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 			}
+			/*
 			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 255, 0, 127);
-			for(auto& r : std::get<0>(res)) {
+			for(auto& r : res) {
 				auto& ts = e.get_tile_size();
 				point p(hex::hex_map::get_pixel_pos_from_tile_pos(r->x(), r->y()));
 				SDL_Rect dest = {p.x+ts.x/4-e.get_camera().x, p.y+ts.x/4-e.get_camera().y, ts.x/2, ts.y/2};
@@ -542,6 +530,7 @@ int main(int argc, char* argv[])
 				SDL_RenderSetScale(e.get_renderer(), 1.0f, 1.0f);
 			}
 			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
+			*/
 			
 			// hack to draw an arrow
 			/*{
@@ -551,8 +540,8 @@ int main(int argc, char* argv[])
 				y = static_cast<int>(y / e.get_zoom());
 				auto destination_tile = world->map->map->get_tile_from_pixel_pos(x + e.get_camera().x, y + e.get_camera().y);
 				if(destination_tile) {
-					if(std::find(std::get<0>(res).begin(), std::get<0>(res).end(), destination_tile) != std::get<0>(res).end()) {
-						auto tile_path = hex::find_path(std::get<1>(res), world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), destination_tile);
+					if(std::find(res.begin(), res.end(), destination_tile) != res.end()) {
+						auto tile_path = hex::find_path(g, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), destination_tile);
 						std::vector<point> pixel_path;
 						for(auto& t : tile_path) {
 							auto p = hex::hex_map::get_pixel_pos_from_tile_pos(t->x(), t->y()) + point(e.get_tile_size().x/2, e.get_tile_size().y/2);
