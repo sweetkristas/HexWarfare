@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -104,7 +105,7 @@ namespace pathfinding
 	struct GraphNodeCmp 
 	{
 		bool operator()(const typename GraphNode<N,T>::GraphNodePtr& lhs, const typename GraphNode<N,T>::GraphNodePtr& rhs) const {
-			return lhs->F() > rhs->F();
+			return lhs->F() < rhs->F();
 		}
 	};
 
@@ -218,6 +219,8 @@ namespace pathfinding
 	{
 		std::vector<N> reachable;
 		std::priority_queue<typename GraphNode<N,T>::GraphNodePtr, std::vector<typename GraphNode<N,T>::GraphNodePtr>, GraphNodeCmp<N,T>> open_list;
+		//std::vector<typename GraphNode<N,T>::GraphNodePtr> open_list;
+		//std::make_heap(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>());
 
 		bool searching = true;
 		try {
@@ -225,9 +228,13 @@ namespace pathfinding
 			current->setCost(T(0), T(0));
 			current->setOnOpenList(true);
 			open_list.emplace(current);
+			//open_list.emplace_back(current); std::push_heap(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>());
+			//open_list.emplace_back(current); std::sort(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>());
 
 			while(searching && !open_list.empty()) {
 				current = open_list.top(); open_list.pop();
+				//std::pop_heap(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>()); 
+				//current = open_list.back(); open_list.pop_back();
 				current->setOnOpenList(false);
 				if(current->G() <= max_cost) {
 					reachable.emplace_back(current->getNodeValue());
@@ -252,6 +259,8 @@ namespace pathfinding
 						} else {
 							neighbour_node->setOnOpenList(true);
 							open_list.emplace(neighbour_node);
+							//open_list.emplace_back(neighbour_node); std::push_heap(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>());
+							//open_list.emplace_back(neighbour_node); std::sort(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>());
 						}
 					}
 				}
@@ -268,6 +277,8 @@ namespace pathfinding
 	{
 		std::vector<N> path;
 		std::priority_queue<typename GraphNode<N,T>::GraphNodePtr, std::vector<typename GraphNode<N,T>::GraphNodePtr>, GraphNodeCmp<N,T>> open_list;
+		//std::vector<typename GraphNode<N,T>::GraphNodePtr> open_list;
+		//std::make_heap(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>());
 
 		bool searching = true;
 		try {
@@ -275,6 +286,8 @@ namespace pathfinding
 			current->setCost(T(0), heuristic(current->getNodeValue(), dst));
 			current->setOnOpenList(false);
 			open_list.emplace(current);
+			//open_list.emplace_back(current); std::push_heap(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>());
+			//open_list.emplace_back(current); std::sort(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>());
 
 			while(searching) {
 				// open list is empty node not found.
@@ -287,6 +300,16 @@ namespace pathfinding
 					throw path_error;
 				}
 				current = open_list.top(); open_list.pop();
+				//std::pop_heap(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>()); 
+				//current = open_list.back(); open_list.pop_back();
+				if(current == nullptr) {
+					PathfindingException<N> path_error = {
+						"Node on open list of null pointer.", 
+						src, 
+						dst
+					};
+					throw path_error;
+				}
 				current->setOnOpenList(false);
 
 				if(current->getNodeValue() == dst) {
@@ -317,6 +340,8 @@ namespace pathfinding
 							neighbour_node->setCost(g_cost, heuristic(current->getNodeValue(), dst));
 							neighbour_node->setOnOpenList(true);
 							open_list.emplace(neighbour_node);
+							//open_list.emplace_back(neighbour_node); std::push_heap(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>());
+							//open_list.emplace_back(neighbour_node); std::sort(open_list.begin(), open_list.end(), GraphNodeCmp<N,T>());
 						}
 					}
 				}

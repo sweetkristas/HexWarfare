@@ -86,7 +86,13 @@ namespace graphics
 		}
 
 		SDL_SetRenderDrawColor(const_cast<SDL_Renderer*>(eng.get_renderer()), color_.r(), color_.g(), color_.b(), color_.a());
-		SDL_RenderFillRects(const_cast<SDL_Renderer*>(eng.get_renderer()), &rects_[0], rects_.size());
+		std::vector<SDL_Rect> rects;
+		rects.reserve(rects_.size());
+		for(auto& r : rects_) {
+			SDL_Rect rs = {r.x - cam.x, r.y - cam.y, r.w, r.h};
+			rects.emplace_back(rs);
+		}
+		SDL_RenderFillRects(const_cast<SDL_Renderer*>(eng.get_renderer()), &rects[0], rects.size());
 		SDL_SetRenderDrawColor(const_cast<SDL_Renderer*>(eng.get_renderer()), 0, 0, 0, 255);
 	}
 	

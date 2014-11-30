@@ -17,6 +17,8 @@
 #pragma once
 
 #include <tuple>
+#include <boost/graph/astar_search.hpp>
+#include <boost/graph/adjacency_list.hpp>
 
 #include "component.hpp"
 #include "engine.hpp"
@@ -25,12 +27,29 @@
 
 namespace hex
 {
-	typedef std::shared_ptr<pathfinding::WeightedDirectedGraph<const hex_object*,float>> hex_graph_ptr;
+	typedef float cost;
+	typedef const hex_object* node_type;
+	typedef boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS, boost::no_property, boost::property<boost::edge_weight_t, cost>> hex_graph;
+	typedef boost::property_map<hex_graph, boost::edge_weight_t>::type WeightMap;
+	typedef hex_graph::vertex_descriptor vertex;
+	typedef hex_graph::edge_descriptor edge_descriptor;
+	typedef std::pair<const hex_object*, const hex_object*> edge;
+
+	struct graph_t
+	{
+		graph_t(size_t size) : graph(size) {}
+		hex_graph graph;
+		std::map<const hex_object*, int> reverse_map;
+		std::vector<const hex_object*> vertices;
+	};
+	typedef std::shared_ptr<graph_t> hex_graph_ptr;
+
+	//typedef std::shared_ptr<pathfinding::WeightedDirectedGraph<const hex_object*,float>> hex_graph_ptr;
 	typedef std::vector<const hex_object*> result_list;
 
-	hex_graph_ptr create_graph_from_map(hex_map_ptr map);
-	result_list cost_search(hex_graph_ptr graph, const hex_object* src, float max_cost);
-	result_list find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst);
+	//hex_graph_ptr create_graph_from_map(hex_map_ptr map);
+	//result_list cost_search(hex_graph_ptr graph, const hex_object* src, float max_cost);
+	//result_list find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst);
 
 	std::tuple<result_list,hex_graph_ptr> find_available_moves(const engine& eng, hex_map_ptr map, const hex_object* src, float max_cost);
 }
