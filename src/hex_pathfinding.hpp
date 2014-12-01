@@ -46,5 +46,5 @@ namespace hex
 	hex_graph_ptr create_cost_graph(const engine& eng, hex_map_ptr map, int srcx, int srcy, float max_cost);
 	hex_graph_ptr create_graph(const engine& eng, hex_map_ptr map, int x=0, int y=0, int w=0, int h=0);
 	result_list find_available_moves(hex_graph_ptr graph, const hex_object* src, float max_cost);
-	result_list find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst);
+	result_path find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst);
 }

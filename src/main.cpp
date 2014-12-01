@@ -501,12 +501,7 @@ int main(int argc, char* argv[])
 		e.add_process(std::make_shared<process::em_collision>());
 		e.add_process(std::make_shared<process::ee_collision>());
 
-		//pathfinding_test();
 		//lws_test();
-
-		//auto g = hex::create_cost_graph(e, world->map->map, g3->pos->pos.x, g3->pos->pos.y, 5.0f);
-		//auto res = hex::find_available_moves(g, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), 5.0f);
-		//std::cerr << "Found " << res.size() << " nodes\n";
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {
@@ -519,41 +514,6 @@ int main(int argc, char* argv[])
 			} catch(std::bad_weak_ptr& e) {
 				ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 			}
-			/*
-			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 255, 0, 127);
-			for(auto& r : res) {
-				auto& ts = e.get_tile_size();
-				point p(hex::hex_map::get_pixel_pos_from_tile_pos(r->x(), r->y()));
-				SDL_Rect dest = {p.x+ts.x/4-e.get_camera().x, p.y+ts.x/4-e.get_camera().y, ts.x/2, ts.y/2};
-				SDL_RenderSetScale(e.get_renderer(), e.get_zoom(), e.get_zoom());
-				SDL_RenderFillRect(wm.get_renderer(), &dest);
-				SDL_RenderSetScale(e.get_renderer(), 1.0f, 1.0f);
-			}
-			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
-			*/
-			
-			// hack to draw an arrow
-			/*{
-				int x, y;
-				SDL_GetMouseState(&x, &y);
-				x = static_cast<int>(x / e.get_zoom());
-				y = static_cast<int>(y / e.get_zoom());
-				auto destination_tile = world->map->map->get_tile_from_pixel_pos(x + e.get_camera().x, y + e.get_camera().y);
-				if(destination_tile) {
-					if(std::find(res.begin(), res.end(), destination_tile) != res.end()) {
-						auto tile_path = hex::find_path(g, world->map->map->get_tile_at(g3->pos->pos.x, g3->pos->pos.y), destination_tile);
-						std::vector<point> pixel_path;
-						for(auto& t : tile_path) {
-							auto p = hex::hex_map::get_pixel_pos_from_tile_pos(t->x(), t->y()) + point(e.get_tile_size().x/2, e.get_tile_size().y/2);
-							pixel_path.emplace_back(p);
-						}
-						graphics::ArrowPrimitive ap(pixel_path);
-						SDL_RenderSetScale(e.get_renderer(), e.get_zoom(), e.get_zoom());
-						ap.draw(e, e.get_camera());
-						SDL_RenderSetScale(e.get_renderer(), 1.0f, 1.0f);
-					}
-				}
-			}*/
 
 			draw_perf_stats(e, tm.get_time());
 

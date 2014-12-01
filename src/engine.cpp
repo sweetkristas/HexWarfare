@@ -104,11 +104,11 @@ void engine::translate_mouse_coords(SDL_Event* evt)
 {
 	// transform the absolute mouse co-ordinates to a window-size independent quantity.
 	if(evt->type == SDL_MOUSEMOTION) {
-		evt->motion.x = static_cast<Sint32>((evt->motion.x / get_zoom()));
-		evt->motion.y = static_cast<Sint32>((evt->motion.y / get_zoom()));
+		evt->motion.x = static_cast<Sint32>(((evt->motion.x + camera_.x) / get_zoom()));
+		evt->motion.y = static_cast<Sint32>(((evt->motion.y + camera_.y) / get_zoom()));
 	} else {
-		evt->button.x = static_cast<Sint32>((evt->button.x / get_zoom()));
-		evt->button.y = static_cast<Sint32>((evt->button.y / get_zoom()));
+		evt->button.x = static_cast<Sint32>(((evt->button.x + camera_.x) / get_zoom()));
+		evt->button.y = static_cast<Sint32>(((evt->button.y + camera_.y) / get_zoom()));
 	}
 }
 

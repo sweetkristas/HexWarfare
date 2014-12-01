@@ -17,6 +17,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 namespace hex 
 {
@@ -32,7 +33,15 @@ namespace hex
 	typedef std::shared_ptr<const tile_sheet> tile_sheet_ptr;
 	typedef std::shared_ptr<tile_type> tile_type_ptr;
 
-	typedef std::vector<const hex_object*> result_list;
+	struct move_cost
+	{
+		move_cost(const hex_object* o, float c) : obj(o), path_cost(c) {}
+		const hex_object* obj;
+		float path_cost;
+	};
+	// XXX result_list might be better served as a std::set
+	typedef std::vector<move_cost> result_list;
+	typedef std::vector<const hex_object*> result_path;
 
 	struct graph_t;
 	typedef std::shared_ptr<graph_t> hex_graph_ptr;

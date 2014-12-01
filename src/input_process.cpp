@@ -75,9 +75,41 @@ namespace process
 								inp->possible_moves = hex::find_available_moves(inp->graph, eng.get_map()->get_tile_at(pos.x, pos.y), stats->move);
 							}
 						} else {
-							inp->selected = false;
-							inp->possible_moves.clear();
-							inp->graph.reset();
+							// Test whether point is in inp->possible_moves(...) and is players turn, then we animate moving the entity to
+							// that position, clear the moves and decrement the units movement allowance.
+							auto owner = e->owner.lock();
+							auto tp = hex::hex_map::get_tile_pos_from_pixel_pos(button.x, button.y);
+							auto destination_tile = eng.get_map()->get_tile_at(tp.x, tp.y);
+							auto it = std::find_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&destination_tile](hex::move_cost const& mc){
+								return destination_tile == mc.obj;
+							});
+							bool clear_entity = false;
+							if(eng.get_current_player() == owner /* && is_players_turn && unit_move_not_zero */ && it != inp->possible_moves.end()) {
+								pos.x = destination_tile->x();
+								pos.y = destination_tile->y();
+								// decrement movement.
+								stats->move -= it->path_cost;
+								if(stats->move < FLT_EPSILON) {
+									stats->move = 0.0f;
+									clear_entity = true;
+								} else {
+									inp->graph = hex::create_cost_graph(eng, eng.get_map(), pos.x, pos.y, stats->move);
+									inp->possible_moves = hex::find_available_moves(inp->graph, eng.get_map()->get_tile_at(pos.x, pos.y), stats->move);
+									if(inp->possible_moves.empty() || (inp->possible_moves.size() == 1 && inp->possible_moves[0].obj == eng.get_map()->get_tile_at(pos.x, pos.y))) {
+										stats->move = 0.0f;
+										clear_entity = true;
+									}
+								}
+							} else {
+								clear_entity = true;
+							}
+
+							if(clear_entity) {
+								inp->selected = false;
+								inp->possible_moves.clear();
+								inp->graph.reset();
+								inp->arrow_path.clear();
+							}
 						}
 					}
 				}
@@ -91,17 +123,16 @@ namespace process
 					auto& pos = e->pos->pos;
 					auto& inp = e->inp;
 					auto& stats = e->stat;
-					//auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
 					if(inp->selected && !inp->possible_moves.empty() && inp->graph != nullptr) {
-						//int x, y;
-						//SDL_GetMouseState(&x, &y);
-						//x = static_cast<int>(x / e.get_zoom());
-						//y = static_cast<int>(y / e.get_zoom());
 						int x = motion.x;
 						int y = motion.y;
 						auto destination_tile = eng.get_map()->get_tile_from_pixel_pos(x + eng.get_camera().x, y + eng.get_camera().y);
 						if(destination_tile) {
-							if(std::find(inp->possible_moves.begin(), inp->possible_moves.end(), destination_tile) != inp->possible_moves.end()) {
+							auto it = std::find_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&destination_tile](hex::move_cost const& mc){
+								return destination_tile == mc.obj;
+							});
+
+							if(it != inp->possible_moves.end()) {
 								auto tile_path = hex::find_path(inp->graph, eng.get_map()->get_tile_at(pos.x, pos.y), destination_tile);
 								inp->arrow_path.clear();
 								for(auto& t : tile_path) {
