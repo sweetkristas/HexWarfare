@@ -8,12 +8,14 @@ objects = \
 	src/action_process.o \
 	src/ai_process.o \
 	src/button.o \
+	src/castles.o \
 	src/collision_process.o \
 	src/color.o \
 	src/component.o \
 	src/creature.o \
 	src/datetime.o \
 	src/dialog.o \
+	src/draw_primitives.o \
 	src/engine.o \
 	src/filesystem.o \
 	src/font.o \
@@ -21,6 +23,7 @@ objects = \
 	src/gui_process.o \
 	src/hex_map.o \
 	src/hex_object.o \
+	src/hex_pathfinding.o \
 	src/hex_tile.o \
 	src/input_process.o \
 	src/json.o \
@@ -33,11 +36,11 @@ objects = \
 	src/notify.o \
 	src/parameters.o \
 	src/particles.o \
+	src/player.o \
 	src/process.o \
 	src/random.o \
 	src/render_process.o \
 	src/surface.o \
-	src/texpack.o \
 	src/texture.o \
 	src/tile.o \
 	src/unit_test.o \

@@ -71,7 +71,7 @@ namespace process
 	void em_collision::update(engine& eng, double t, const entity_list& elist)
 	{
 		using namespace component;
-		static component_id collision_mask = genmask(Component::COLLISION) | genmask(Component::POSITION);
+		//static component_id collision_mask = genmask(Component::COLLISION) | genmask(Component::POSITION);
 		// O(n^2) collision testing is for the pro's :-/
 		// XXX Please make quad-tree or kd-tree for O(nlogn)
 		for(auto& e1 : elist) {

@@ -25,7 +25,7 @@
 namespace 
 {
 	const float camera_scale_factors[] = { 4.0f, 2.0f, 1.0f, 0.5f, 0.25f, 0.125f };
-#define camera_scale_factors_size		sizeof(camera_scale_factors)/sizeof(camera_scale_factors[0])
+#define camera_scale_factors_size		static_cast<int>(sizeof(camera_scale_factors)/sizeof(camera_scale_factors[0]))
 }
 
 
@@ -95,7 +95,7 @@ void engine::replace_player(player_ptr to_be_replaced, player_ptr replacement)
 
 float engine::get_zoom() const
 {
-	ASSERT_LOG(camera_scale_ >= 0 && camera_scale_ < camera_scale_factors_size,
+	ASSERT_LOG(camera_scale_ >= 0 && camera_scale_ < static_cast<int>(camera_scale_factors_size),
 		"Camera scale is out of bounds: 0 <= " << camera_scale_ << " < " << camera_scale_factors_size);
 	return camera_scale_factors[camera_scale_];
 }
