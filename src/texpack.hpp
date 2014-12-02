@@ -159,11 +159,10 @@ namespace graphics
 	class packer
 	{
 	public:
-		//typedef std::pair<N, graphics::texture> texture_pair;
-		using texture_pair = std::pair<N, graphics::texture>;
-		typedef typename std::vector<std::vector<typename texture_pair>>::iterator iterator;
-		typedef typename std::vector<std::vector<typename texture_pair>>::const_iterator const_iterator;
-        packer::packer(const surface_pair_list<N>& inp, int max_width, int max_height)
+		//using texture_pair = std::pair<N, graphics::texture>;
+		typedef typename std::vector<std::vector<std::pair<N, graphics::texture>>>::iterator iterator;
+		typedef typename std::vector<std::vector<std::pair<N, graphics::texture>>>::const_iterator const_iterator;
+        packer(const surface_pair_list<N>& inp, int max_width, int max_height)
         {
             std::vector<tex_node<N>*> root;
             for(auto& img : inp) {
@@ -193,7 +192,7 @@ namespace graphics
                 dest->save(ss.str());
                 graphics::texture texn(dest, graphics::TextureFlags::NONE);
 
-                std::vector<texture_pair> texs;
+                std::vector<std::pair<N, graphics::texture>> texs;
                 for(auto& r : rects) {
                     graphics::texture t(texn);
                     t.set_area(r.second);
@@ -213,6 +212,6 @@ namespace graphics
 		const_iterator begin() const { return outp_.begin(); }
 		const_iterator end() const { return outp_.end(); }
 	private:
-		std::vector<std::vector<texture_pair>> outp_;
+		std::vector<std::vector<std::pair<N, graphics::texture>>> outp_;
 	};
 }

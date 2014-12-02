@@ -29,7 +29,7 @@ namespace graphics
 
 	DrawPrimitivePtr DrawPrimitive::factory(const node& n)
 	{
-		auto& type = n["type"].as_string();
+		auto type = n["type"].as_string();
 		if(type == "arrow") {
 			return std::make_shared<ArrowPrimitive>(n);
 		}

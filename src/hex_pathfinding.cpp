@@ -233,7 +233,7 @@ namespace hex
 				visitor(astar_goal_visitor<vertex>(dst_it->second)));
 		} catch(found_goal /*fg*/) {
 			result_path shortest_path;
-			for(auto v = dst_it->second;; v = p[v]) {
+			for(vertex v = dst_it->second;; v = p[v]) {
 				shortest_path.emplace_back(graph->vertices[v]);
 				if(p[v] == v) {
 					std::reverse(shortest_path.begin(), shortest_path.end());

@@ -47,7 +47,6 @@
 #include "input_process.hpp"
 #include "label.hpp"
 #include "node_utils.hpp"
-#include "pathfinding.hpp"
 #include "profile_timer.hpp"
 #include "random.hpp"
 #include "render_process.hpp"
@@ -271,8 +270,8 @@ callback_lws_mirror(struct libwebsocket_context *context,
 
 	case LWS_CALLBACK_CLIENT_WRITEABLE:
 
-		for (n = 0; n < 1; n++)
-			l += sprintf_s((char *)&buf[LWS_SEND_BUFFER_PRE_PADDING + l],
+		/*for (n = 0; n < 1; n++)
+			l += sprintf((char *)&buf[LWS_SEND_BUFFER_PRE_PADDING + l],
 					LWS_SEND_BUFFER_PRE_PADDING,
 					"c #%06X %d %d %d;",
 					(int)random() & 0xffffff,
@@ -288,7 +287,7 @@ callback_lws_mirror(struct libwebsocket_context *context,
 		if (n < l) {
 			lwsl_err("Partial write LWS_CALLBACK_CLIENT_WRITEABLE\n");
 			return -1;
-		}
+		}*/
 
 		mirror_lifetime--;
 		if (!mirror_lifetime) {
@@ -309,7 +308,6 @@ callback_lws_mirror(struct libwebsocket_context *context,
 int lws_test()
 {
 	int n = 0;
-	int ret = 0;
 	int port = 7681;
 	int use_ssl = 0;
 	const char *address = "localhost";
@@ -355,7 +353,6 @@ int lws_test()
 
 	if (wsi_dumb == NULL) {
 		fprintf(stderr, "libwebsocket connect failed\n");
-		ret = 1;
 		goto bail;
 	}
 
@@ -381,7 +378,6 @@ int lws_test()
 		if (wsi_mirror == NULL) {
 			fprintf(stderr, "libwebsocket "
 					      "mirror connect failed\n");
-			ret = 1;
 			goto bail;
 		}
 	}
