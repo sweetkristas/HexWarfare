@@ -183,7 +183,7 @@ namespace graphics
             }
 
             // process root
-            int count = 0;
+            static int count = 0;
             for(auto& n : root) {
                 std::stringstream ss;
                 surface_ptr dest = std::make_shared<graphics::surface>(n->get_rect().w(), n->get_rect().h());
