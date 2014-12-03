@@ -50,6 +50,7 @@ namespace process
 	void input::update(engine& eng, double t, const entity_list& elist)
 	{
 		static component_id input_mask = component::genmask(component::Component::INPUT);
+		static component_id gui_mask = component::genmask(component::Component::GUI);
 		static component_id pos_mask = component::genmask(component::Component::POSITION) | component::genmask(component::Component::STATS);
 		// Clear the input queue of keystrokes for now.
 		while(!keys_pressed_.empty()) {

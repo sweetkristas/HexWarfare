@@ -51,7 +51,7 @@ namespace process
 	{
 		using namespace component;
 		static component_id sprite_mask = genmask(Component::POSITION)  | genmask(Component::SPRITE);
-		static component_id gui_mask = sprite_mask | genmask(Component::GUI);
+		static component_id gui_mask = genmask(Component::GUI);
 		static component_id inp_mask = genmask(Component::INPUT);
 		
 		const point& cam = eng.get_camera();
@@ -94,16 +94,14 @@ namespace process
 			}
 
 			if((e->mask & gui_mask) == gui_mask) {
-				auto& spr = e->spr;
-				auto& pos = e->pos;
 				auto& g = e->gui;
-				if(spr->tex.is_valid()) {
-					spr->tex.blit(rect(pos->pos.x, pos->pos.y));
-				}
+				SDL_RenderSetScale(eng.get_renderer(), 1.0f, 1.0f);
 				for(auto& w : g->widgets) {
 					w->draw(rect(0, 0, eng.get_window().width(), eng.get_window().height()), 0.0f, 1.0f);
 				}
-			}  else if((e->mask & sprite_mask) == sprite_mask) {
+				SDL_RenderSetScale(eng.get_renderer(), zoom, zoom);
+			}  
+			if((e->mask & sprite_mask) == sprite_mask) {
 				auto& spr = e->spr;
 				auto& pos = e->pos;
 				if(spr->tex.is_valid()) {
@@ -131,5 +129,10 @@ namespace process
 		}
 
 		SDL_RenderSetScale(eng.get_renderer(), 1.0f, 1.0f);	
+
+		// draw widgets on top, if any.
+		for(auto& w : eng.get_widgets()) {
+			w->draw(rect(0, 0, eng.get_window().width(), eng.get_window().height()), 0.0f, 1.0f);
+		}
 	}
 }

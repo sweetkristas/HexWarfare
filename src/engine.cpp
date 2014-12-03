@@ -117,6 +117,9 @@ void engine::process_events()
 	SDL_Event evt;
 	while(SDL_PollEvent(&evt)) {
 		bool claimed = false;
+		for(auto& w : widgets_) {
+			claimed = w->process_events(&evt, claimed);
+		}
 		switch(evt.type) {
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:

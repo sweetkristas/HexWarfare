@@ -25,7 +25,7 @@ namespace gui
 		  scale_(1.0f),
 		  area_set_(false),
 		  just_(justify),
-		  parent_(nullptr)
+		  parent_()
 	{
 		if(r.empty()) {
 			set_loc_internal(r.top_left());
@@ -55,6 +55,16 @@ namespace gui
 		handle_draw(adjust, rotation+rotation_, scale*scale_);
 	}
 
+	rect widget::get_adjusted_area(const rect& r, float rotation, float scale) const
+	{
+		rect adjust(r.x() + static_cast<int>(r.w() * real_area_.x()),
+			r.y() + static_cast<int>(r.h() * real_area_.y()),
+			static_cast<int>(r.w() * real_area_.w()),
+			static_cast<int>(r.h() * real_area_.h()));
+		// XXX should apply rotate and scale here.
+		return adjust;
+	}
+
 	bool widget::process_events(SDL_Event* evt, bool claimed)
 	{
 		if(claimed) {
@@ -73,9 +83,10 @@ namespace gui
 		// XXXXX BUG this shoud be relative to the parent item no the main window
 		float pw = w / get_parent_absolute_width();
 		float ph = h / get_parent_absolute_height();
-		if(parent_) {
-			pw /= parent_->area_.w();
-			ph /= parent_->area_.h();
+		auto owner = parent_.lock();
+		if(owner) {
+			pw /= owner->area_.w();
+			ph /= owner->area_.h();
 		}
 		area_ = rectf(area_.top_left(), area_.top_left() + pointf(pw, ph));
 		update_area();

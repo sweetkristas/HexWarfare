@@ -26,6 +26,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "lua.hpp"
+#include <LuaBridge.h>
+
 #include "libwebsockets.h"
 
 #include "action_process.hpp"
@@ -225,10 +228,9 @@ callback_lws_mirror(struct libwebsocket_context *context,
 			enum libwebsocket_callback_reasons reason,
 					       void *user, void *in, size_t len)
 {
-	unsigned char buf[LWS_SEND_BUFFER_PRE_PADDING + 4096 +
-						  LWS_SEND_BUFFER_POST_PADDING];
+	//unsigned char buf[LWS_SEND_BUFFER_PRE_PADDING + 4096 + LWS_SEND_BUFFER_POST_PADDING];
 	int l = 0;
-	int n;
+	//int n;
 
 	switch (reason) {
 
@@ -390,6 +392,14 @@ bail:
 	return 1;
 }
 
+void create_gui(engine& eng)
+{
+	auto button_label = std::make_shared<gui::label>(rectf(), gui::Justify::H_CENTER | gui::Justify::V_CENTER, "End Turn", graphics::color(255,255,0), 16);
+	rectf area(-0.02f,-0.02f,button_label->get_area().w()+0.05f,button_label->get_area().h()+0.02f);
+	auto end_turn_button = std::make_shared<gui::button>(area, gui::Justify::BOTTOM | gui::Justify::RIGHT, std::bind(&engine::end_turn, eng), button_label);
+	eng.add_widget(end_turn_button);
+}
+
 int main(int argc, char* argv[])
 {
 	std::vector<std::string> args;
@@ -488,7 +498,9 @@ int main(int argc, char* argv[])
 		auto g3 = e.add_entity(creature::spawn(p1, "goblin", point(12, 12)));
 		auto g4 = e.add_entity(creature::spawn(b1, "goblin", point(6, 7)));
 
-		e.add_process(std::make_shared<process::input>());
+		create_gui(e);
+
+ 		e.add_process(std::make_shared<process::input>());
 		e.add_process(std::make_shared<process::render>());
 		e.add_process(std::make_shared<process::gui>());
 		e.add_process(std::make_shared<process::ai>());

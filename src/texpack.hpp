@@ -181,8 +181,9 @@ namespace graphics
                 }
             }
 
-            // process root
+			// XXX This count needs to be a singleton in a .cpp file.
             static int count = 0;
+            // process root
             for(auto& n : root) {
                 std::stringstream ss;
                 surface_ptr dest = std::make_shared<graphics::surface>(n->get_rect().w(), n->get_rect().h());

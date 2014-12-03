@@ -43,6 +43,8 @@ namespace gui
 		return (static_cast<int>(lhs) & static_cast<int>(rhs)) == static_cast<int>(rhs);
 	}
 
+	// XXX A better(?) with widgets is they listen for parent size adjusted or window size adjusted messages.
+	// Then recalculate those when things finish. Would be easier to deal with.
 	class widget
 	{
 	public:
@@ -55,6 +57,7 @@ namespace gui
 		void set_area(const rectf& area) { area_ = area; area_set_ = true; update_area(); }
 		const rectf& get_area() const { return real_area_; }
 		bool is_area_set() { return area_set_; }
+		rect get_adjusted_area(const rect& r, float rotation, float scale) const;
 
 		int get_zorder() const { return zorder_; }
 		void set_zorder(int z) { zorder_ = z; }
@@ -67,7 +70,7 @@ namespace gui
 
 		void set_justification(Justify j);
 
-		void set_parent(widget* parent);
+		void set_parent(std::weak_ptr<widget> parent);
 
 	protected:
 		bool in_widget(const point& p);
@@ -91,7 +94,7 @@ namespace gui
 		float scale_;
 		bool area_set_;
 		Justify just_;
-		widget* parent_;
+		std::weak_ptr<widget> parent_;
 	};
 
 	typedef std::shared_ptr<widget> widget_ptr;

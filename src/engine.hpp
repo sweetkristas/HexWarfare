@@ -24,6 +24,7 @@
 #include "process.hpp"
 #include "profile_timer.hpp"
 #include "quadtree.hpp"
+#include "widget.hpp"
 #include "wm.hpp"
 
 enum class EngineState {
@@ -92,6 +93,9 @@ public:
 	hex::hex_map_ptr get_map() const { return map_; }
 	void set_map(hex::hex_map_ptr map) { map_ = map; }
 
+	void add_widget(gui::widget_ptr w) { widgets_.emplace_back(w); }
+	const std::vector<gui::widget_ptr>& get_widgets() const { return widgets_; }
+
 private:
 	void translate_mouse_coords(SDL_Event* evt);
 	void process_events();
@@ -110,4 +114,5 @@ private:
 	std::vector<player_ptr> players_;
 	unsigned current_player_;
 	hex::hex_map_ptr map_;
+	std::vector<gui::widget_ptr> widgets_;
 };
