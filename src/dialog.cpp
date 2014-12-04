@@ -66,7 +66,7 @@ namespace gui
 
 	void dialog::add_widget(widget_ptr w)
 	{
-		w->set_parent(this);
+		w->set_parent(shared_from_this());
 		children_.emplace_back(w);
 		std::stable_sort(children_.begin(), children_.end());
 	}

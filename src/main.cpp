@@ -394,9 +394,9 @@ bail:
 
 void create_gui(engine& eng)
 {
-	auto button_label = std::make_shared<gui::label>(rectf(), gui::Justify::H_CENTER | gui::Justify::V_CENTER, "End Turn", graphics::color(255,255,0), 16);
+	auto button_label = gui::label::create(rectf(), gui::Justify::H_CENTER | gui::Justify::V_CENTER, "End Turn", graphics::color(255,255,0), 16);
 	rectf area(-0.02f,-0.02f,button_label->get_area().w()+0.05f,button_label->get_area().h()+0.02f);
-	auto end_turn_button = std::make_shared<gui::button>(area, gui::Justify::BOTTOM | gui::Justify::RIGHT, std::bind(&engine::end_turn, eng), button_label);
+	auto end_turn_button = gui::button::create(area, gui::Justify::BOTTOM | gui::Justify::RIGHT, std::bind(&engine::end_turn, eng), button_label);
 	eng.add_widget(end_turn_button);
 }
 
@@ -535,8 +535,8 @@ int main(int argc, char* argv[])
 				SDL_Delay(FRAME_RATE - delay);
 			}
 		}
-	} catch(std::exception& e) {
-		std::cerr << e.what();
+	} catch(std::exception& ex) {
+		std::cerr << ex.what();
 	}
 	return 0;
 }

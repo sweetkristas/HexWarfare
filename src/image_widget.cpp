@@ -14,21 +14,32 @@
    limitations under the License.
 */
 
-#pragma once
+#include "image_widget.hpp"
 
-#include <bitset>
-#include <memory>
-#include <vector>
-
-class engine;
-
-namespace component
+namespace gui
 {
-	struct component_set;
+	image::image(const rectf& r, Justify justify, graphics::texture t)
+		: widget(r, justify),
+		  tex_(t)
+	{
+	}
+
+	void image::recalc_dimensions()
+	{
+		if(!is_area_set()) {
+			set_dim_internal(tex_.width(), tex_.height());
+		}
+	}
+
+	void image::handle_init()
+	{
+		if(!is_area_set()) {
+			set_dim_internal(tex_.width(), tex_.height());
+		}
+	}
+
+	void image::handle_draw(const rect& r, float rotation, float scale) const
+	{
+		tex_.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+	}
 }
-typedef std::shared_ptr<component::component_set> component_set_ptr;
-typedef std::weak_ptr<component::component_set> component_set_weak_ptr;
-
-typedef std::bitset<64> component_id;
-
-typedef std::vector<component_set_ptr> entity_list;

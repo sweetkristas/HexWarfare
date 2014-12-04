@@ -68,7 +68,6 @@ public:
 	bool update(double time);
 
 	int get_turns() const { return turns_; }
-	void inc_turns(int cnt = 1);
 
 	void set_extents(const rect& extents);
 	const rect& get_extents() const;
@@ -103,7 +102,7 @@ private:
 	EngineState state_;
 	int turns_;
 	point camera_;
-	int camera_scale_;
+	unsigned camera_scale_;
 	graphics::window_manager& wm_;
 	entity_list entity_list_;
 	quadtree<component_set_ptr> entity_quads_;

@@ -30,6 +30,35 @@ namespace creature
 		NORMAL,
 	};
 
+	class creature : public std::enable_shared_from_this<creature>
+	{
+	public:
+		creature(const node& n);
+		component_set_ptr create_instance(player_weak_ptr owner, const point& pos);
+
+		float get_movement() const { return movement_; }
+	private:
+		// Displayable name
+		std::string name_;
+		int health_min_;
+		int health_max_;
+		int attack_min_;
+		int attack_max_;
+		int armour_;
+		int initiative_;
+		float movement_;
+		MovementType movement_type_;
+		// attack type (magic, physical, type of magic, type of physical, etc)
+		// has ranged attack
+		// what items might be carried.
+		// lights
+		std::string ai_name_;
+		std::string sprite_name_;
+		rect sprite_area_;
+		component_id component_mask_;
+		creature();
+	};
+
 	void loader(const node& n);
 
 	component_set_ptr spawn(player_weak_ptr owner, const std::string& type, const point& pos);

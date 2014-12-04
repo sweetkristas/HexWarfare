@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <bitset>
 #include <memory>
 #include <string>
 #include <vector>
@@ -32,8 +31,6 @@
 #include "player.hpp"
 #include "texture.hpp"
 #include "widget.hpp"
-
-typedef std::bitset<64> component_id;
 
 namespace component
 {

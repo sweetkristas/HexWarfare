@@ -16,31 +16,20 @@
 
 #pragma once
 
-#include "color.hpp"
-#include "font.hpp"
 #include "widget.hpp"
 
 namespace gui
 {
-	class label : public widget
+	class image : public widget
 	{
 	public:
-		MAKE_FACTORY(label);
-
-		void set_text(const std::string& utf8);
-		void set_size(int sz);
-		void set_color(const graphics::color& color);
-		void set_font(const std::string& font_name);
+		MAKE_FACTORY(image);
 	private:
-		explicit label(const rectf& pos, Justify justify, const std::string& utf8, const graphics::color& color=graphics::color(), int sz=12);
+		explicit image(const rectf& r, Justify justify, graphics::texture t);
+		void recalc_dimensions() override;
 		void handle_init() override;
 		void handle_draw(const rect& r, float rotation, float scale) const override;
-		void recalc_dimensions() override;
-		std::string text_;
-		int size_;
-		graphics::color color_;
-		std::string font_name_;
-		font::font_ptr font_;
-		graphics::texture label_tex_;
+
+		graphics::texture tex_;
 	};
 }

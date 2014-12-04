@@ -25,7 +25,8 @@ namespace gui
 		  scale_(1.0f),
 		  area_set_(false),
 		  just_(justify),
-		  parent_()
+		  parent_(),
+		  enabled_(true)
 	{
 		if(r.empty()) {
 			set_loc_internal(r.top_left());
@@ -38,11 +39,11 @@ namespace gui
 	{
 	}
 
-	bool widget::in_widget(const point& p)
+	bool widget::in_widget(const pointf& p)
 	{
 		//pointf pf(static_cast<float>(p.x/get_mouse_scale_factor()), static_cast<float>(p.y/get_mouse_scale_factor()));
-		pointf pf(static_cast<float>(p.x), static_cast<float>(p.y));
-		return geometry::pointInRect(pf, real_area_ * get_scale());
+		//pointf pf(static_cast<float>(p.x), static_cast<float>(p.y));
+		return geometry::pointInRect(p, real_area_ * get_scale());
 	}
 
 	void widget::draw(const rect& r, float rotation, float scale) const
@@ -53,6 +54,10 @@ namespace gui
 			static_cast<int>(r.w() * real_area_.w()),
 			static_cast<int>(r.h() * real_area_.h()));
 		handle_draw(adjust, rotation+rotation_, scale*scale_);
+
+		// XXX if not enabled should draw something over it to indicate such.
+		if(!enabled_) {
+		}
 	}
 
 	rect widget::get_adjusted_area(const rect& r, float rotation, float scale) const
@@ -67,7 +72,7 @@ namespace gui
 
 	bool widget::process_events(SDL_Event* evt, bool claimed)
 	{
-		if(claimed) {
+		if(claimed || !enabled_) {
 			return claimed;
 		}
 		return handle_events(evt, claimed);
@@ -123,7 +128,7 @@ namespace gui
 		real_area_ = rectf(x, y, w, h);
 	}
 
-	void widget::set_parent(widget* parent)
+	void widget::set_parent(std::weak_ptr<widget> parent)
 	{
 		parent_ = parent;
 		recalc_dimensions();
@@ -132,18 +137,20 @@ namespace gui
 	float widget::get_parent_absolute_width()
 	{
 		auto& wm = graphics::window_manager::get_main_window();
-		if(parent_ == nullptr) {
+		auto owner = parent_.lock();
+		if(owner == nullptr) {
 			return static_cast<float>(wm.width());
 		}
-		return parent_->get_parent_absolute_width();
+		return owner->get_parent_absolute_width();
 	}
 
 	float widget::get_parent_absolute_height()
 	{
 		auto& wm = graphics::window_manager::get_main_window();
-		if(parent_ == nullptr) {
+		auto owner = parent_.lock();
+		if(owner == nullptr) {
 			return static_cast<float>(wm.height());
 		}
-		return parent_->get_parent_absolute_height();
+		return owner->get_parent_absolute_height();
 	}
 }

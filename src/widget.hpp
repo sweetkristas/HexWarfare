@@ -25,6 +25,14 @@
 #include "geometry.hpp"
 #include "texture.hpp"
 
+#define MAKE_FACTORY(classname)																\
+	template<typename... T>																	\
+	static std::shared_ptr<classname> create(T&& ... all) {									\
+		auto bptr = std::shared_ptr<classname>(new classname(std::forward<T>(all)...));		\
+		bptr->init();																		\
+		return bptr;																		\
+	}
+
 namespace gui
 {
 	enum class Justify {
@@ -45,7 +53,7 @@ namespace gui
 
 	// XXX A better(?) with widgets is they listen for parent size adjusted or window size adjusted messages.
 	// Then recalculate those when things finish. Would be easier to deal with.
-	class widget
+	class widget : public std::enable_shared_from_this<widget>
 	{
 	public:
 		explicit widget(const rectf& r, Justify justify);
@@ -72,8 +80,14 @@ namespace gui
 
 		void set_parent(std::weak_ptr<widget> parent);
 
+		std::shared_ptr<widget> get_pointer() { return shared_from_this(); }
+
+		void enable(bool e = true) { enabled_ = e; }
+		bool is_enabled() const { return enabled_; }
+
+		void init() { handle_init(); }
 	protected:
-		bool in_widget(const point& p);
+		bool in_widget(const pointf& p);
 		void set_dim_internal(int w, int h);
 		void set_loc_internal(const pointf& loc);
 		float get_parent_absolute_width();
@@ -84,6 +98,7 @@ namespace gui
 		virtual bool handle_events(SDL_Event* evt, bool claimed) { return claimed; }
 		void update_area();
 		virtual void recalc_dimensions() = 0;
+		virtual void handle_init() = 0;
 		// The elements of area should be defined on the interval (0,1)
 		// representing the fraction of the parent.
 		rectf area_;
@@ -95,6 +110,11 @@ namespace gui
 		bool area_set_;
 		Justify just_;
 		std::weak_ptr<widget> parent_;
+		bool enabled_;
+
+		widget() = default;
+		widget(const widget&) = delete;
+		void operator=(const widget&) = delete;
 	};
 
 	typedef std::shared_ptr<widget> widget_ptr;

@@ -38,12 +38,15 @@ namespace gui
 		mouse_over_tex_.set_blend(graphics::BlendMode::ADDITIVE);
 		normal_tex_.set_blend(graphics::BlendMode::BLEND);
 		pressed_tex_.set_blend(graphics::BlendMode::BLEND);
+	}
 
+	void button::handle_init()
+	{
 		if(!is_area_set()) {
 			set_dim_internal(normal_tex_.width(), normal_tex_.height());
 		}
 		if(child_) {
-			child_->set_parent(this);
+			child_->set_parent(get_pointer());
 		}
 	}
 
@@ -65,16 +68,17 @@ namespace gui
 		if(child_ && child_->process_events(evt, claimed)) {
 			return true;
 		}
+		auto& wm = graphics::window_manager::get_main_window();
 		switch(evt->type) {
 			case SDL_MOUSEMOTION: 
-				if(in_widget(point(evt->button.x, evt->button.y))) {
+				if(in_widget(pointf(evt->button.x / static_cast<float>(wm.width()), evt->button.y / static_cast<float>(wm.height())))) {
 					is_mouseover_ = true;
 				} else {
 					is_mouseover_ = false;
 				}
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				if(in_widget(point(evt->button.x, evt->button.y))) {
+				if(in_widget(pointf(evt->button.x / static_cast<float>(wm.width()), evt->button.y / static_cast<float>(wm.height())))) {
 					on_press();
 					return true;
 				}

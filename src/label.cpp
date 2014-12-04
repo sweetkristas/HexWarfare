@@ -24,7 +24,6 @@ namespace gui
 		  size_(sz),
 		  color_(color)
 	{
-		init();
 	}
 
 	void label::set_text(const std::string& utf8)
@@ -65,7 +64,7 @@ namespace gui
 		}
 	}
 
-	void label::init()
+	void label::handle_init()
 	{
 		font_ = font::get_font(font_name_.empty() ? font::get_default_font_name() : font_name_, size_);
 		auto s = std::make_shared<graphics::surface>(font::render(text_, font_, color_));

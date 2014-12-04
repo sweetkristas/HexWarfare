@@ -96,12 +96,14 @@
     <ClCompile Include="..\..\src\engine.cpp" />
     <ClCompile Include="..\..\src\filesystem.cpp" />
     <ClCompile Include="..\..\src\font.cpp" />
+    <ClCompile Include="..\..\src\grid.cpp" />
     <ClCompile Include="..\..\src\gui_elements.cpp" />
     <ClCompile Include="..\..\src\gui_process.cpp" />
     <ClCompile Include="..\..\src\hex_map.cpp" />
     <ClCompile Include="..\..\src\hex_object.cpp" />
     <ClCompile Include="..\..\src\hex_pathfinding.cpp" />
     <ClCompile Include="..\..\src\hex_tile.cpp" />
+    <ClCompile Include="..\..\src\image_widget.cpp" />
     <ClCompile Include="..\..\src\input_process.cpp" />
     <ClCompile Include="..\..\src\json.cpp" />
     <ClCompile Include="..\..\src\label.cpp" />
@@ -144,6 +146,7 @@
     <ClInclude Include="..\..\src\font.hpp" />
     <ClInclude Include="..\..\src\formatter.hpp" />
     <ClInclude Include="..\..\src\geometry.hpp" />
+    <ClInclude Include="..\..\src\grid.hpp" />
     <ClInclude Include="..\..\src\gui_elements.hpp" />
     <ClInclude Include="..\..\src\gui_process.hpp" />
     <ClInclude Include="..\..\src\hasher.hpp" />
@@ -152,6 +155,7 @@
     <ClInclude Include="..\..\src\hex_object.hpp" />
     <ClInclude Include="..\..\src\hex_pathfinding.hpp" />
     <ClInclude Include="..\..\src\hex_tile.hpp" />
+    <ClInclude Include="..\..\src\image_widget.hpp" />
     <ClInclude Include="..\..\src\input_process.hpp" />
     <ClInclude Include="..\..\src\json.hpp" />
     <ClInclude Include="..\..\src\label.hpp" />

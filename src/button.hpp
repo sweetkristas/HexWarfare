@@ -23,8 +23,10 @@ namespace gui
 	class button : public widget
 	{
 	public:
-		button(const rectf& pos, Justify justify, std::function<void()> pressed, widget_ptr child=nullptr);
+		MAKE_FACTORY(button);
 	private:
+		explicit button(const rectf& pos, Justify justify, std::function<void()> pressed, widget_ptr child=nullptr);
+		void handle_init() override;
 		void handle_draw(const rect& r, float rotation, float scale) const override;
 		bool handle_events(SDL_Event* evt, bool claimed) override;
 		void recalc_dimensions() override;
@@ -37,5 +39,9 @@ namespace gui
 		graphics::texture normal_tex_;
 		graphics::texture pressed_tex_;
 		graphics::texture mouse_over_tex_;
+
+		button() = default;
+		button(const button&) = delete;
+		void operator=(const button&) = delete;
 	};
 }

@@ -18,14 +18,18 @@
 
 #include "asserts.hpp"
 #include "component.hpp"
+#include "creature.hpp"
 #include "engine.hpp"
 #include "node_utils.hpp"
 #include "profile_timer.hpp"
 
 namespace 
 {
-	const float camera_scale_factors[] = { 4.0f, 2.0f, 1.0f, 0.5f, 0.25f, 0.125f };
-#define camera_scale_factors_size		static_cast<int>(sizeof(camera_scale_factors)/sizeof(camera_scale_factors[0]))
+	const std::vector<float>& camera_scale_factors()
+	{
+		static std::vector<float> res{ 4.0f, 2.0f, 1.0f, 0.5f, 0.25f, 0.125f };
+		return res;
+	}
 }
 
 
@@ -95,9 +99,9 @@ void engine::replace_player(player_ptr to_be_replaced, player_ptr replacement)
 
 float engine::get_zoom() const
 {
-	ASSERT_LOG(camera_scale_ >= 0 && camera_scale_ < static_cast<int>(camera_scale_factors_size),
-		"Camera scale is out of bounds: 0 <= " << camera_scale_ << " < " << camera_scale_factors_size);
-	return camera_scale_factors[camera_scale_];
+	ASSERT_LOG(camera_scale_ >= 0 && camera_scale_ < camera_scale_factors().size(),
+		"Camera scale is out of bounds: 0 <= " << camera_scale_ << " < " << camera_scale_factors().size());
+	return camera_scale_factors()[camera_scale_];
 }
 
 void engine::translate_mouse_coords(SDL_Event* evt)
@@ -132,8 +136,8 @@ void engine::process_events()
 						camera_scale_ = 0;
 					}
 				} else if(evt.wheel.y < 0) {
-					if(++camera_scale_ >= camera_scale_factors_size) {
-						camera_scale_ = camera_scale_factors_size-1;
+					if(++camera_scale_ >= camera_scale_factors().size()) {
+						camera_scale_ = camera_scale_factors().size()-1;
 					}
 				}
 				break;
@@ -269,24 +273,6 @@ bool engine::update(double time)
 	return true;
 }
 
-void engine::inc_turns(int cnt)
-{ 
-	// N.B. The event holds the number turn number before we incremented. 
-	// So we can run things like the AI for the correct number of turns skipped.
-	// XXX On second thoughts I don't like this at all, we should skip
-	// turns at a rate 1/200ms or so I think. Gives player time to cancel
-	// if attacked etc.
-	SDL_Event user_event;
-	user_event.type = SDL_USEREVENT;
-	user_event.user.code = static_cast<Sint32>(EngineUserEvents::NEW_TURN);
-	user_event.user.data1 = reinterpret_cast<void*>(turns_);
-	user_event.user.data2 = nullptr;
-	SDL_PushEvent(&user_event);
-
-	turns_ += cnt;
-}
-
-
 const player_ptr& engine::get_current_player() const
 {
 	ASSERT_LOG(current_player_ < players_.size(), "current_player is out of bounds: " << current_player_ << " >= " << players_.size());
@@ -296,11 +282,37 @@ const player_ptr& engine::get_current_player() const
 // Does end of turn processing. Like incrementing to the next player.
 void engine::end_turn()
 {	
+	component_id stats_mask = component::genmask(component::Component::STATS);
+
+	// Iterate through the list of entities and set movement count to zero..
+	for(auto& e : entity_list_) {
+		if((e->mask & stats_mask) == stats_mask) {
+			auto owner = e->owner.lock();
+			ASSERT_LOG(owner != nullptr, "entity without owner set: " << e->entity_id);
+			if(owner == players_[current_player_]) {
+				e->stat->move = 0;
+			}
+		}
+	}
+
+	// Need to disable the End turn button if not current player's turn.
+
 	//players_[current_player_]->end_turn();
 	if(++current_player_ >= players_.size()) {
 		current_player_ = 0;
 	}
 	//players_[current_player_]->new_turn();
+
+	// Iterate through the list of entities and reset movement counts etc.
+	for(auto& e : entity_list_) {
+		if((e->mask & stats_mask) == stats_mask) {
+			auto owner = e->owner.lock();
+			ASSERT_LOG(owner != nullptr, "entity without owner set: " << e->entity_id);
+			if(owner == players_[current_player_]) {
+				e->stat->move = e->stat->unit->get_movement();
+			}
+		}
+	}
 }
 
 void engine::set_extents(const rect& extents) 

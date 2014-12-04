@@ -71,7 +71,7 @@ namespace process
 							auto owner = e->owner.lock();
 							// if it is current players turn and current_player owns the entity and
 							// the entity still has some movement allowance left.
-							if(eng.get_current_player() == owner /* && is_players_turn && unit_move_not_zero */) {
+							if(eng.get_current_player() == owner && stats->move > FLT_EPSILON) {
 								inp->graph = hex::create_cost_graph(eng, eng.get_map(), pos.x, pos.y, stats->move);
 								inp->possible_moves = hex::find_available_moves(inp->graph, eng.get_map()->get_tile_at(pos.x, pos.y), stats->move);
 							}
@@ -85,7 +85,7 @@ namespace process
 								return destination_tile == mc.obj;
 							});
 							bool clear_entity = false;
-							if(eng.get_current_player() == owner /* && is_players_turn && unit_move_not_zero */ && it != inp->possible_moves.end()) {
+							if(eng.get_current_player() == owner && stats->move > FLT_EPSILON && it != inp->possible_moves.end()) {
 								pos.x = destination_tile->x();
 								pos.y = destination_tile->y();
 								// decrement movement.
