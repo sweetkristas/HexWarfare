@@ -46,6 +46,7 @@
 #include "gui_elements.hpp"
 #include "gui_process.hpp"
 #include "hex_pathfinding.hpp"
+#include "initiative_dialog.hpp"
 #include "json.hpp"
 #include "input_process.hpp"
 #include "label.hpp"
@@ -494,9 +495,14 @@ int main(int argc, char* argv[])
 		//create_world(e, "data/maps/map5.cfg");			// 8x8
 		//create_world(e, "data/maps/map6.cfg");			// 128x128
 		auto g1 = e.add_entity(creature::spawn(p1, "goblin", point(1, 1)));
-		auto g2 = e.add_entity(creature::spawn(b1, "goblin", point(12, 13)));
+		auto g2 = e.add_entity(creature::spawn(b1, "flesh-golem", point(12, 13)));
 		auto g3 = e.add_entity(creature::spawn(p1, "goblin", point(12, 12)));
-		auto g4 = e.add_entity(creature::spawn(b1, "goblin", point(6, 7)));
+		auto g4 = e.add_entity(creature::spawn(b1, "flesh-golem", point(6, 7)));
+
+		g1->stat->initiative = g1->stat->unit->get_initiative() + e.get_initiative_counter();
+		g2->stat->initiative = g2->stat->unit->get_initiative() + e.get_initiative_counter();
+		g3->stat->initiative = g3->stat->unit->get_initiative() + e.get_initiative_counter();
+		g4->stat->initiative = g4->stat->unit->get_initiative() + e.get_initiative_counter();
 
 		create_gui(e);
 
@@ -511,6 +517,10 @@ int main(int argc, char* argv[])
 
 		//lws_test();
 
+		auto bw = gui::initiative::create(rectf(0.0f, 0.0f, 0.4f, 0.1f), gui::Justify::H_CENTER | gui::Justify::BOTTOM);
+		bw->enable_background_rect();
+		bw->set_background_rect_color(graphics::color(255,0,255,64));
+
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {
 			Uint32 cycle_start_tick = SDL_GetTicks();
@@ -519,11 +529,16 @@ int main(int argc, char* argv[])
 			SDL_RenderClear(wm.get_renderer());
 			try {
 				running = e.update(60.0/1000.0);
+				// XXX temp
+				bw->update(e, 60.0/1000.0);
 			} catch(std::bad_weak_ptr& e) {
 				ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 			}
 
 			draw_perf_stats(e, tm.get_time());
+
+			// XXX temp
+			bw->draw(rect(0, 0, e.get_window().width(), e.get_window().height()), 0.0f, 1.0f);
 
 			SDL_RenderPresent(wm.get_renderer());
 	

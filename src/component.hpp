@@ -98,6 +98,7 @@ namespace component
 		int attack;
 		int armour;
 		float move;
+		int initiative;
 		std::string name;
 		creature::const_creature_ptr unit;
 	};

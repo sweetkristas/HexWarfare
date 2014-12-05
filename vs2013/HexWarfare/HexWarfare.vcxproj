@@ -84,6 +84,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\action_process.cpp" />
     <ClCompile Include="..\..\src\ai_process.cpp" />
+    <ClCompile Include="..\..\src\bar_widget.cpp" />
     <ClCompile Include="..\..\src\button.cpp" />
     <ClCompile Include="..\..\src\castles.cpp" />
     <ClCompile Include="..\..\src\collision_process.cpp" />
@@ -104,6 +105,7 @@
     <ClCompile Include="..\..\src\hex_pathfinding.cpp" />
     <ClCompile Include="..\..\src\hex_tile.cpp" />
     <ClCompile Include="..\..\src\image_widget.cpp" />
+    <ClCompile Include="..\..\src\initiative_dialog.cpp" />
     <ClCompile Include="..\..\src\input_process.cpp" />
     <ClCompile Include="..\..\src\json.cpp" />
     <ClCompile Include="..\..\src\label.cpp" />
@@ -128,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\action_process.hpp" />
     <ClInclude Include="..\..\src\ai_process.hpp" />
+    <ClInclude Include="..\..\src\bar_widget.hpp" />
     <ClInclude Include="..\..\src\basic_dir_monitor.hpp" />
     <ClInclude Include="..\..\src\button.hpp" />
     <ClInclude Include="..\..\src\castles.hpp" />
@@ -156,6 +159,7 @@
     <ClInclude Include="..\..\src\hex_pathfinding.hpp" />
     <ClInclude Include="..\..\src\hex_tile.hpp" />
     <ClInclude Include="..\..\src\image_widget.hpp" />
+    <ClInclude Include="..\..\src\initiative_dialog.hpp" />
     <ClInclude Include="..\..\src\input_process.hpp" />
     <ClInclude Include="..\..\src\json.hpp" />
     <ClInclude Include="..\..\src\label.hpp" />

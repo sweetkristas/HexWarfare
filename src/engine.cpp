@@ -266,7 +266,9 @@ bool engine::update(double time)
 		p->update(*this, time, entity_list_);
 	}
 
-	// Player move hack
+	for(auto& w : widgets_) {
+		w->update(*this, time);
+	}
 
 	particles_.update(static_cast<float>(time));
 	particles_.draw();

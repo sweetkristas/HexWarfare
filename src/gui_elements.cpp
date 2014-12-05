@@ -45,7 +45,8 @@ namespace gui
 				"Must be 'sections' attribute in gui file which is a list.");
 			std::vector<std::pair<std::string, surface_ptr>> surfs;
 			for(auto& s : n["sections"].as_list()) {
-				surfs.emplace_back(std::make_pair(s["name"].as_string(), std::make_shared<graphics::surface>(s["image"].as_string())));
+				rect area = s.has_key("area") ? rect(s["area"].as_list_ints()) : rect();
+				surfs.emplace_back(std::make_pair(s["name"].as_string(), std::make_shared<graphics::surface>(s["image"].as_string(), area)));
 			}
 			for(auto& vtex : graphics::packer<std::string>(surfs, info.max_texture_width, info.max_texture_height)) {
 				for(auto& tex : vtex) {

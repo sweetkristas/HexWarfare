@@ -26,7 +26,9 @@ namespace gui
 		  area_set_(false),
 		  just_(justify),
 		  parent_(),
-		  enabled_(true)
+		  enabled_(true),
+		  background_rect_enabled_(false),
+		  background_rect_color_(255,255,255)
 	{
 		if(r.empty()) {
 			set_loc_internal(r.top_left());
@@ -53,6 +55,15 @@ namespace gui
 			r.y() + static_cast<int>(r.h() * real_area_.y()),
 			static_cast<int>(r.w() * real_area_.w()),
 			static_cast<int>(r.h() * real_area_.h()));
+		
+		if(background_rect_enabled_) {
+			auto& wm = graphics::window_manager::get_main_window();
+			SDL_Rect fr = { adjust.x(), adjust.y(), adjust.w(), adjust.h() };
+			SDL_SetRenderDrawColor(wm.get_renderer(), background_rect_color_.r(), background_rect_color_.g(), background_rect_color_.b(), background_rect_color_.a());
+			SDL_RenderFillRect(wm.get_renderer(), &fr);
+			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
+		}
+
 		handle_draw(adjust, rotation+rotation_, scale*scale_);
 
 		// XXX if not enabled should draw something over it to indicate such.

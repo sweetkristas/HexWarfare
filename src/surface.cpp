@@ -42,10 +42,20 @@ namespace graphics
 		});
 	}
 
-	surface::surface(const std::string& fname)
+	surface::surface(const std::string& fname, const rect& r)
 	{
 		auto surf = IMG_Load(fname.c_str());
 		ASSERT_LOG(surf != NULL, "Failed to load image: " << fname << " : " << IMG_GetError());
+		if(r.w() != 0 && r.h() != 0) {
+			auto new_surf = SDL_CreateRGBSurface(0, r.w(), r.h(), 32, SURFACE_MASK);
+			ASSERT_LOG(new_surf != NULL, "Unable to create a new surface.");
+			SDL_Rect src_rect = { r.x(), r.y(), r.w(), r.h() };
+			SDL_Rect dst_rect = { 0, 0, r.w(), r.h() };
+			SDL_BlitSurface(surf, &src_rect, new_surf, &dst_rect);
+			SDL_FreeSurface(surf);
+			surf = new_surf;
+		}
+
 		surf_.reset(surf, [](SDL_Surface* surf){
 			SDL_FreeSurface(surf);
 		});

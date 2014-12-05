@@ -95,6 +95,8 @@ public:
 	void add_widget(gui::widget_ptr w) { widgets_.emplace_back(w); }
 	const std::vector<gui::widget_ptr>& get_widgets() const { return widgets_; }
 
+	int get_initiative_counter() const { return initiative_counter_; }
+
 private:
 	void translate_mouse_coords(SDL_Event* evt);
 	void process_events();
@@ -114,4 +116,5 @@ private:
 	unsigned current_player_;
 	hex::hex_map_ptr map_;
 	std::vector<gui::widget_ptr> widgets_;
+	int initiative_counter_;
 };

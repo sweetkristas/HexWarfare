@@ -36,6 +36,7 @@ namespace creature
 		creature(const node& n);
 		component_set_ptr create_instance(player_weak_ptr owner, const point& pos);
 
+		int get_initiative() const { return initiative_; }
 		float get_movement() const { return movement_; }
 	private:
 		// Displayable name

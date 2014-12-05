@@ -24,7 +24,7 @@ namespace creature
 {
 	creature::creature(const node& n) 
 		: component_mask_(0), 
-			initiative_(0), 
+			initiative_(5), 
 			movement_(5.0f), 
 			movement_type_(MovementType::NORMAL) 
 	{
@@ -74,7 +74,7 @@ namespace creature
 
 			movement_ = stats["movement"].as_float(5.0f);
 
-			initiative_ = stats["initiative"].as_int32(0);
+			initiative_ = stats["initiative"].as_int(5);
 
 			if(stats.has_key("movement_type")) {
 				const std::string& mt = stats["movement_type"].as_string();

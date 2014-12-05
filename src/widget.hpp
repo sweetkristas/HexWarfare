@@ -21,6 +21,7 @@
 
 #include "SDL.h"
 
+#include "color.hpp"
 #include "engine_fwd.hpp"
 #include "geometry.hpp"
 #include "texture.hpp"
@@ -86,6 +87,9 @@ namespace gui
 		bool is_enabled() const { return enabled_; }
 
 		void init() { handle_init(); }
+
+		void enable_background_rect(bool en=true) { background_rect_enabled_ = en; }
+		void set_background_rect_color(const graphics::color& c) { background_rect_color_ = c; }
 	protected:
 		bool in_widget(const pointf& p);
 		void set_dim_internal(int w, int h);
@@ -111,6 +115,8 @@ namespace gui
 		Justify just_;
 		std::weak_ptr<widget> parent_;
 		bool enabled_;
+		bool background_rect_enabled_;
+		graphics::color background_rect_color_;
 
 		widget() = default;
 		widget(const widget&) = delete;

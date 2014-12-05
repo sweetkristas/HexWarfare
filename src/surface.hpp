@@ -49,7 +49,7 @@ namespace graphics
 	{
 	public:
 		explicit surface(int width, int height);
-		explicit surface(const std::string& fname);
+		explicit surface(const std::string& fname, const rect& r=rect());
 		explicit surface(SDL_Surface* surf);
 		~surface();
 
