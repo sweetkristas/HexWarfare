@@ -38,28 +38,40 @@ namespace gui
 			bar_->draw(r, rotation, scale);
 		}
 
+		if(sprites_.empty()) {
+			return;
+		}
+
+		// XXX future ideas 
+		// (1) if two units are at the same time to act,
+		// then make them smaller and put one on top the other at the
+		// bottom of the intiative bar.
+		// (2) Add mouse over or clickable information to units.
+
+		const float early_time = sprites_.front().time_to_act;
+		const float late_time  = sprites_.back().time_to_act;
+
 		for(auto& th : sprites_) {
-			// XXX calculate correct position.
-			rect pos_r;
+			const float time_scale = (th.time_to_act - early_time) / (late_time - early_time);
+			// Calculate the new width/height of the sprite to make it such that it takes up the full height of the 
+			// initiative bar, whilst preserving width/height ratio of the sprite.
+			const int height = r.h();
+			const int width = (th.tex.width() * height) / th.tex.height();
+			const rect pos_r(r.x() + static_cast<int>(r.w()*time_scale) - width/2, r.mid_y() - height/2, width, height);
+
 			th.tex.blit_ex(pos_r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
 		}
 	}
 
 	void initiative::handle_update(engine& eng, double t)
 	{
-		const component_id stat_mask = component::genmask(component::Component::STATS) | component::genmask(component::Component::SPRITE);
 		sprites_.clear();
 
-		for(auto& e : eng.get_entities()) {
-			if((e->mask & stat_mask) == stat_mask) {
-				auto ini = e->stat->initiative;
-				auto spr = e->spr->tex;
-				sprites_.emplace_back(spr, ini);
-			}
+		for(auto& e : eng.get_entities_initiative_ordered()) {
+			auto ini = e->stat->initiative;
+			auto spr = e->spr->tex;
+			sprites_.emplace_back(spr, ini);
 		}
-		std::stable_sort(sprites_.begin(), sprites_.end(), [](const texture_holder& lhs, const texture_holder& rhs) {
-			return lhs.time_to_act < rhs.time_to_act;
-		});
 	}
 
 	void initiative::recalc_dimensions()

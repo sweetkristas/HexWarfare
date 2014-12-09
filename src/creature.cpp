@@ -18,6 +18,7 @@
 
 #include "component.hpp"
 #include "creature.hpp"
+#include "engine.hpp"
 #include "random.hpp"
 
 namespace creature
@@ -74,7 +75,8 @@ namespace creature
 
 			movement_ = stats["movement"].as_float(5.0f);
 
-			initiative_ = stats["initiative"].as_int(5);
+			initiative_ = stats["initiative"].as_int32(5);
+			ASSERT_LOG(initiative_ >= 1 && initiative_ <= 100, "initiative value not in valid range: 1 <= " << initiative_ << " <= 100");
 
 			if(stats.has_key("movement_type")) {
 				const std::string& mt = stats["movement_type"].as_string();
@@ -101,7 +103,7 @@ namespace creature
 		}
 	}
 
-	component_set_ptr creature::create_instance(player_weak_ptr owner, const point& pos) {
+	component_set_ptr creature::create_instance(engine& eng, player_weak_ptr owner, const point& pos) {
 		component_set_ptr res = std::make_shared<component::component_set>(80);
 		using namespace component;
 		// XXX fix zorder here.
@@ -112,6 +114,7 @@ namespace creature
 			res->stat->armour = armour_;
 			res->stat->name = name_;
 			res->stat->move = static_cast<float>(movement_);
+			res->stat->initiative = 100.0f/static_cast<float>(initiative_) + eng.get_initiative_counter();
 			res->stat->unit = shared_from_this();
 		}
 		if((component_mask_ & genmask(Component::POSITION)) == genmask(Component::POSITION)) {
@@ -151,10 +154,10 @@ namespace creature
 		}
 	}
 
-	component_set_ptr spawn(player_weak_ptr owner, const std::string& type, const point& pos)
+	component_set_ptr spawn(engine& eng, player_weak_ptr owner, const std::string& type, const point& pos)
 	{
 		auto it = get_creature_cache().find(type);
 		ASSERT_LOG(it != get_creature_cache().end(), "Couldn't find a definition for creature of type '" << type << "' in the cache.");
-		return it->second->create_instance(owner, pos);
+		return it->second->create_instance(eng, owner, pos);
 	}
 }

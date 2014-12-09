@@ -98,7 +98,7 @@ namespace component
 		int attack;
 		int armour;
 		float move;
-		int initiative;
+		float initiative;
 		std::string name;
 		creature::const_creature_ptr unit;
 	};
@@ -156,6 +156,14 @@ namespace component
 	inline bool operator<(const component_set_ptr& lhs, const component_set_ptr& rhs)
 	{
 		return lhs->zorder == rhs->zorder ? lhs.get() < rhs.get() : lhs->zorder < rhs->zorder;
+	}
+
+	inline bool initiative_compare(const component_set_ptr& lhs, const component_set_ptr& rhs)
+	{
+		static component_id stats_mask = genmask(Component::STATS);
+		ASSERT_LOG((lhs->mask & stats_mask) == stats_mask, "initiative_compare: LHS of comparison does not have STATS component.");
+		ASSERT_LOG((rhs->mask & stats_mask) == stats_mask, "initiative_compare: RHS of comparison does not have STATS component.");
+		return lhs->stat->initiative < rhs->stat->initiative;
 	}
 }
 

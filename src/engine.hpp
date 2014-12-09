@@ -82,7 +82,7 @@ public:
 	particle::particle_system_manager& get_particles() { return particles_; }
 
 	const entity_list& get_entities() const { return entity_list_; }
-	entity_list entities_in_area(const rect& r);
+	const entity_list& get_entities_initiative_ordered() const { return entities_initiative_order_; }
 
 	const player_ptr& get_current_player() const;
 
@@ -95,19 +95,18 @@ public:
 	void add_widget(gui::widget_ptr w) { widgets_.emplace_back(w); }
 	const std::vector<gui::widget_ptr>& get_widgets() const { return widgets_; }
 
-	int get_initiative_counter() const { return initiative_counter_; }
+	float get_initiative_counter() const { return initiative_counter_; }
 
 private:
 	void translate_mouse_coords(SDL_Event* evt);
 	void process_events();
-	void populate_quadtree();
 	EngineState state_;
 	int turns_;
 	point camera_;
 	unsigned camera_scale_;
 	graphics::window_manager& wm_;
 	entity_list entity_list_;
-	quadtree<component_set_ptr> entity_quads_;
+	entity_list entities_initiative_order_;
 	std::vector<process::process_ptr> process_list_;
 	point tile_size_;
 	rect extents_;
@@ -116,5 +115,9 @@ private:
 	unsigned current_player_;
 	hex::hex_map_ptr map_;
 	std::vector<gui::widget_ptr> widgets_;
-	int initiative_counter_;
+	float initiative_counter_;
+
+	engine() = delete;
+	engine(const engine&) = delete;
+	void operator=(const engine&) = delete;
 };

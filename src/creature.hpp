@@ -34,7 +34,7 @@ namespace creature
 	{
 	public:
 		creature(const node& n);
-		component_set_ptr create_instance(player_weak_ptr owner, const point& pos);
+		component_set_ptr create_instance(engine& eng, player_weak_ptr owner, const point& pos);
 
 		int get_initiative() const { return initiative_; }
 		float get_movement() const { return movement_; }
@@ -62,5 +62,6 @@ namespace creature
 
 	void loader(const node& n);
 
-	component_set_ptr spawn(player_weak_ptr owner, const std::string& type, const point& pos);
+	// XXX should the spawn function automatically add the entity to the engine?
+	component_set_ptr spawn(engine& eng, player_weak_ptr owner, const std::string& type, const point& pos);
 }

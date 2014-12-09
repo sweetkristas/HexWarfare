@@ -38,7 +38,6 @@ engine::engine(graphics::window_manager& wm)
 	  turns_(1),
 	  camera_scale_(2),
 	  wm_(wm),
-	  entity_quads_(0, rect(0,0,100,100)),
 	  particles_(wm.get_renderer()),
 	  current_player_(0)
 {
@@ -52,6 +51,10 @@ component_set_ptr engine::add_entity(component_set_ptr e)
 {
 	entity_list_.emplace_back(e);
 	std::stable_sort(entity_list_.begin(), entity_list_.end());
+	if((e->mask & component::genmask(component::Component::STATS)) == component::genmask(component::Component::STATS)) {
+		entities_initiative_order_.emplace_back(e);
+		std::stable_sort(entities_initiative_order_.begin(), entities_initiative_order_.end(), component::initiative_compare);
+	}
 	return e;
 }
 
@@ -60,6 +63,9 @@ void engine::remove_entity(component_set_ptr e1)
 	entity_list_.erase(std::remove_if(entity_list_.begin(), entity_list_.end(), [&e1](component_set_ptr e2) {
 		return e1 == e2; 
 	}), entity_list_.end());
+	entities_initiative_order_.erase(std::remove_if(entities_initiative_order_.begin(), entities_initiative_order_.end(), [&e1](component_set_ptr e2) {
+		return e1 == e2; 
+	}), entities_initiative_order_.end());
 }
 
 void engine::add_process(process::process_ptr s)
@@ -228,32 +234,6 @@ void engine::process_events()
 	}
 }
 
-void engine::populate_quadtree()
-{
-	entity_quads_.clear();
-	
-	// only add entities to the quadtree that meet are collidable, but not maps
-	static component_id collision_mask 
-		= (1 << component::Component::POSITION)
-		| (1 << component::Component::SPRITE)
-		| (1 << component::Component::COLLISION);
-
-	for(auto& e : entity_list_) {
-		if((e->mask & collision_mask) == collision_mask) {
-			auto& pos = e->pos->pos;
-			auto& spr = e->spr;
-			entity_quads_.insert(e, rect(pos.x, pos.y, tile_size_.x, tile_size_.y));
-		}
-	}
-}
-
-entity_list engine::entities_in_area(const rect& r)
-{
-	entity_list res;
-	entity_quads_.get_collidable(res, r);
-	return res;
-}
-
 bool engine::update(double time)
 {
 	process_events();
@@ -261,7 +241,6 @@ bool engine::update(double time)
 		return state_ == EngineState::PAUSE ? true : false;
 	}
 
-	populate_quadtree();
 	for(auto& p : process_list_) {
 		p->update(*this, time, entity_list_);
 	}
@@ -284,37 +263,18 @@ const player_ptr& engine::get_current_player() const
 // Does end of turn processing. Like incrementing to the next player.
 void engine::end_turn()
 {	
-	component_id stats_mask = component::genmask(component::Component::STATS);
-
-	// Iterate through the list of entities and set movement count to zero..
-	for(auto& e : entity_list_) {
-		if((e->mask & stats_mask) == stats_mask) {
-			auto owner = e->owner.lock();
-			ASSERT_LOG(owner != nullptr, "entity without owner set: " << e->entity_id);
-			if(owner == players_[current_player_]) {
-				e->stat->move = 0;
-			}
-		}
+	if(entities_initiative_order_.size() > 0) {
+		auto e = entities_initiative_order_.front();
+		e->stat->initiative += 100.0f/e->stat->unit->get_initiative();
+		std::stable_sort(entities_initiative_order_.begin(), entities_initiative_order_.end(), component::initiative_compare);
+		initiative_counter_ = entities_initiative_order_.front()->stat->initiative;
 	}
 
-	// Need to disable the End turn button if not current player's turn.
-
-	//players_[current_player_]->end_turn();
-	if(++current_player_ >= players_.size()) {
-		current_player_ = 0;
+	std::cerr << "Initative list:";
+	for(auto& e : entities_initiative_order_) {
+		std::cerr << "   " << e->stat->name << ":" << e->stat->initiative;
 	}
-	//players_[current_player_]->new_turn();
-
-	// Iterate through the list of entities and reset movement counts etc.
-	for(auto& e : entity_list_) {
-		if((e->mask & stats_mask) == stats_mask) {
-			auto owner = e->owner.lock();
-			ASSERT_LOG(owner != nullptr, "entity without owner set: " << e->entity_id);
-			if(owner == players_[current_player_]) {
-				e->stat->move = e->stat->unit->get_movement();
-			}
-		}
-	}
+	std::cerr << "\n";
 }
 
 void engine::set_extents(const rect& extents) 

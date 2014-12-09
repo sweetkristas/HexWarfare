@@ -63,7 +63,7 @@ namespace process
 
 		hex::hex_map_ptr game_map = eng.get_map();
 		if(game_map) {
-			game_map->draw(cam);
+			game_map->draw(rect(0, 0, eng.get_window().width(), eng.get_window().height()), cam);
 		}
 
 		for(auto& e : elist) {

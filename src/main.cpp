@@ -92,7 +92,7 @@ void draw_perf_stats(engine& eng, double update_time)
 void create_world(engine& e, const std::string& world_file)
 {
 	try {
-		e.set_map(hex::hex_map::factory(json::parse_from_file(world_file)));
+		e.set_map(hex::hex_map::factory(json::parse_from_file(world_file), rectf(0.0f,0.05f,0.85f,1.0f)));
 	} catch(json::parse_error& pe) {
 		ASSERT_LOG(false, "Error parsing " << world_file << ": " << pe.what());
 	} catch(std::bad_weak_ptr& e) {
@@ -397,7 +397,7 @@ void create_gui(engine& eng)
 {
 	auto button_label = gui::label::create(rectf(), gui::Justify::H_CENTER | gui::Justify::V_CENTER, "End Turn", graphics::color(255,255,0), 16);
 	rectf area(-0.02f,-0.02f,button_label->get_area().w()+0.05f,button_label->get_area().h()+0.02f);
-	auto end_turn_button = gui::button::create(area, gui::Justify::BOTTOM | gui::Justify::RIGHT, std::bind(&engine::end_turn, eng), button_label);
+	auto end_turn_button = gui::button::create(area, gui::Justify::BOTTOM | gui::Justify::RIGHT, std::bind(&engine::end_turn, &eng), button_label);
 	eng.add_widget(end_turn_button);
 }
 
@@ -494,15 +494,10 @@ int main(int argc, char* argv[])
 		create_world(e, "data/maps/map4.cfg");			// 32x32
 		//create_world(e, "data/maps/map5.cfg");			// 8x8
 		//create_world(e, "data/maps/map6.cfg");			// 128x128
-		auto g1 = e.add_entity(creature::spawn(p1, "goblin", point(1, 1)));
-		auto g2 = e.add_entity(creature::spawn(b1, "flesh-golem", point(12, 13)));
-		auto g3 = e.add_entity(creature::spawn(p1, "goblin", point(12, 12)));
-		auto g4 = e.add_entity(creature::spawn(b1, "flesh-golem", point(6, 7)));
-
-		g1->stat->initiative = g1->stat->unit->get_initiative() + e.get_initiative_counter();
-		g2->stat->initiative = g2->stat->unit->get_initiative() + e.get_initiative_counter();
-		g3->stat->initiative = g3->stat->unit->get_initiative() + e.get_initiative_counter();
-		g4->stat->initiative = g4->stat->unit->get_initiative() + e.get_initiative_counter();
+		auto g1 = e.add_entity(creature::spawn(e, p1, "goblin", point(1, 1)));
+		auto g2 = e.add_entity(creature::spawn(e, b1, "flesh-golem", point(12, 13)));
+		auto g3 = e.add_entity(creature::spawn(e, p1, "goblin", point(12, 12)));
+		auto g4 = e.add_entity(creature::spawn(e, b1, "flesh-golem", point(6, 7)));
 
 		create_gui(e);
 
@@ -518,8 +513,15 @@ int main(int argc, char* argv[])
 		//lws_test();
 
 		auto bw = gui::initiative::create(rectf(0.0f, 0.0f, 0.4f, 0.1f), gui::Justify::H_CENTER | gui::Justify::BOTTOM);
-		bw->enable_background_rect();
-		bw->set_background_rect_color(graphics::color(255,0,255,64));
+		//bw->enable_background_rect();
+		//bw->set_background_rect_color(graphics::color(255,0,255,64));
+		e.add_widget(bw);
+
+		auto info_win = gui::dialog::create(rectf(0.0f, 0.0f, 0.2f, 1.0f), gui::Justify::RIGHT | gui::Justify::TOP);
+		e.add_widget(info_win);
+
+		auto status_bar = gui::dialog::create(rectf(0.0f, 0.0f, 0.8f, 0.05f), gui::Justify::LEFT | gui::Justify::TOP);
+		e.add_widget(status_bar);
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {
@@ -530,7 +532,7 @@ int main(int argc, char* argv[])
 			try {
 				running = e.update(60.0/1000.0);
 				// XXX temp
-				bw->update(e, 60.0/1000.0);
+				//bw->update(e, 60.0/1000.0);
 			} catch(std::bad_weak_ptr& e) {
 				ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 			}
@@ -538,7 +540,7 @@ int main(int argc, char* argv[])
 			draw_perf_stats(e, tm.get_time());
 
 			// XXX temp
-			bw->draw(rect(0, 0, e.get_window().width(), e.get_window().height()), 0.0f, 1.0f);
+			//bw->draw(rect(0, 0, e.get_window().width(), e.get_window().height()), 0.0f, 1.0f);
 
 			SDL_RenderPresent(wm.get_renderer());
 	

@@ -20,19 +20,34 @@
 
 namespace gui
 {
+	enum class BackgroundSections
+	{
+		CORNER_TL,
+		CORNER_TR,
+		CORNER_BL,
+		CORNER_BR,
+		SIDE_LEFT,
+		SIDE_RIGHT,
+		SIDE_TOP,
+		SIDE_BOTTOM,
+		CENTER,
+		MAX
+	};
+
 	class dialog : public widget
 	{
 	public:
-		dialog(const rectf& pos, Justify justify);
+		MAKE_FACTORY(dialog);
 		void close();
 		void add_widget(widget_ptr w);
 	private:
+		explicit dialog(const rectf& pos, Justify justify);
 		virtual bool handle_events(SDL_Event* evt, bool claimed) override;
 		void handle_draw(const rect& r, float rotation, float scale) const override;
 		void handle_update(engine& eng, double t) override;
+		void handle_init() override;
 		void recalc_dimensions() override;
-		void init();
-		graphics::texture bg_;
+		std::vector<graphics::texture> bg_;
 		std::vector<widget_ptr> children_;
 		bool is_open_;
 	};

@@ -44,7 +44,7 @@ namespace hex
 		}
 	}
 
-	hex_map_ptr hex_map::factory(const node& n)
+	hex_map_ptr hex_map::factory(const node& n, const rectf& screen_area)
 	{
 		hex_map_ptr p = std::make_shared<hex_map>(n);
 		int index = 0;
@@ -60,11 +60,19 @@ namespace hex
 		for(auto& t : p->tiles_) {
 			t.init_neighbors();
 		}
+		p->screen_area_ = screen_area;
 		return p;
 	}
 
-	void hex_map::draw(const point& cam) const
+	void hex_map::draw(const rect& r, const point& cam) const
 	{
+		// XXX: only draw tiles that are within the area of adjust.
+		// maybe should have a clip scope as well.
+		rect adjust(r.x() + static_cast<int>(r.w() * screen_area_.x()),
+			r.y() + static_cast<int>(r.h() * screen_area_.y()),
+			static_cast<int>(r.w() * screen_area_.w()),
+			static_cast<int>(r.h() * screen_area_.h()));
+
 		for(auto& t : tiles_) {
 			t.draw(cam);
 		}

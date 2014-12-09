@@ -41,7 +41,7 @@ namespace hex
 		size_t height() const { return height_; }
 		size_t size() const { return width_ * height_; }
 		void build();
-		virtual void draw(const point& cam) const;
+		virtual void draw(const rect& r, const point& cam) const;
 		node write() const;
 
 		bool set_tile(int x, int y, const std::string& tile);
@@ -57,7 +57,7 @@ namespace hex
 		static point loc_in_dir(int x, int y, direction d);
 		static point loc_in_dir(int x, int y, const std::string& s);
 		
-		static hex_map_ptr factory(const node& n);
+		static hex_map_ptr factory(const node& n, const rectf& screen_area);
 	private:
 		hex_map(const hex_map&);
 		void operator=(const hex_map&);
@@ -68,6 +68,7 @@ namespace hex
 		int height_;
 		int zorder_;
 		int border_;
+		rectf screen_area_;
 		std::vector<castle::castle_ptr> castles_;
 	};
 }

@@ -26,14 +26,33 @@ namespace gui
 		: widget(pos, justify),
 		  is_open_(false)
 	{
-		init();
 	}
 
 	void dialog::handle_draw(const rect& r, float rotation, float scale) const
 	{
-		if(bg_.is_valid()) {
-			bg_.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		for(auto& tex : bg_) {
+			ASSERT_LOG(tex.is_valid(), "Texture isn't valid.");
 		}
+		
+		auto& tl = bg_[static_cast<int>(BackgroundSections::CORNER_TL)];
+		tl.blit_ex(rect(r.x(), r.y(), tl.width(), tl.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		auto& tr = bg_[static_cast<int>(BackgroundSections::CORNER_TR)];
+		tr.blit_ex(rect(r.x2() - tr.width(), r.y(), tr.width(), tr.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		auto& bl = bg_[static_cast<int>(BackgroundSections::CORNER_BL)];
+		bl.blit_ex(rect(r.x(), r.y2() - bl.height(), bl.width(), bl.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		auto& br = bg_[static_cast<int>(BackgroundSections::CORNER_BR)];
+		br.blit_ex(rect(r.x2() - br.width(), r.y2() - br.height(), br.width(), br.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		auto& cc = bg_[static_cast<int>(BackgroundSections::CENTER)];
+		cc.blit_ex(rect(r.x()+tl.width(), r.y()+tl.height(), r.w() - br.width() - tl.width(), r.h() - br.height() - tl.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		auto& sl = bg_[static_cast<int>(BackgroundSections::SIDE_LEFT)];
+		sl.blit_ex(rect(r.x(), r.y()+tl.height(), tl.width(), r.h()-bl.height()-tl.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		auto& sr = bg_[static_cast<int>(BackgroundSections::SIDE_RIGHT)];
+		sr.blit_ex(rect(r.x2() - sr.width(), r.y() + tr.height(), sr.width(), r.h()-tr.height()-br.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		auto& st = bg_[static_cast<int>(BackgroundSections::SIDE_TOP)];
+		st.blit_ex(rect(r.x() + tl.width(), r.y(), r.w() - tl.width() - tr.width(), st.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		auto& sb = bg_[static_cast<int>(BackgroundSections::SIDE_BOTTOM)];
+		sb.blit_ex(rect(r.x() + br.width(), r.y2() - sb.height(), r.w() - bl.width() - br.width(), sb.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+
 		for(auto& w : children_) {
 			w->draw(r, rotation, scale);
 		}
@@ -41,14 +60,21 @@ namespace gui
 
 	void dialog::recalc_dimensions()
 	{
-		if(!is_area_set() && bg_.is_valid()) {
-			set_dim_internal(bg_.width(), bg_.height());
-		}
 	}
 
-	void dialog::init()
+	void dialog::handle_init()
 	{
-		bg_ = gui::section::get("panel_beige");
+		// N.B. The ordering here is important. Technically I could use a std::pair<BackgroundSections,graphics::texture> 
+		// but that seems overkill.
+		bg_.emplace_back(gui::section::get("panel_beige_tl_corner"));
+		bg_.emplace_back(gui::section::get("panel_beige_tr_corner"));
+		bg_.emplace_back(gui::section::get("panel_beige_bl_corner"));
+		bg_.emplace_back(gui::section::get("panel_beige_br_corner"));
+		bg_.emplace_back(gui::section::get("panel_beige_left_border"));
+		bg_.emplace_back(gui::section::get("panel_beige_right_border"));
+		bg_.emplace_back(gui::section::get("panel_beige_top_border"));
+		bg_.emplace_back(gui::section::get("panel_beige_bottom_border"));
+		bg_.emplace_back(gui::section::get("panel_beige_center"));
 		recalc_dimensions();
 	}
 
