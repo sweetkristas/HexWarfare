@@ -44,11 +44,28 @@ namespace enet
 			if(enet_host_service (e_server.get(), &event, 0) > 0) {
 				switch(event.type) {
 					case ENET_EVENT_TYPE_CONNECT:
+						std::cerr << "A new client connected from " << event.peer->address.host << ":" << event.peer->address.port << "\n";
+						event.peer->data = "Client information";
+						break;
 					case ENET_EVENT_TYPE_RECEIVE:
+						std::cerr 
+							<< "A packet of length " 
+							<< event.packet->dataLength 
+							<< " containing " 
+							<< event.packet->data 
+							<< " was received from " 
+							<< reinterpret_cast<char*>(event.peer->data) 
+							<< " on channel " 
+							<< event.channelID
+							<< "\n";
+						enet_packet_destroy(event.packet);
+						break;
 					case ENET_EVENT_TYPE_DISCONNECT:
+						std::cerr << reinterpret_cast<char*>(event.peer->data) << " disconnected.\n";
+						event.peer->data = nullptr;
 						break;
 				}
 			}
-		};
+		}
 	}
 }

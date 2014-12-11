@@ -39,6 +39,7 @@
 #include "creature.hpp"
 #include "dialog.hpp"
 #include "draw_primitives.hpp"
+#include "enet_server.hpp"
 #include "engine.hpp"
 #include "font.hpp"
 #include "gui_elements.hpp"
@@ -110,8 +111,8 @@ void create_gui(engine& eng)
 
 COMMAND_LINE_UTILITY(server)
 {
-	//ws::server ws_server(9000);
-	//ws_server.run();
+	enet::server enet_server(9000);
+	enet_server.run();
 }
 
 int main(int argc, char* argv[])
@@ -230,8 +231,6 @@ int main(int argc, char* argv[])
 		// N.B. entity/map collision needs to come before entity/entity collision
 		e.add_process(std::make_shared<process::em_collision>());
 		e.add_process(std::make_shared<process::ee_collision>());
-
-		//lws_test();
 
 		auto bw = gui::initiative::create(rectf(0.0f, 0.0f, 0.4f, 0.1f), gui::Justify::H_CENTER | gui::Justify::BOTTOM);
 		//bw->enable_background_rect();
