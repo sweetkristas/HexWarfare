@@ -431,8 +431,9 @@ bool node::operator!=(const node& n) const
 	return !operator==(n);
 }
 
-void node::write_json(std::ostream& os, bool pretty, int indent) const
+std::string node::write_json(bool pretty, int indent) const
 {
+	std::stringstream os;
 	switch(type()) {
 	case NODE_TYPE_NULL:
 		os << "null";
@@ -447,6 +448,7 @@ void node::write_json(std::ostream& os, bool pretty, int indent) const
 		os << f_;
 		break;
 	case NODE_TYPE_STRING:
+		os << "\"";
 		for(auto it = s_.begin(); it != s_.end(); ++it) {
 			if(*it == '"') {
 				os << "\\\"";
@@ -482,30 +484,33 @@ void node::write_json(std::ostream& os, bool pretty, int indent) const
 				os << *it;
 			}
 		}
+		os << "\"";
 		break;
 	case NODE_TYPE_MAP:
-		os << pretty ? "{\n" + std::string(' ', indent) : "{";
+		os << (pretty ? ("{\n" + std::string(indent, ' ')) : "{");
 		for(auto pr = m_.begin(); pr != m_.end(); ++pr) {
 			if(pr != m_.begin()) {
-				os << pretty ? ",\n" + std::string(' ', indent) : ",";
+				os << (pretty ? (",\n" + std::string(indent, ' ')) : ",");
 			}
-			pr->first.write_json(os, pretty, indent + 4);
+			os << pr->first.write_json(pretty, indent + 4);
 			os << (pretty ? ": " : ":");
-			pr->second.write_json(os, pretty, indent + 4);
+			os << pr->second.write_json(pretty, indent + 4);
 		}
-		os << pretty ? "\n" + std::string(' ', indent) + "}" : "}";
+		os << (pretty ? ("\n" + std::string(indent, ' ') + "}") : "}");
+		break;
 	case NODE_TYPE_LIST:
-		os << pretty ? "[\n" + std::string(' ', indent) : "[";
+		os << (pretty ? ("[\n" + std::string(indent, ' ')) : "[");
 		for(auto it = l_.begin(); it != l_.end(); ++it) {
 			if(it != l_.begin()) {
-				os << pretty ? ",\n" + std::string(' ', indent) : ",";
+				os << (pretty ? ",\n" + std::string(indent, ' ') : ",");
 			}
-			it->write_json(os, pretty, indent + 4);
+			os << it->write_json(pretty, indent + 4);
 		}
-		os << pretty ? "\n" + std::string(' ', indent) + "]" : "]";
+		os << (pretty ? ("\n" + std::string(indent, ' ') + "]") : "]");
 		break;
 	default: break;
 	}
+	return os.str();
 }
 
 unsigned node::num_elements() const
@@ -532,7 +537,7 @@ unsigned node::num_elements() const
 
 std::ostream& operator<<(std::ostream& os, const node& n)
 {
-	n.write_json(os);
+	os << n.write_json();
 	return os;
 }
 

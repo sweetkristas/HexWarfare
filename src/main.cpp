@@ -29,8 +29,6 @@
 #include "lua.hpp"
 #include <LuaBridge.h>
 
-#include "libwebsockets.h"
-
 #include "action_process.hpp"
 #include "ai_process.hpp"
 #include "asserts.hpp"
@@ -57,6 +55,7 @@
 #include "surface.hpp"
 #include "sdl_wrapper.hpp"
 #include "unit_test.hpp"
+#include "utility.hpp"
 #include "wm.hpp"
 
 #define FRAME_RATE	(static_cast<int>(1000.0/60.0))
@@ -101,298 +100,6 @@ void create_world(engine& e, const std::string& world_file)
 	e.set_extents(rect(0, 0, e.get_map()->width(), e.get_map()->height()));
 }
 
-/*void pathfinding_test()
-{
-	std::vector<int> vertices{1,2,3,4,5,6,7,8};
-	pathfinding::DirectedGraph<int>::GraphEdgeList edges;
-	pathfinding::WeightedDirectedGraph<int,float>::EdgeWeights weights;
-
-	edges[1] = {2,3,4};
-	edges[2] = {1,4};
-	edges[3] = {1,4,5};
-	edges[4] = {1,2,3,5,6};
-	edges[5] = {3,4,6,7,8};
-	edges[6] = {4,5,8};
-	edges[7] = {5,8};
-	edges[8] = {5,6,7};
-
-	for(auto& e1 : edges) {
-		for(auto& e2 : e1.second) {
-			weights[pathfinding::EdgePair<int>(e1.first, e2)] = 1.0f;
-		}
-	}
-
-	pathfinding::DirectedGraph<int>::Pointer dg1 = std::make_shared<pathfinding::DirectedGraph<int>>(&vertices, &edges);
-	pathfinding::WeightedDirectedGraph<int, float>::Pointer wg1 = std::make_shared<pathfinding::WeightedDirectedGraph<int, float>>(dg1, &weights);
-	
-	for(auto n : {1,2,3,4,5,6,7,8}) {
-		auto res = pathfinding::path_cost_search<int,float>(wg1, n, 1.0f);
-		std::cerr << "Nodes reachable from " << n << " with cost 1.0: ";
-		for(auto r : res) {
-			std::cerr << r << " ";
-		}
-		std::cerr << "\n";
-	}
-
-	auto res = pathfinding::path_cost_search<int,float>(wg1, 5, 2.0f);
-	std::cerr << "Nodes reachable from " << 5 << " with cost 2.0: ";
-	for(auto r : res) {
-		std::cerr << r << " ";
-	}
-	std::cerr << "\n";
-
-	res = pathfinding::path_cost_search<int,float>(wg1, 1, 0.5f);
-	std::cerr << "Nodes reachable from " << 1 << " with cost 0.5: ";
-	for(auto r : res) {
-		std::cerr << r << " ";
-	}
-	std::cerr << "\n";
-}*/
-
-static unsigned int opts;
-static int was_closed;
-static int deny_deflate;
-static int deny_mux;
-static struct libwebsocket *wsi_mirror;
-static int mirror_lifetime = 0;
-static volatile int force_exit = 0;
-static int longlived = 0;
-
-enum demo_protocols {
-
-	PROTOCOL_DUMB_INCREMENT,
-	PROTOCOL_LWS_MIRROR,
-
-	/* always last */
-	DEMO_PROTOCOL_COUNT
-};
-
-
-/* dumb_increment protocol */
-
-static int
-callback_dumb_increment(struct libwebsocket_context *context,
-			struct libwebsocket *wsi,
-			enum libwebsocket_callback_reasons reason,
-					       void *user, void *in, size_t len)
-{
-	switch (reason) {
-
-	case LWS_CALLBACK_CLIENT_ESTABLISHED:
-		fprintf(stderr, "callback_dumb_increment: LWS_CALLBACK_CLIENT_ESTABLISHED\n");
-		break;
-
-	case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
-		fprintf(stderr, "LWS_CALLBACK_CLIENT_CONNECTION_ERROR\n");
-		was_closed = 1;
-		break;
-
-	case LWS_CALLBACK_CLOSED:
-		fprintf(stderr, "LWS_CALLBACK_CLOSED\n");
-		was_closed = 1;
-		break;
-
-	case LWS_CALLBACK_CLIENT_RECEIVE:
-		((char *)in)[len] = '\0';
-		fprintf(stderr, "rx %d '%s'\n", (int)len, (char *)in);
-		break;
-
-	/* because we are protocols[0] ... */
-
-	case LWS_CALLBACK_CLIENT_CONFIRM_EXTENSION_SUPPORTED:
-		if ((strcmp((char*)in, "deflate-stream") == 0) && deny_deflate) {
-			fprintf(stderr, "denied deflate-stream extension\n");
-			return 1;
-		}
-		if ((strcmp((char*)in, "deflate-frame") == 0) && deny_deflate) {
-			fprintf(stderr, "denied deflate-frame extension\n");
-			return 1;
-		}
-		if ((strcmp((char*)in, "x-google-mux") == 0) && deny_mux) {
-			fprintf(stderr, "denied x-google-mux extension\n");
-			return 1;
-		}
-
-		break;
-
-	default:
-		break;
-	}
-
-	return 0;
-}
-
-
-static int
-callback_lws_mirror(struct libwebsocket_context *context,
-			struct libwebsocket *wsi,
-			enum libwebsocket_callback_reasons reason,
-					       void *user, void *in, size_t len)
-{
-	//unsigned char buf[LWS_SEND_BUFFER_PRE_PADDING + 4096 + LWS_SEND_BUFFER_POST_PADDING];
-	int l = 0;
-	//int n;
-
-	switch (reason) {
-
-	case LWS_CALLBACK_CLIENT_ESTABLISHED:
-
-		fprintf(stderr, "callback_lws_mirror: LWS_CALLBACK_CLIENT_ESTABLISHED\n");
-
-		mirror_lifetime = 10 + (random() & 1023);
-		/* useful to test single connection stability */
-		if (longlived)
-			mirror_lifetime += 50000;
-
-		fprintf(stderr, "opened mirror connection with "
-				     "%d lifetime\n", mirror_lifetime);
-
-		/*
-		 * mirror_lifetime is decremented each send, when it reaches
-		 * zero the connection is closed in the send callback.
-		 * When the close callback comes, wsi_mirror is set to NULL
-		 * so a new connection will be opened
-		 */
-
-		/*
-		 * start the ball rolling,
-		 * LWS_CALLBACK_CLIENT_WRITEABLE will come next service
-		 */
-
-		libwebsocket_callback_on_writable(context, wsi);
-		break;
-
-	case LWS_CALLBACK_CLOSED:
-		fprintf(stderr, "mirror: LWS_CALLBACK_CLOSED mirror_lifetime=%d\n", mirror_lifetime);
-		wsi_mirror = NULL;
-		break;
-
-	case LWS_CALLBACK_CLIENT_RECEIVE:
-/*		fprintf(stderr, "rx %d '%s'\n", (int)len, (char *)in); */
-		break;
-
-	case LWS_CALLBACK_CLIENT_WRITEABLE:
-
-		/*for (n = 0; n < 1; n++)
-			l += sprintf((char *)&buf[LWS_SEND_BUFFER_PRE_PADDING + l],
-					LWS_SEND_BUFFER_PRE_PADDING,
-					"c #%06X %d %d %d;",
-					(int)random() & 0xffffff,
-					(int)random() % 500,
-					(int)random() % 250,
-					(int)random() % 24);
-
-		n = libwebsocket_write(wsi,
-		   &buf[LWS_SEND_BUFFER_PRE_PADDING], l, LWS_WRITE_TEXT);
-
-		if (n < 0)
-			return -1;
-		if (n < l) {
-			lwsl_err("Partial write LWS_CALLBACK_CLIENT_WRITEABLE\n");
-			return -1;
-		}*/
-
-		mirror_lifetime--;
-		if (!mirror_lifetime) {
-			fprintf(stderr, "closing mirror session\n");
-			return -1;
-		} else
-			/* get notified as soon as we can write again */
-			libwebsocket_callback_on_writable(context, wsi);
-		break;
-
-	default:
-		break;
-	}
-
-	return 0;
-}
-
-int lws_test()
-{
-	int n = 0;
-	int port = 7681;
-	int use_ssl = 0;
-	const char *address = "localhost";
-	struct libwebsocket *wsi_dumb;
-	int ietf_version = -1; /* latest */
-
-	static struct libwebsocket_protocols protocols[] = {
-		{
-			"dumb-increment-protocol,fake-nonexistant-protocol",
-			callback_dumb_increment,
-			0,
-			20,
-		},
-		{
-			"fake-nonexistant-protocol,lws-mirror-protocol",
-			callback_lws_mirror,
-			0,
-			128,
-		},
-		{ NULL, NULL, 0, 0 } /* end */
-	};
-
-	struct lws_context_creation_info info;
-	memset(&info, 0, sizeof info);
-
-	info.port = CONTEXT_PORT_NO_LISTEN;
-	info.protocols = protocols;
-#ifndef LWS_NO_EXTENSIONS
-	info.extensions = libwebsocket_get_internal_extensions();
-#endif
-	info.gid = -1;
-	info.uid = -1;
-
-	struct libwebsocket_context *context = libwebsocket_create_context(&info);
-	if (context == NULL) {
-		fprintf(stderr, "Creating libwebsocket context failed\n");
-		return 1;
-	}
-
-	wsi_dumb = libwebsocket_client_connect(context, address, port, use_ssl,
-			"/", "", "",
-			 protocols[PROTOCOL_DUMB_INCREMENT].name, ietf_version);
-
-	if (wsi_dumb == NULL) {
-		fprintf(stderr, "libwebsocket connect failed\n");
-		goto bail;
-	}
-
-	fprintf(stderr, "Waiting for connect...\n");
-
-	n = 0;
-	while (n >= 0 && !was_closed && !force_exit) {
-		n = libwebsocket_service(context, 10);
-
-		if (n < 0)
-			continue;
-
-		if (wsi_mirror)
-			continue;
-
-		/* create a client websocket using mirror protocol */
-
-		wsi_mirror = libwebsocket_client_connect(context,
-			address, port, use_ssl,  "/",
-			"", "",
-			protocols[PROTOCOL_LWS_MIRROR].name, ietf_version);
-
-		if (wsi_mirror == NULL) {
-			fprintf(stderr, "libwebsocket "
-					      "mirror connect failed\n");
-			goto bail;
-		}
-	}
-
-bail:
-	fprintf(stderr, "Exiting\n");
-
-	libwebsocket_context_destroy(context);
-
-	return 1;
-}
-
 void create_gui(engine& eng)
 {
 	auto button_label = gui::label::create(rectf(), gui::Justify::H_CENTER | gui::Justify::V_CENTER, "End Turn", graphics::color(255,255,0), 16);
@@ -401,8 +108,16 @@ void create_gui(engine& eng)
 	eng.add_widget(end_turn_button);
 }
 
+COMMAND_LINE_UTILITY(server)
+{
+	//ws::server ws_server(9000);
+	//ws_server.run();
+}
+
 int main(int argc, char* argv[])
 {
+	std::string utility_name;
+	std::vector<std::string> utility_args;
 	std::vector<std::string> args;
 	for(int i = 0; i < argc; ++i) {
 		args.push_back(argv[i]);
@@ -424,13 +139,19 @@ int main(int argc, char* argv[])
 		} else if(arg_name == "--height") {
 			height = boost::lexical_cast<int>(arg_value);
 		} else if(arg_name == "--utility") {
-			// spawn the appropriate utility.
+			utility_name = arg_value;
+			utility_args = std::vector<std::string>(it+1, args.end());
 		}
 	}
 
 	if(!test::run_tests()) {
 		// Just exit if some tests failed.
 		exit(1);
+	}
+
+	if(!utility_name.empty()) {
+		utility::run_utility(utility_name, utility_args);
+		return 0;
 	}
 
 	try {

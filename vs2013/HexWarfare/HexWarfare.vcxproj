@@ -60,6 +60,7 @@
       <SubSystem>Console</SubSystem>
       <EntryPointSymbol>
       </EntryPointSymbol>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -94,6 +95,7 @@
     <ClCompile Include="..\..\src\datetime.cpp" />
     <ClCompile Include="..\..\src\dialog.cpp" />
     <ClCompile Include="..\..\src\draw_primitives.cpp" />
+    <ClCompile Include="..\..\src\enet_server.cpp" />
     <ClCompile Include="..\..\src\engine.cpp" />
     <ClCompile Include="..\..\src\filesystem.cpp" />
     <ClCompile Include="..\..\src\font.cpp" />
@@ -124,6 +126,7 @@
     <ClCompile Include="..\..\src\texture.cpp" />
     <ClCompile Include="..\..\src\tile.cpp" />
     <ClCompile Include="..\..\src\unit_test.cpp" />
+    <ClCompile Include="..\..\src\utility.cpp" />
     <ClCompile Include="..\..\src\widget.cpp" />
     <ClCompile Include="..\..\src\wm.cpp" />
   </ItemGroup>
@@ -142,6 +145,7 @@
     <ClInclude Include="..\..\src\dialog.hpp" />
     <ClInclude Include="..\..\src\dir_monitor.hpp" />
     <ClInclude Include="..\..\src\draw_primitives.hpp" />
+    <ClInclude Include="..\..\src\enet_server.hpp" />
     <ClInclude Include="..\..\src\engine.hpp" />
     <ClInclude Include="..\..\src\engine_fwd.hpp" />
     <ClInclude Include="..\..\src\enum_iterator.hpp" />
@@ -183,6 +187,7 @@
     <ClInclude Include="..\..\src\tile.hpp" />
     <ClInclude Include="..\..\src\unit_test.hpp" />
     <ClInclude Include="..\..\src\utf8_to_codepoint.hpp" />
+    <ClInclude Include="..\..\src\utility.hpp" />
     <ClInclude Include="..\..\src\widget.hpp" />
     <ClInclude Include="..\..\src\wm.hpp" />
   </ItemGroup>
@@ -190,12 +195,12 @@
     <None Include="..\..\src\geometry.inl" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\libwebsockets\build\lib\Release\websockets.lib" />
     <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2.lib" />
     <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2main.lib" />
     <Library Include="..\..\..\SDL_image\VisualC\Win32\Debug\SDL2_image.lib" />
     <Library Include="..\..\..\SDL_mixer\VisualC\Release\SDL2_mixer.lib" />
     <Library Include="..\..\..\SDL_ttf\VisualC\Win32\Debug\SDL2_ttf.lib" />
+    <Library Include="..\..\external\lib\enet.lib" />
     <Library Include="..\..\external\lib\libnoise.lib" />
     <Library Include="..\..\external\lib\libprotobuf-lite.lib" />
     <Library Include="..\..\external\lib\libprotobuf.lib" />
