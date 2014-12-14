@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Protocol">
+      <UniqueIdentifier>{c50a11c7-05bd-4e0e-8798-3446504b7b3f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\action_process.cpp">
@@ -152,6 +155,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\enet_server.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\message_format.pb.cc">
+      <Filter>Protocol</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -332,6 +338,9 @@
     <ClInclude Include="..\..\src\enet_server.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\message_format.pb.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\geometry.inl">
@@ -350,5 +359,10 @@
     <Library Include="..\..\external\lib\libprotobuf-lite.lib" />
     <Library Include="..\..\external\lib\libprotoc.lib" />
     <Library Include="..\..\external\lib\enet.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\src\message_format.proto">
+      <Filter>Protocol</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

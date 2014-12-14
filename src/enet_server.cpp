@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-#include <enet/enet.h>
+#include <SDL.h>
 
 #include "asserts.hpp"
 #include "enet_server.hpp"
@@ -52,7 +52,7 @@ namespace enet
 							<< "A packet of length " 
 							<< event.packet->dataLength 
 							<< " containing " 
-							<< event.packet->data 
+							<< std::string(reinterpret_cast<char*>(event.packet->data), event.packet->dataLength)
 							<< " was received from " 
 							<< reinterpret_cast<char*>(event.peer->data) 
 							<< " on channel " 
@@ -67,5 +67,100 @@ namespace enet
 				}
 			}
 		}
+	}
+
+	client::client(const std::string& address, int port, int down_bw, int up_bw)
+		: address_(address),
+		  port_(port),
+		  channels_(2),
+		  downstream_bandwidth_(down_bw),
+		  upstream_bandwidth_(up_bw),
+		  connect_timeout_(10),
+		  running_(true),
+		  thread_(nullptr),
+		  lock_(nullptr)
+	{
+		lock_ = SDL_CreateMutex();
+		ASSERT_LOG(lock_ != nullptr, "Unable to create locking mutex");
+
+		std::cerr << "Creating client.\n";
+		client_ = enet_host_create(nullptr, 1, channels_, downstream_bandwidth_, upstream_bandwidth_);
+		ASSERT_LOG(client_ != nullptr, "An error occurred while trying to create an ENet client host.");
+
+		ENetAddress addr;
+		enet_address_set_host(&addr, address_.c_str());
+		addr.port = port_;
+
+		std::cerr << "Connecting to peer.\n";
+		peer_ = enet_host_connect(client_, &addr, channels_, 0);
+		ASSERT_LOG(peer_ != nullptr, "No available peers for initiating an ENet connection.");
+
+		std::cerr << "Creating client communications thread.\n";
+		thread_ = SDL_CreateThread(&client::run, "enet_client", this);
+		ASSERT_LOG(thread_ != nullptr, "Unable to create enet_client thread.");
+	}
+
+	client::~client()
+	{
+		stop();
+		SDL_DestroyMutex(lock_);		
+		enet_host_destroy(client_);
+	}
+
+	void client::process()
+	{
+	}
+
+	bool client::is_running() 
+	{
+		bool running = false;
+		if(SDL_LockMutex(lock_) == 0) {
+			running = running_;
+			SDL_UnlockMutex(lock_);
+		} else {
+			ASSERT_LOG(false, "Unable to lock mutex");
+		}
+		return running;
+	}
+
+	void client::stop()
+	{
+		if(SDL_LockMutex(lock_) == 0) {
+			running_ = false;
+			SDL_UnlockMutex(lock_);
+		} else {
+			ASSERT_LOG(false, "Unable to lock mutex");
+		}
+		int status;
+		SDL_WaitThread(thread_, &status);
+	}
+
+	int client::run(void* ptr)
+	{
+		client* that = reinterpret_cast<client*>(ptr);
+		ENetEvent ev;
+		while(that->is_running()) {
+			if(enet_host_service(that->client_, &ev, that->connect_timeout_) > 0) {
+				switch(ev.type) {
+				case ENET_EVENT_TYPE_CONNECT:
+					std::cerr << "Connected to " << ev.peer->address.host << "\n";
+					break;
+				case ENET_EVENT_TYPE_RECEIVE:
+					std::cerr << "Got message " << ev.packet->dataLength << " bytes long\n";
+					// XXX buffer message here
+					enet_packet_destroy(ev.packet);
+					break;
+				case ENET_EVENT_TYPE_DISCONNECT:
+					std::cerr << "Disconnected " << reinterpret_cast<char*>(ev.peer->data) << "\n";
+					break;
+				}
+			}
+
+			// XXX check send queue and send messages here
+			std::string message("Hello, world!");
+			ENetPacket *packet = enet_packet_create(message.c_str(), message.size(), ENET_PACKET_FLAG_RELIABLE);
+			enet_peer_send(that->peer_, 0, packet);
+		}
+		return 0;
 	}
 }

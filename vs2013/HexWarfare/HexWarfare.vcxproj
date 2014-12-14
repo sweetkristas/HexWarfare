@@ -80,6 +80,7 @@
       <AdditionalLibraryDirectories>C:\Projects\boost\stage32-release-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -112,6 +113,7 @@
     <ClCompile Include="..\..\src\json.cpp" />
     <ClCompile Include="..\..\src\label.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\message_format.pb.cc" />
     <ClCompile Include="..\..\src\node.cpp" />
     <ClCompile Include="..\..\src\node_utils.cpp" />
     <ClCompile Include="..\..\src\noiseutils.cpp" />
@@ -167,6 +169,7 @@
     <ClInclude Include="..\..\src\input_process.hpp" />
     <ClInclude Include="..\..\src\json.hpp" />
     <ClInclude Include="..\..\src\label.hpp" />
+    <ClInclude Include="..\..\src\message_format.pb.h" />
     <ClInclude Include="..\..\src\node.hpp" />
     <ClInclude Include="..\..\src\node_utils.hpp" />
     <ClInclude Include="..\..\src\noiseutils.h" />
@@ -193,6 +196,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\geometry.inl" />
+    <CustomBuild Include="..\..\src\message_format.proto">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\utils\win32\protoc.exe -I=%(RelativeDir) --cpp_out=%(RelativeDir) %(Identity)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Creating the protocol files.</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)%(Filename).bp.cc;%(RelativeDir)%(Filename).bp.h;%(Outputs)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2.lib" />

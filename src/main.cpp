@@ -223,6 +223,8 @@ int main(int argc, char* argv[])
 
 		create_gui(e);
 
+		enet::client enetclient("localhost", 9000);
+
  		e.add_process(std::make_shared<process::input>());
 		e.add_process(std::make_shared<process::render>());
 		e.add_process(std::make_shared<process::gui>());

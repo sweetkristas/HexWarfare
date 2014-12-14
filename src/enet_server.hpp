@@ -22,6 +22,9 @@
 #include <string>
 #include <vector>
 
+#include <SDL.h>
+#include <enet/enet.h>
+
 #include "node.hpp"
 
 namespace enet
@@ -38,8 +41,47 @@ namespace enet
 		std::deque<node> send_q_;
 		std::deque<node> recv_q_;
 
-		server();
-		server(const server&);
-		void operator=(const server&);
+		server() = delete;
+		server(const server&) = delete;
+		void operator=(const server&) = delete;
+	};
+
+	class client
+	{
+	public:
+		explicit client(const std::string& address, int port, int down_bw=0, int up_bw=0);
+		~client();
+		void process();
+	private:
+		std::string address_;
+		int port_;
+		int channels_;
+		int downstream_bandwidth_;
+		int upstream_bandwidth_;
+		int connect_timeout_;
+		bool running_;
+
+		enum class state
+		{
+			CONNECTING,
+			CONNECTED,
+		};
+
+		ENetHost* client_;
+		ENetPeer* peer_;
+
+		static int run(void*);
+		void stop();
+		bool is_running();
+
+		SDL_Thread *thread_;
+		SDL_mutex* lock_;
+
+		//std::deque<...> send_q_;
+		//std::deque<...> rcv_q_;
+
+		client() = delete;
+		client(const client&) = delete;
+		void operator=(const client&) = delete;
 	};
 }
