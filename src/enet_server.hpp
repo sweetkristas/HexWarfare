@@ -18,14 +18,17 @@
 
 #include <deque>
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <SDL.h>
 #include <enet/enet.h>
 
-#include "node.hpp"
+#include "message_format.pb.h"
+#include "mutex.hpp"
+#include "queue.hpp"
+#include "threads.hpp"
 
 namespace enet
 {
@@ -37,9 +40,14 @@ namespace enet
 		void run();
 	private:
 		int port_;
+		bool running_;
 
-		std::deque<node> send_q_;
-		std::deque<node> recv_q_;
+		std::deque<Update*> send_q_;
+		std::deque<Update*> recv_q_;
+
+		static void signal_handler(int signal_number);
+
+		std::map<int, ENetPeer*> peers_;
 
 		server() = delete;
 		server(const server&) = delete;
@@ -52,6 +60,8 @@ namespace enet
 		explicit client(const std::string& address, int port, int down_bw=0, int up_bw=0);
 		~client();
 		void process();
+		void send_data(Update*);
+		Update* get_pending_packet();
 	private:
 		std::string address_;
 		int port_;
@@ -70,15 +80,15 @@ namespace enet
 		ENetHost* client_;
 		ENetPeer* peer_;
 
-		static int run(void*);
+		int run();
 		void stop();
 		bool is_running();
 
-		SDL_Thread *thread_;
-		SDL_mutex* lock_;
+		threading::Mutex mutex_;
+		std::unique_ptr<threading::Thread> thread_;
 
-		//std::deque<...> send_q_;
-		//std::deque<...> rcv_q_;
+		queue::queue<Update*> send_q_;
+		queue::queue<Update*> rcv_q_;
 
 		client() = delete;
 		client(const client&) = delete;

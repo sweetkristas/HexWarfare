@@ -16,8 +16,10 @@
 
 #pragma once
 
+#include "geometry.hpp"
 #include "node.hpp"
 
+extern point node_to_point(const node& n);
 
 class node_builder
 {

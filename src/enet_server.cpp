@@ -16,13 +16,35 @@
 
 #include <SDL.h>
 
+#include <csignal>
+
 #include "asserts.hpp"
 #include "enet_server.hpp"
 
 namespace enet
 {
+	bool server_running = true;
+	threading::Mutex& get_mutex()
+	{
+		static threading::Mutex res;
+		return res;
+	}
+
+	bool is_server_running()
+	{
+		threading::Mutex::Lock lock(get_mutex());
+		return server_running;
+	}
+
+	void stop_server()
+	{
+		threading::Mutex::Lock lock(get_mutex());
+		server_running = false;
+	}
+
 	server::server(int port)
-		: port_(port)
+		: port_(port),
+		  running_(false)
 	{
 		ASSERT_LOG(enet_initialize() == 0, "An error occurred while initializing ENet.");
 	}
@@ -32,6 +54,13 @@ namespace enet
 		enet_deinitialize();
 	}
 
+	void server::signal_handler(int signal_number)
+	{
+		std::cerr << "Got signal " << signal_number << "\n";
+		//running_ = false;
+		stop_server();
+	}
+
 	void server::run()
 	{
 		ENetAddress address = { ENET_HOST_ANY, port_ };
@@ -39,34 +68,75 @@ namespace enet
 		std::shared_ptr<ENetHost> e_server(enet_host_create (&address, 32, 2, 0, 0), enet_host_destroy);
 		ASSERT_LOG(e_server != nullptr, "An error occurred while trying to create an ENet server host.");
 
-		ENetEvent event;
-		while(1) {
-			if(enet_host_service (e_server.get(), &event, 0) > 0) {
-				switch(event.type) {
-					case ENET_EVENT_TYPE_CONNECT:
-						std::cerr << "A new client connected from " << event.peer->address.host << ":" << event.peer->address.port << "\n";
-						event.peer->data = "Client information";
+		signal(SIGTERM, signal_handler);
+		signal(SIGINT, signal_handler);
+
+		ENetEvent ev;
+		Update up;
+		static int peer_cnt = 0;
+		running_ = true;
+		while(is_server_running()) {
+			if(enet_host_service (e_server.get(), &ev, 0) > 0) {
+				switch(ev.type) {
+					case ENET_EVENT_TYPE_CONNECT: {
+						std::cerr << "A new client connected from " << ev.peer->address.host << ":" << ev.peer->address.port << "\n";
+						peers_[peer_cnt] = ev.peer;
+						ev.peer->data = reinterpret_cast<void*>(peer_cnt);
+						peer_cnt++;
 						break;
-					case ENET_EVENT_TYPE_RECEIVE:
+					}
+					case ENET_EVENT_TYPE_RECEIVE: {
+						std::string pkt(reinterpret_cast<char*>(ev.packet->data), ev.packet->dataLength);
+						up.Clear();
+						up.ParseFromString(pkt);
 						std::cerr 
 							<< "A packet of length " 
-							<< event.packet->dataLength 
+							<< ev.packet->dataLength 
 							<< " containing " 
-							<< std::string(reinterpret_cast<char*>(event.packet->data), event.packet->dataLength)
+							<< up.id()
+							<< ":" 
+							<< up.email()
 							<< " was received from " 
-							<< reinterpret_cast<char*>(event.peer->data) 
+							<< reinterpret_cast<int>(ev.peer->data) 
 							<< " on channel " 
-							<< event.channelID
+							<< ev.channelID
 							<< "\n";
-						enet_packet_destroy(event.packet);
+						enet_packet_destroy(ev.packet);
 						break;
-					case ENET_EVENT_TYPE_DISCONNECT:
-						std::cerr << reinterpret_cast<char*>(event.peer->data) << " disconnected.\n";
-						event.peer->data = nullptr;
+					}
+					case ENET_EVENT_TYPE_DISCONNECT: {
+						int peer_value = reinterpret_cast<int>(ev.peer->data);
+						auto it = peers_.find(peer_value);
+						if(it != peers_.end()) {
+							std::cerr << peer_value << " disconnected.\n";
+							peers_.erase(it);
+							ev.peer->data = nullptr;
+						}
 						break;
+					}
 				}
 			}
 		}
+
+		for(auto p : peers_) {
+			enet_peer_disconnect(p.second, 0);
+			ENetEvent ev;
+			bool disconnect_ok = false;
+			while(enet_host_service(e_server.get(), &ev, 0) > 0) {
+				switch(ev.type) {
+					case ENET_EVENT_TYPE_RECEIVE: 
+						enet_packet_destroy(ev.packet);
+						break;
+					case ENET_EVENT_TYPE_DISCONNECT: 
+						disconnect_ok = true;
+						break;
+				}
+			}
+			if(!disconnect_ok) {
+				enet_peer_reset(p.second);
+			}
+		}
+		peers_.clear();
 	}
 
 	client::client(const std::string& address, int port, int down_bw, int up_bw)
@@ -75,14 +145,10 @@ namespace enet
 		  channels_(2),
 		  downstream_bandwidth_(down_bw),
 		  upstream_bandwidth_(up_bw),
-		  connect_timeout_(10),
+		  connect_timeout_(20),
 		  running_(true),
-		  thread_(nullptr),
-		  lock_(nullptr)
+		  mutex_()
 	{
-		lock_ = SDL_CreateMutex();
-		ASSERT_LOG(lock_ != nullptr, "Unable to create locking mutex");
-
 		std::cerr << "Creating client.\n";
 		client_ = enet_host_create(nullptr, 1, channels_, downstream_bandwidth_, upstream_bandwidth_);
 		ASSERT_LOG(client_ != nullptr, "An error occurred while trying to create an ENet client host.");
@@ -96,14 +162,13 @@ namespace enet
 		ASSERT_LOG(peer_ != nullptr, "No available peers for initiating an ENet connection.");
 
 		std::cerr << "Creating client communications thread.\n";
-		thread_ = SDL_CreateThread(&client::run, "enet_client", this);
+		thread_ = std::make_unique<threading::Thread>("enet_client", std::bind(&client::run, this));
 		ASSERT_LOG(thread_ != nullptr, "Unable to create enet_client thread.");
 	}
 
 	client::~client()
 	{
 		stop();
-		SDL_DestroyMutex(lock_);		
 		enet_host_destroy(client_);
 	}
 
@@ -113,53 +178,71 @@ namespace enet
 
 	bool client::is_running() 
 	{
-		bool running = false;
-		if(SDL_LockMutex(lock_) == 0) {
-			running = running_;
-			SDL_UnlockMutex(lock_);
-		} else {
-			ASSERT_LOG(false, "Unable to lock mutex");
-		}
-		return running;
+		threading::Mutex::Lock lock(mutex_);
+		return running_;
 	}
 
 	void client::stop()
 	{
-		if(SDL_LockMutex(lock_) == 0) {
+		{
+			threading::Mutex::Lock lock(mutex_);
 			running_ = false;
-			SDL_UnlockMutex(lock_);
-		} else {
-			ASSERT_LOG(false, "Unable to lock mutex");
 		}
-		int status;
-		SDL_WaitThread(thread_, &status);
+		thread_->join();
 	}
 
-	int client::run(void* ptr)
+	void client::send_data(Update* snd)
 	{
-		client* that = reinterpret_cast<client*>(ptr);
+		send_q_.push(snd);
+	}
+
+	Update* client::get_pending_packet()
+	{
+		Update* up;
+		if(rcv_q_.try_pop(up)) {
+			return up;
+		}
+		return nullptr;
+	}
+
+	int client::run()
+	{
 		ENetEvent ev;
-		while(that->is_running()) {
-			if(enet_host_service(that->client_, &ev, that->connect_timeout_) > 0) {
+		bool connected = false;
+		while(is_running()) {
+			if(enet_host_service(client_, &ev, connect_timeout_) > 0) {
 				switch(ev.type) {
 				case ENET_EVENT_TYPE_CONNECT:
 					std::cerr << "Connected to " << ev.peer->address.host << "\n";
+					connected = true;
 					break;
-				case ENET_EVENT_TYPE_RECEIVE:
+				case ENET_EVENT_TYPE_RECEIVE: {
 					std::cerr << "Got message " << ev.packet->dataLength << " bytes long\n";
-					// XXX buffer message here
+					std::string pkt(reinterpret_cast<char*>(ev.packet->data), ev.packet->dataLength);
+					Update* up = new Update();
+					up->ParseFromString(pkt);
+					rcv_q_.push(up);
 					enet_packet_destroy(ev.packet);
 					break;
+				}
 				case ENET_EVENT_TYPE_DISCONNECT:
-					std::cerr << "Disconnected " << reinterpret_cast<char*>(ev.peer->data) << "\n";
+					std::cerr << "Disconnected " << (ev.peer->data != nullptr ? reinterpret_cast<char*>(ev.peer->data) : "null") << "\n";
+					connected = false;
 					break;
 				}
 			}
 
 			// XXX check send queue and send messages here
-			std::string message("Hello, world!");
-			ENetPacket *packet = enet_packet_create(message.c_str(), message.size(), ENET_PACKET_FLAG_RELIABLE);
-			enet_peer_send(that->peer_, 0, packet);
+			if(!send_q_.empty() && connected) {
+				Update* msg;
+				if(send_q_.wait_and_pop(msg)) {
+					static std::string message;
+					msg->SerializeToString(&message);
+					ENetPacket *packet = enet_packet_create(message.c_str(), message.size(), ENET_PACKET_FLAG_RELIABLE);
+					enet_peer_send(peer_, 0, packet);
+					delete msg;
+				}
+			}
 		}
 		return 0;
 	}

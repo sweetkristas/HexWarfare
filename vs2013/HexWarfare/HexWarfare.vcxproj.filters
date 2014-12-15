@@ -159,6 +159,15 @@
     <ClCompile Include="..\..\src\message_format.pb.cc">
       <Filter>Protocol</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\internal_client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\internal_server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\network_server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\action_process.hpp">
@@ -341,6 +350,24 @@
     <ClInclude Include="..\..\src\message_format.pb.h">
       <Filter>Protocol</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\mutex.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\threads.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\queue.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\internal_client.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\internal_server.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\network_server.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\geometry.inl">
@@ -354,11 +381,11 @@
     <Library Include="..\..\external\lib\libnoise.lib" />
     <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2.lib" />
     <Library Include="..\..\..\SDL\VisualC\Win32\Debug\SDL2main.lib" />
-    <Library Include="..\lua\Debug\Win32\lua.lib" />
-    <Library Include="..\..\external\lib\libprotobuf.lib" />
-    <Library Include="..\..\external\lib\libprotobuf-lite.lib" />
-    <Library Include="..\..\external\lib\libprotoc.lib" />
     <Library Include="..\..\external\lib\enet.lib" />
+    <Library Include="..\..\external\lib\$(Configuration)\libprotobuf-lite.lib" />
+    <Library Include="..\..\external\lib\$(Configuration)\libprotobuf.lib" />
+    <Library Include="..\..\external\lib\$(Configuration)\libprotoc.lib" />
+    <Library Include="..\lua\$(Configuration)\$(Platform)\lua.lib" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\src\message_format.proto">

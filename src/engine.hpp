@@ -85,6 +85,9 @@ public:
 	const entity_list& get_entities_initiative_ordered() const { return entities_initiative_order_; }
 
 	const player_ptr& get_current_player() const;
+	int get_player_count() const { return players_.size(); }
+
+	player_ptr get_player(int n);
 
 	const point& get_tile_size() const { return tile_size_; }
 	void set_tile_size(const point& p) { tile_size_ = p; }

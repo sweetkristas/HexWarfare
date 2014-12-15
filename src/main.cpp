@@ -109,6 +109,32 @@ void create_gui(engine& eng)
 	eng.add_widget(end_turn_button);
 }
 
+void load_scenario(engine& eng, const std::string& name)
+{
+	try {
+		auto scen = json::parse_from_file(name);
+		ASSERT_LOG(scen.is_map(), "Scenario must be a map, got: " << scen.type_as_string());
+		ASSERT_LOG(scen.has_key("name") && scen.has_key("map") && scen.has_key("starting_units"), 
+			"Scenario file must have 'name', 'map' and 'starting_units' attributes.");
+		std::cerr << "Loading scenario " << scen["name"].as_string() << " from " << name << "\n";
+		if(scen.has_key("max_players")) {
+			if(eng.get_player_count() > scen["max_players"].as_int()) {
+				ASSERT_LOG(false, "Unable to load scenario number of players in game is greater than the maximum number allowed.");
+			}
+		}
+		create_world(eng, "data/" + scen["map"].as_string());
+		for(auto& c : scen["starting_units"].as_list()) {
+			ASSERT_LOG(c.has_key("name"), "In 'starting_units' list, you must provide a 'name' attribute.");
+			ASSERT_LOG(c.has_key("location"), "In 'starting_units' list, you must provide a 'location' attribute.");
+			ASSERT_LOG(c.has_key("player"), "In 'starting_units' list, you must provide a 'player' attribute.");
+			eng.add_entity(creature::spawn(eng, eng.get_player(c["player"].as_int32()), c["name"].as_string(), node_to_point(c["location"])));
+		}
+	} catch(json::parse_error& pe) {
+		ASSERT_LOG(false, "Error parsing data/castles.cfg: " << pe.what());
+	}
+
+}
+
 COMMAND_LINE_UTILITY(server)
 {
 	enet::server enet_server(9000);
@@ -124,6 +150,9 @@ int main(int argc, char* argv[])
 		args.push_back(argv[i]);
 	}
 
+	bool local_server = false;
+	std::string server_name = "localhost";
+	int server_port = 9000;
 	int width = 800;
 	int height = 600;
 	for(auto it = args.begin(); it != args.end(); ++it) {
@@ -139,6 +168,8 @@ int main(int argc, char* argv[])
 			width = boost::lexical_cast<int>(arg_value);
 		} else if(arg_name == "--height") {
 			height = boost::lexical_cast<int>(arg_value);
+		} else if(arg_name == "--local-server") {
+			local_server = true;
 		} else if(arg_name == "--utility") {
 			utility_name = arg_value;
 			utility_args = std::vector<std::string>(it+1, args.end());
@@ -212,25 +243,23 @@ int main(int argc, char* argv[])
 		auto b1 = std::make_shared<player>(t2, PlayerType::AI, "Evil Bot");
 		e.add_player(b1);
 
-		//create_world(e, "data/maps/map2.cfg");		// 512x512
-		create_world(e, "data/maps/map4.cfg");			// 32x32
-		//create_world(e, "data/maps/map5.cfg");			// 8x8
-		//create_world(e, "data/maps/map6.cfg");			// 128x128
-		auto g1 = e.add_entity(creature::spawn(e, p1, "goblin", point(1, 1)));
-		auto g2 = e.add_entity(creature::spawn(e, b1, "flesh-golem", point(12, 13)));
-		auto g3 = e.add_entity(creature::spawn(e, p1, "goblin", point(12, 12)));
-		auto g4 = e.add_entity(creature::spawn(e, b1, "flesh-golem", point(6, 7)));
+		load_scenario(e, "data/scenario/scenario1.cfg");
 
 		create_gui(e);
 
-		enet::client enetclient("localhost", 9000);
+		std::unique_ptr<enet::client> enetclient;
+		if(!local_server) {
+			enetclient = std::make_unique<enet::client>(server_name, server_port);
+		} else {
+			// Create a local server to handle the game
+		}
 
  		e.add_process(std::make_shared<process::input>());
 		e.add_process(std::make_shared<process::render>());
 		e.add_process(std::make_shared<process::gui>());
 		e.add_process(std::make_shared<process::ai>());
 		e.add_process(std::make_shared<process::action>());
-		// N.B. entity/map collision needs to come before entity/entity collision
+		// N.B. entity/map collision needs to come before entity/entity collisio;n
 		e.add_process(std::make_shared<process::em_collision>());
 		e.add_process(std::make_shared<process::ee_collision>());
 
@@ -249,6 +278,17 @@ int main(int argc, char* argv[])
 		while(running) {
 			Uint32 cycle_start_tick = SDL_GetTicks();
 			profile::timer tm;
+
+			// Check network client for pending packets.
+			Update* up;
+			if(local_server) {
+			} else {
+				while((up = enetclient->get_pending_packet()) != nullptr) {
+					// XXX Process packet here
+
+					delete up;
+				}
+			}
 
 			SDL_RenderClear(wm.get_renderer());
 			try {

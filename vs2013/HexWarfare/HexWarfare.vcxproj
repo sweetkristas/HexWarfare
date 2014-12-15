@@ -110,10 +110,13 @@
     <ClCompile Include="..\..\src\image_widget.cpp" />
     <ClCompile Include="..\..\src\initiative_dialog.cpp" />
     <ClCompile Include="..\..\src\input_process.cpp" />
+    <ClCompile Include="..\..\src\internal_client.cpp" />
+    <ClCompile Include="..\..\src\internal_server.cpp" />
     <ClCompile Include="..\..\src\json.cpp" />
     <ClCompile Include="..\..\src\label.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\message_format.pb.cc" />
+    <ClCompile Include="..\..\src\network_server.cpp" />
     <ClCompile Include="..\..\src\node.cpp" />
     <ClCompile Include="..\..\src\node_utils.cpp" />
     <ClCompile Include="..\..\src\noiseutils.cpp" />
@@ -167,9 +170,13 @@
     <ClInclude Include="..\..\src\image_widget.hpp" />
     <ClInclude Include="..\..\src\initiative_dialog.hpp" />
     <ClInclude Include="..\..\src\input_process.hpp" />
+    <ClInclude Include="..\..\src\internal_client.hpp" />
+    <ClInclude Include="..\..\src\internal_server.hpp" />
     <ClInclude Include="..\..\src\json.hpp" />
     <ClInclude Include="..\..\src\label.hpp" />
     <ClInclude Include="..\..\src\message_format.pb.h" />
+    <ClInclude Include="..\..\src\mutex.hpp" />
+    <ClInclude Include="..\..\src\network_server.hpp" />
     <ClInclude Include="..\..\src\node.hpp" />
     <ClInclude Include="..\..\src\node_utils.hpp" />
     <ClInclude Include="..\..\src\noiseutils.h" />
@@ -181,12 +188,14 @@
     <ClInclude Include="..\..\src\process.hpp" />
     <ClInclude Include="..\..\src\profile_timer.hpp" />
     <ClInclude Include="..\..\src\quadtree.hpp" />
+    <ClInclude Include="..\..\src\queue.hpp" />
     <ClInclude Include="..\..\src\random.hpp" />
     <ClInclude Include="..\..\src\render_process.hpp" />
     <ClInclude Include="..\..\src\sdl_wrapper.hpp" />
     <ClInclude Include="..\..\src\surface.hpp" />
     <ClInclude Include="..\..\src\texpack.hpp" />
     <ClInclude Include="..\..\src\texture.hpp" />
+    <ClInclude Include="..\..\src\threads.hpp" />
     <ClInclude Include="..\..\src\tile.hpp" />
     <ClInclude Include="..\..\src\unit_test.hpp" />
     <ClInclude Include="..\..\src\utf8_to_codepoint.hpp" />
@@ -211,10 +220,10 @@
     <Library Include="..\..\..\SDL_ttf\VisualC\Win32\Debug\SDL2_ttf.lib" />
     <Library Include="..\..\external\lib\enet.lib" />
     <Library Include="..\..\external\lib\libnoise.lib" />
-    <Library Include="..\..\external\lib\libprotobuf-lite.lib" />
-    <Library Include="..\..\external\lib\libprotobuf.lib" />
-    <Library Include="..\..\external\lib\libprotoc.lib" />
-    <Library Include="..\lua\Debug\Win32\lua.lib" />
+    <Library Include="..\..\external\lib\$(Configuration)\libprotobuf-lite.lib" />
+    <Library Include="..\..\external\lib\$(Configuration)\libprotobuf.lib" />
+    <Library Include="..\..\external\lib\$(Configuration)\libprotoc.lib" />
+    <Library Include="..\lua\$(Configuration)\$(Platform)\lua.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

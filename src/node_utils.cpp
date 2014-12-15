@@ -14,7 +14,14 @@
    limitations under the License.
 */
 
+#include "asserts.hpp"
 #include "node_utils.hpp"
+
+point node_to_point(const node& n)
+{
+	ASSERT_LOG(n.is_list() && n.num_elements() == 2, "points must be lists of 2 numbers.");
+	return point(n[0].as_int32(), n[1].as_int32());
+}
 
 node_builder& node_builder::add_value(const std::string& name, const node& value)
 {

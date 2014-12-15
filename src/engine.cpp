@@ -103,6 +103,12 @@ void engine::replace_player(player_ptr to_be_replaced, player_ptr replacement)
 	*it = replacement;
 }
 
+player_ptr engine::get_player(int n)
+{
+	ASSERT_LOG(n < players_.size(), "Requested player index outside of bounds. " << n << " >= " << players_.size());
+	return players_[n];
+}
+
 float engine::get_zoom() const
 {
 	ASSERT_LOG(camera_scale_ >= 0 && camera_scale_ < camera_scale_factors().size(),
