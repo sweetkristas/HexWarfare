@@ -1,0 +1,3 @@
+[submodule "LuaBridge"]
+	path = LuaBridge
+	url = git@github.com:sweetkristas/LuaBridge.git
