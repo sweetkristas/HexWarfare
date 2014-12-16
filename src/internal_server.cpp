@@ -13,3 +13,39 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
+#include "asserts.hpp"
+#include "internal_server.hpp"
+
+namespace network
+{
+	namespace internal
+	{
+		server::server(game::state& gs)
+			: base(gs)
+		{
+		}
+		
+		void server::add_peer(std::weak_ptr<base> client)
+		{
+			clients_.emplace_back(client);
+		}
+
+		void server::handle_process()
+		{
+			// remove any clients which have died
+			clients_.erase(std::remove_if(clients_.begin(), clients_.end(), [](std::weak_ptr<base> p){ return p.lock() == nullptr; }), clients_.end());
+
+			// Take messages from our send queue and send them to each connected client.
+			Update* up;
+			while((up = read_send_queue()) != nullptr) {
+				for(auto& c : clients_) {
+					auto peer = c.lock();
+					ASSERT_LOG(peer != nullptr, "client has gone away, peer == nullptr");
+					peer->write_recv_queue(new Update(*up));
+				}
+				delete up;
+			}
+		}
+	}
+}

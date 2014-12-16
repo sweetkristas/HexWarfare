@@ -46,9 +46,12 @@
 #include "gui_process.hpp"
 #include "hex_pathfinding.hpp"
 #include "initiative_dialog.hpp"
+#include "internal_server.hpp"
+#include "internal_client.hpp"
 #include "json.hpp"
 #include "input_process.hpp"
 #include "label.hpp"
+#include "network_server.hpp"
 #include "node_utils.hpp"
 #include "profile_timer.hpp"
 #include "random.hpp"
@@ -92,7 +95,11 @@ void draw_perf_stats(engine& eng, double update_time)
 void create_world(engine& e, const std::string& world_file)
 {
 	try {
-		e.set_map(hex::hex_map::factory(json::parse_from_file(world_file), rectf(0.0f,0.05f,0.85f,1.0f)));
+		// parse the world file
+		auto n = json::parse_from_file(world_file);
+		// create a logical version of the world
+		auto lmap = hex::logical::map::factory(n);
+		e.set_map(hex::hex_map::factory(lmap, n, rectf(0.0f,0.05f,0.85f,1.0f)));
 	} catch(json::parse_error& pe) {
 		ASSERT_LOG(false, "Error parsing " << world_file << ": " << pe.what());
 	} catch(std::bad_weak_ptr& e) {
@@ -222,16 +229,22 @@ int main(int argc, char* argv[])
 			ASSERT_LOG(false, "Error parsing data/gui.cfg: " << pe.what());
 		}
 
-		hex::loader();
+		try {
+			hex::loader(json::parse_from_file("data/hex_tiles.cfg"));
+		} catch(json::parse_error& pe) {
+			ASSERT_LOG(false, "Error parsing data/hex_tiles.cfg: " << pe.what());
+		}
+
 		try {
 			castle::loader(wm.get_renderer(), json::parse_from_file("data/castles.cfg"));
 		} catch(json::parse_error& pe) {
 			ASSERT_LOG(false, "Error parsing data/castles.cfg: " << pe.what());
 		}
 
+		game::state gs;
 		// XX engine should take the renderer as a parameter, expose it as a get function, then pass itself
 		// to the update function.
-		engine e(wm);
+		engine e(gs, wm);
 		e.set_tile_size(point(72,72));
 
 		// Create some teams for the players
@@ -244,14 +257,19 @@ int main(int argc, char* argv[])
 		e.add_player(b1);
 
 		load_scenario(e, "data/scenario/scenario1.cfg");
+		gs.set_map(e.get_map()->get_logical_map());
 
 		create_gui(e);
 
-		std::unique_ptr<enet::client> enetclient;
-		if(!local_server) {
-			enetclient = std::make_unique<enet::client>(server_name, server_port);
+		network::server_ptr nserver;
+		network::client_ptr nclient;
+		if(local_server) {
+			nserver = std::make_shared<network::internal::server>(gs);
+			nclient = std::make_shared<network::internal::client>(gs);
+			nserver->add_peer(nclient);
+			nclient->add_peer(nserver);
 		} else {
-			// Create a local server to handle the game
+			//nclient = std::make_shared<network::enet::client>(server_name, server_port);
 		}
 
  		e.add_process(std::make_shared<process::input>());
@@ -279,15 +297,11 @@ int main(int argc, char* argv[])
 			Uint32 cycle_start_tick = SDL_GetTicks();
 			profile::timer tm;
 
-			// Check network client for pending packets.
-			Update* up;
-			if(local_server) {
-			} else {
-				while((up = enetclient->get_pending_packet()) != nullptr) {
-					// XXX Process packet here
-
-					delete up;
-				}
+			if(nclient) {
+				nclient->process();
+			}
+			if(nserver) {
+				nserver->process();
 			}
 
 			SDL_RenderClear(wm.get_renderer());

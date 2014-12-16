@@ -17,6 +17,7 @@
 #pragma once
 
 #include "engine_fwd.hpp"
+#include "game_state.hpp"
 #include "geometry.hpp"
 #include "hex_fwd.hpp"
 #include "particles.hpp"
@@ -40,7 +41,7 @@ enum class EngineUserEvents {
 class engine
 {
 public:
-	engine(graphics::window_manager& wm);
+	engine(game::state& game_state, graphics::window_manager& wm);
 	~engine();
 	
 	component_set_ptr add_entity(component_set_ptr e);
@@ -100,9 +101,11 @@ public:
 
 	float get_initiative_counter() const { return initiative_counter_; }
 
+	game::state& get_game_state() { return game_state_; }
+	const game::state& get_game_state() const { return game_state_; }
+
 private:
-	void translate_mouse_coords(SDL_Event* evt);
-	void process_events();
+	game::state& game_state_;
 	EngineState state_;
 	int turns_;
 	point camera_;
@@ -119,6 +122,9 @@ private:
 	hex::hex_map_ptr map_;
 	std::vector<gui::widget_ptr> widgets_;
 	float initiative_counter_;
+
+	void translate_mouse_coords(SDL_Event* evt);
+	void process_events();
 
 	engine() = delete;
 	engine(const engine&) = delete;

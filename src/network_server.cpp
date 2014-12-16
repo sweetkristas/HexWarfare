@@ -19,30 +19,45 @@
 
 namespace network
 {
-	server_base::server_base()
+	base::base(game::state& gs)
+		: gamestate_(gs)
 	{
 	}
 
-	server_base::~server_base()
+	base::~base()
 	{
 	}
 
-	void server_base::process()
+	void base::process()
 	{
 		handle_process();
 	}
 
-	void server_base::send_packet(Update* up)
+	void base::write_send_queue(Update* up)
 	{
 		snd_q_.push(up);
 	}
 
-	Update* server_base::receive_packet()
+	Update* base::read_recv_queue()
 	{
 		Update* up;
 		if(rcv_q_.try_pop(up)) {
 			return up;
 		}
 		return nullptr;
+	}
+
+	Update* base::read_send_queue()
+	{
+		Update* up;
+		if(snd_q_.try_pop(up)) {
+			return up;
+		}
+		return nullptr;
+	}
+
+	void base::write_recv_queue(Update* up)
+	{
+		rcv_q_.push(up);
 	}
 }

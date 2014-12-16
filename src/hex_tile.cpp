@@ -26,6 +26,75 @@
 
 namespace hex 
 {
+	namespace
+	{
+		std::map<std::string, tile_type_ptr>& get_tile_type_map()
+		{
+			static std::map<std::string, tile_type_ptr> tile_map;
+			return tile_map;
+		}
+
+		std::vector<tile_type_ptr>& get_hex_editor_tiles()
+		{
+			static std::vector<tile_type_ptr> tiles;
+			return tiles;
+		}
+
+		std::map<std::string, tile_type_ptr>& get_editor_hex_tile_map()
+		{
+			static std::map<std::string, tile_type_ptr> tile_map;
+			return tile_map;
+		}
+
+		void load_editor_tiles()
+		{
+			std::map<std::string, tile_type_ptr>::const_iterator it = get_tile_type_map().begin();
+			while(it != get_tile_type_map().end()) {
+				if(it->second->get_editor_info().name.empty() == false 
+					&& it->second->get_editor_info().type.empty() == false) {
+					get_hex_editor_tiles().push_back(it->second);
+				}
+				++it;
+			}
+		}
+
+		void load_hex_editor_tiles()
+		{
+			std::map<std::string, tile_type_ptr>::const_iterator it = get_tile_type_map().begin();
+			while(it != get_tile_type_map().end()) {
+				if(it->second->get_editor_info().type.empty() == false) {
+					get_editor_hex_tile_map()[it->second->get_editor_info().type] = it->second;
+				}
+				++it;
+			}
+		}
+
+	}
+
+	void loader(const node& n)
+	{
+		logical::loader(n);
+
+		if(!get_tile_type_map().empty()) {
+			get_tile_type_map().clear();
+		}
+		for(auto p : n["tiles"].as_map()) {
+			std::string key_str = p.first.as_string();
+			get_tile_type_map()[key_str] = tile_type_ptr(new tile_type(key_str, p.second));
+		}
+
+		// get list of all tiles have non-empty "editor_info" blocks.
+		if(!get_hex_editor_tiles().empty()) {
+			get_hex_editor_tiles().clear();
+		}
+		load_editor_tiles();
+
+		if(!get_editor_hex_tile_map().empty()) {
+			get_editor_hex_tile_map().clear();
+		}
+		load_hex_editor_tiles();
+	}
+
 	void tile_type::editor_info::draw(int x, int y) const
 	{
 		point p(hex_map::get_pixel_pos_from_tile_pos(x,y));
@@ -51,10 +120,8 @@ namespace hex
 	}
 
 	tile_type::tile_type(const std::string& id, const node& value)
-	  : id_(id), 
-	    sheet_(new tile_sheet(value)),
-	    height_(value["height"].as_float()),
-		cost_(value["cost"].as_float(1.0f))
+	  : tile_(logical::tile::factory(id)),
+	    sheet_(new tile_sheet(value))
 	{
 		for (const std::string& index_str : value["sheet_pos"].as_list_strings()) {
 			const int index = strtol(index_str.c_str(), NULL, 36);
@@ -89,7 +156,7 @@ namespace hex
 		ASSERT_LOG(sheet_indexes_.empty() == false, "No sheet indexes in hex tile sheet: " << id);
 
 		if (value.has_key("editor_info")) {
-			ASSERT_LOG(value["editor_info"].is_map(), "Must have editor info map, none found in: " << id_);
+			ASSERT_LOG(value["editor_info"].is_map(), "Must have editor info map, none found in: " << tile_->id());
 			editor_info_.texture = sheet_->get_texture();
 			editor_info_.name = value["editor_info"]["name"].as_string();
 			editor_info_.group = value["editor_info"]["group"].as_string();
@@ -100,10 +167,8 @@ namespace hex
 
 	node tile_type::write() const
 	{
-		node_builder res;
-		res.add("id", id_);
-		res.add("height", height_);
-		return res.build();
+		ASSERT_LOG(false, "XXX write me tile_type::write()");
+		return node();
 	}
 
 	namespace 
@@ -181,5 +246,12 @@ namespace hex
 		}
 
 		adjacency_patterns_[adjmap].init = true;
+	}
+
+	tile_type_ptr tile_type::factory(const std::string& name)
+	{
+		auto it = get_tile_type_map().find(name);
+		ASSERT_LOG(it != get_tile_type_map().end(), "Couldn't find tile with name: " << name);
+		return it->second;
 	}
 }

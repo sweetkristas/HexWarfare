@@ -16,3 +16,25 @@
 
 #pragma once
 
+#include "network_server.hpp"
+
+namespace network
+{
+	namespace internal
+	{
+		class client : public base
+		{
+		public:
+			client(game::state& gs);
+
+			void add_peer(std::weak_ptr<base> server) override;
+		private:
+			void handle_process() override;
+
+			server_weak_ptr server_;
+
+			client(const client&) = delete;
+			void operator=(const client&) = delete;
+		};
+	}
+}

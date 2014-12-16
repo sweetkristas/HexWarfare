@@ -14,33 +14,20 @@
    limitations under the License.
 */
 
-#include "asserts.hpp"
-#include "internal_client.hpp"
+#include "game_state.hpp"
 
-namespace network
+namespace game
 {
-	namespace internal
+	state::state()
 	{
-		client::client(game::state& gs) 
-			: base(gs)
-		{
-		}
+	}
 
-		void client::add_peer(std::weak_ptr<base> server) 
-		{
-			server_ = server;
-		}
+	state::~state()
+	{
+	}
 
-		void client::handle_process() 
-		{
-			// Basically we transfer packets to the server, by directly writing them
-			// into it's receive queue from our send queue.
-			auto peer = server_.lock();
-			ASSERT_LOG(peer != nullptr, "No server peer set in network::internal::client");
-			Update* up;
-			while((up = read_send_queue()) != nullptr) {
-				peer->write_recv_queue(up);
-			}
-		}
+	void state::set_map(hex::logical::map_ptr map)
+	{
+		map_ = map;
 	}
 }

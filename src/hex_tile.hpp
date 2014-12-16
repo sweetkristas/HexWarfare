@@ -20,6 +20,7 @@
 #include <map>
 
 #include "hex_fwd.hpp"
+#include "hex_logical_tiles.hpp"
 #include "node.hpp"
 #include "texture.hpp"
 
@@ -51,13 +52,13 @@ namespace hex
 			void draw(int tx, int ty) const;
 		};
 
-		const std::string& id() const { return id_; }
+		const std::string& id() const { return tile_->id(); }
 
 		const editor_info& get_editor_info() const { return editor_info_; } 
 
 		const std::vector<int>& sheet_indexes() const { return sheet_indexes_; }
 
-		float get_cost() const { return cost_; }
+		float get_cost() const { return tile_->get_cost(); }
 
 		void draw(int x, int y, const point& cam) const;
 
@@ -65,15 +66,15 @@ namespace hex
 		//of the target tile, the next lowest for the north-east and so forth.
 		void draw_adjacent(int x, int y, const point& cam, unsigned char adjmap) const;
 
-		float height() const { return height_; }
+		float height() const { return tile_->get_height(); }
 
 		node write() const;
 		void calculate_adjacency_pattern(unsigned char adjmap);
+
+		static tile_type_ptr factory(const std::string& name);
 	private:
-		std::string id_;
+		logical::tile_ptr tile_;
 		tile_sheet_ptr sheet_;
-		float height_;
-		float cost_;
 
 		std::vector<int> sheet_indexes_;
 
@@ -89,4 +90,6 @@ namespace hex
 
 		editor_info editor_info_;
 	};
+
+	void loader(const node& n);
 }

@@ -1,4 +1,38 @@
+package game;
+
 message Update {
-  required int32 id = 1;
-  optional string email = 2;
+	required int32 id = 1;
+
+	message Unit {
+		enum MessageType {
+			PASS = 0;
+			SUMMON = 1;
+			MOVE = 2;
+		}
+		required int32 uuid = 1;
+		required string name = 2;
+		required int32 owner_uuid = 3;
+		
+		optional MessageType type = 4 [default = PASS];
+	}
+
+	message Player {
+		enum Action {
+			NONE = 0;
+			JOIN = 1;
+			QUIT = 2;
+			CONCEDE = 3;
+		}
+
+		required int32 uuid = 1;
+		required string name = 2;
+		optional Action action = 3 [default = NONE];
+		
+		optional int32 team_uuid = 4;
+		optional string team_name = 5;
+	}
+
+	repeated Unit units = 2;
+
+	repeated Player player = 3;
 }

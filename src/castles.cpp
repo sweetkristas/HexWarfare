@@ -229,7 +229,7 @@ namespace castle
 				// todo.
 			}
 			ASSERT_LOG(m.second.has_key("base"), "No 'base' attribute found.");
-			auto tile_ptr = hex::hex_object::get_hex_tile(m.second["base"].as_string());
+			auto tile_ptr = hex::tile_type::factory(m.second["base"].as_string());
 			ASSERT_LOG(tile_ptr != nullptr, "No base tile found named '" << m.second["base"].as_string() << "'");
 			get_base_texture()[name] = tile_ptr;
 		}

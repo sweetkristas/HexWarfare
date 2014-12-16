@@ -16,28 +16,42 @@
 
 #pragma once
 
+#include <memory>
+
+#include "game_state.hpp"
 #include "message_format.pb.h"
 #include "queue.hpp"
 
 namespace network
 {
-	class server_base
+	class base
 	{
 	public:
-		server_base();
-		virtual ~server_base();
+		base(game::state& gs);
+		virtual ~base();
 
 		void process();
 
-		void send_packet(Update*);
-		Update* receive_packet();
+		void write_send_queue(Update*);
+		Update* read_recv_queue();
+
+		void write_recv_queue(Update* up);
+		Update* read_send_queue();
+
+		virtual void add_peer(std::weak_ptr<base> peer) = 0;
 	private:
 		queue::queue<Update*> snd_q_;
 		queue::queue<Update*> rcv_q_;
+		game::state& gamestate_;
 
 		virtual void handle_process() = 0;
 
-		server_base(const server_base&) = delete;
-		void operator=(const server_base&) = delete;
+		base(const base&) = delete;
+		void operator=(const base&) = delete;
 	};
+
+	typedef std::shared_ptr<base> server_ptr;
+	typedef std::weak_ptr<base> server_weak_ptr;
+	typedef std::shared_ptr<base> client_ptr;
+	typedef std::weak_ptr<base> client_weak_ptr;
 }

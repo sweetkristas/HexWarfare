@@ -27,8 +27,6 @@
 
 namespace hex 
 {
-	void loader();
-
 	class hex_object 
 	{
 	public:
@@ -49,11 +47,6 @@ namespace hex
 
 		void init_neighbors();
 		void neighbors_changed();
-
-		static std::vector<tile_type_ptr> get_hex_tiles();
-		static std::vector<tile_type_ptr>& get_editor_tiles();
-
-		static tile_type_ptr get_hex_tile(const std::string& type);
 	private:
 		// map coordinates.
 		int x_;

@@ -25,101 +25,10 @@
 
 namespace hex 
 {
-	namespace 
-	{
-		std::map<std::string, tile_type_ptr>& get_tile_type_map()
-		{
-			static std::map<std::string, tile_type_ptr> tile_map;
-			return tile_map;
-		}
-
-		std::vector<tile_type_ptr>& get_hex_editor_tiles()
-		{
-			static std::vector<tile_type_ptr> tiles;
-			return tiles;
-		}
-
-		std::map<std::string, tile_type_ptr>& get_editor_hex_tile_map()
-		{
-			static std::map<std::string, tile_type_ptr> tile_map;
-			return tile_map;
-		}
-
-		void load_editor_tiles()
-		{
-			std::map<std::string, tile_type_ptr>::const_iterator it = get_tile_type_map().begin();
-			while(it != get_tile_type_map().end()) {
-				if(it->second->get_editor_info().name.empty() == false 
-					&& it->second->get_editor_info().type.empty() == false) {
-					get_hex_editor_tiles().push_back(it->second);
-				}
-				++it;
-			}
-		}
-
-		void load_hex_editor_tiles()
-		{
-			std::map<std::string, tile_type_ptr>::const_iterator it = get_tile_type_map().begin();
-			while(it != get_tile_type_map().end()) {
-				if(it->second->get_editor_info().type.empty() == false) {
-					get_editor_hex_tile_map()[it->second->get_editor_info().type] = it->second;
-				}
-				++it;
-			}
-		}
-
-		void load_hex_tiles(const node& n)
-		{
-			if(!get_tile_type_map().empty()) {
-				get_tile_type_map().clear();
-			}
-			for(auto p : n.as_map()) {
-				std::string key_str = p.first.as_string();
-				get_tile_type_map()[key_str] = tile_type_ptr(new tile_type(key_str, p.second));
-			}
-
-			// get list of all tiles have non-empty "editor_info" blocks.
-			if(!get_hex_editor_tiles().empty()) {
-				get_hex_editor_tiles().clear();
-			}
-			load_editor_tiles();
-
-			if(!get_editor_hex_tile_map().empty()) {
-				get_editor_hex_tile_map().clear();
-			}
-			load_hex_editor_tiles();
-		}
-
-		struct hex_engine
-		{
-			hex_engine();
-			explicit hex_engine(const node& n) {
-				node tiles_var = n["tiles"];
-				ASSERT_LOG(tiles_var.is_map(), "\"tiles\" must be a map type.");
-				load_hex_tiles(tiles_var);
-			}
-		};
-
-		hex_engine& generate_hex_engine()
-		{
-			static hex_engine res(json::parse_from_file("data/hex_tiles.cfg"));
-			return res;
-		}
-	}
-
-	void loader()
-	{
-		try {
-			generate_hex_engine();
-		} catch(json::parse_error& pe) {
-			ASSERT_LOG(false, "Error parsing data/hex_tiles.cfg: " << pe.what());
-		}
-	}
-
 	hex_object::hex_object(const std::string& type, int x, int y, std::weak_ptr<const hex_map> owner) 
 		: owner_map_(owner), x_(x), y_(y), type_(type)
 	{
-		tile_ = get_tile_type_map()[type_];
+		tile_ = tile_type::factory(type_);
 		ASSERT_LOG(tile_, "Could not find tile: " << type_);
 	}
 
@@ -192,31 +101,5 @@ namespace hex
 		for (auto& neighbor : neighbors_) {
 			neighbor.type->calculate_adjacency_pattern(neighbor.dirmap);
 		}
-	}
-
-	std::vector<tile_type_ptr> hex_object::get_hex_tiles()
-	{
-		std::vector<tile_type_ptr> v;
-		std::transform(get_tile_type_map().begin(), get_tile_type_map().end(), 
-			std::back_inserter(v), 
-			std::bind(&std::map<std::string, tile_type_ptr>::value_type::second,std::placeholders::_1));
-		return v;
-	}
-
-	std::vector<tile_type_ptr>& hex_object::get_editor_tiles()
-	{
-		return get_hex_editor_tiles();
-	}
-
-	tile_type_ptr hex_object::get_hex_tile(const std::string& type)
-	{
-		auto it = get_editor_hex_tile_map().find(type);
-		if(it == get_editor_hex_tile_map().end()) {
-			it = get_tile_type_map().find(type);
-			if(it == get_tile_type_map().end()) {
-				return tile_type_ptr();
-			}
-		}
-		return it->second;
 	}
 }

@@ -33,8 +33,9 @@ namespace
 }
 
 
-engine::engine(graphics::window_manager& wm)
-	: state_(EngineState::PLAY),
+engine::engine(game::state& game_state, graphics::window_manager& wm)
+	: game_state_(game_state),
+	  state_(EngineState::PLAY),
 	  turns_(1),
 	  camera_scale_(2),
 	  wm_(wm),

@@ -22,12 +22,15 @@ namespace network
 {
 	namespace internal
 	{
-		class server : server_base
+		class server : public base
 		{
 		public:
-			server();
+			server(game::state& gs);
+			void add_peer(std::weak_ptr<base> client) override;
 		private:
 			void handle_process() override;
+
+			std::vector<client_weak_ptr> clients_;
 
 			server(const server&) = delete;
 			void operator=(const server&) = delete;

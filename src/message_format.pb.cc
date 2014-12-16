@@ -16,11 +16,21 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 
+namespace game {
+
 namespace {
 
 const ::google::protobuf::Descriptor* Update_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Update_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Update_Unit_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Update_Unit_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* Update_Unit_MessageType_descriptor_ = NULL;
+const ::google::protobuf::Descriptor* Update_Player_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Update_Player_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* Update_Player_Action_descriptor_ = NULL;
 
 }  // namespace
 
@@ -32,9 +42,10 @@ void protobuf_AssignDesc_message_5fformat_2eproto() {
       "message_format.proto");
   GOOGLE_CHECK(file != NULL);
   Update_descriptor_ = file->message_type(0);
-  static const int Update_offsets_[2] = {
+  static const int Update_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, email_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, units_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, player_),
   };
   Update_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -47,6 +58,45 @@ void protobuf_AssignDesc_message_5fformat_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Update));
+  Update_Unit_descriptor_ = Update_descriptor_->nested_type(0);
+  static const int Update_Unit_offsets_[4] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, uuid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, owner_uuid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, type_),
+  };
+  Update_Unit_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Update_Unit_descriptor_,
+      Update_Unit::default_instance_,
+      Update_Unit_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Update_Unit));
+  Update_Unit_MessageType_descriptor_ = Update_Unit_descriptor_->enum_type(0);
+  Update_Player_descriptor_ = Update_descriptor_->nested_type(1);
+  static const int Update_Player_offsets_[5] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, uuid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, action_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, team_uuid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, team_name_),
+  };
+  Update_Player_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Update_Player_descriptor_,
+      Update_Player::default_instance_,
+      Update_Player_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Update_Player));
+  Update_Player_Action_descriptor_ = Update_Player_descriptor_->enum_type(0);
 }
 
 namespace {
@@ -61,6 +111,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Update_descriptor_, &Update::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Update_Unit_descriptor_, &Update_Unit::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Update_Player_descriptor_, &Update_Player::default_instance());
 }
 
 }  // namespace
@@ -68,6 +122,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void protobuf_ShutdownFile_message_5fformat_2eproto() {
   delete Update::default_instance_;
   delete Update_reflection_;
+  delete Update_Unit::default_instance_;
+  delete Update_Unit_reflection_;
+  delete Update_Player::default_instance_;
+  delete Update_Player_reflection_;
 }
 
 void protobuf_AddDesc_message_5fformat_2eproto() {
@@ -77,12 +135,26 @@ void protobuf_AddDesc_message_5fformat_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\024message_format.proto\"#\n\006Update\022\n\n\002id\030\001"
-    " \002(\005\022\r\n\005email\030\002 \001(\t", 59);
+    "\n\024message_format.proto\022\004game\"\252\003\n\006Update\022"
+    "\n\n\002id\030\001 \002(\005\022 \n\005units\030\002 \003(\0132\021.game.Update"
+    ".Unit\022#\n\006player\030\003 \003(\0132\023.game.Update.Play"
+    "er\032\230\001\n\004Unit\022\014\n\004uuid\030\001 \002(\005\022\014\n\004name\030\002 \002(\t\022"
+    "\022\n\nowner_uuid\030\003 \002(\005\0221\n\004type\030\004 \001(\0162\035.game"
+    ".Update.Unit.MessageType:\004PASS\"-\n\013Messag"
+    "eType\022\010\n\004PASS\020\000\022\n\n\006SUMMON\020\001\022\010\n\004MOVE\020\002\032\261\001"
+    "\n\006Player\022\014\n\004uuid\030\001 \002(\005\022\014\n\004name\030\002 \002(\t\0220\n\006"
+    "action\030\003 \001(\0162\032.game.Update.Player.Action"
+    ":\004NONE\022\021\n\tteam_uuid\030\004 \001(\005\022\021\n\tteam_name\030\005"
+    " \001(\t\"3\n\006Action\022\010\n\004NONE\020\000\022\010\n\004JOIN\020\001\022\010\n\004QU"
+    "IT\020\002\022\013\n\007CONCEDE\020\003", 457);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "message_format.proto", &protobuf_RegisterTypes);
   Update::default_instance_ = new Update();
+  Update_Unit::default_instance_ = new Update_Unit();
+  Update_Player::default_instance_ = new Update_Player();
   Update::default_instance_->InitAsDefaultInstance();
+  Update_Unit::default_instance_->InitAsDefaultInstance();
+  Update_Player::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_message_5fformat_2eproto);
 }
 
@@ -95,15 +167,886 @@ struct StaticDescriptorInitializer_message_5fformat_2eproto {
 
 // ===================================================================
 
+const ::google::protobuf::EnumDescriptor* Update_Unit_MessageType_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Update_Unit_MessageType_descriptor_;
+}
+bool Update_Unit_MessageType_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#ifndef _MSC_VER
+const Update_Unit_MessageType Update_Unit::PASS;
+const Update_Unit_MessageType Update_Unit::SUMMON;
+const Update_Unit_MessageType Update_Unit::MOVE;
+const Update_Unit_MessageType Update_Unit::MessageType_MIN;
+const Update_Unit_MessageType Update_Unit::MessageType_MAX;
+const int Update_Unit::MessageType_ARRAYSIZE;
+#endif  // _MSC_VER
+#ifndef _MSC_VER
+const int Update_Unit::kUuidFieldNumber;
+const int Update_Unit::kNameFieldNumber;
+const int Update_Unit::kOwnerUuidFieldNumber;
+const int Update_Unit::kTypeFieldNumber;
+#endif  // !_MSC_VER
+
+Update_Unit::Update_Unit()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:game.Update.Unit)
+}
+
+void Update_Unit::InitAsDefaultInstance() {
+}
+
+Update_Unit::Update_Unit(const Update_Unit& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:game.Update.Unit)
+}
+
+void Update_Unit::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  uuid_ = 0;
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  owner_uuid_ = 0;
+  type_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Update_Unit::~Update_Unit() {
+  // @@protoc_insertion_point(destructor:game.Update.Unit)
+  SharedDtor();
+}
+
+void Update_Unit::SharedDtor() {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void Update_Unit::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Update_Unit::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Update_Unit_descriptor_;
+}
+
+const Update_Unit& Update_Unit::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_message_5fformat_2eproto();
+  return *default_instance_;
+}
+
+Update_Unit* Update_Unit::default_instance_ = NULL;
+
+Update_Unit* Update_Unit::New() const {
+  return new Update_Unit;
+}
+
+void Update_Unit::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<Update_Unit*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 15) {
+    ZR_(uuid_, type_);
+    if (has_name()) {
+      if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        name_->clear();
+      }
+    }
+  }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Update_Unit::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:game.Update.Unit)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 uuid = 1;
+      case 1: {
+        if (tag == 8) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &uuid_)));
+          set_has_uuid();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_name;
+        break;
+      }
+
+      // required string name = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_name:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_name()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->name().data(), this->name().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "name");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(24)) goto parse_owner_uuid;
+        break;
+      }
+
+      // required int32 owner_uuid = 3;
+      case 3: {
+        if (tag == 24) {
+         parse_owner_uuid:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &owner_uuid_)));
+          set_has_owner_uuid();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(32)) goto parse_type;
+        break;
+      }
+
+      // optional .game.Update.Unit.MessageType type = 4 [default = PASS];
+      case 4: {
+        if (tag == 32) {
+         parse_type:
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::game::Update_Unit_MessageType_IsValid(value)) {
+            set_type(static_cast< ::game::Update_Unit_MessageType >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(4, value);
+          }
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:game.Update.Unit)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:game.Update.Unit)
+  return false;
+#undef DO_
+}
+
+void Update_Unit::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:game.Update.Unit)
+  // required int32 uuid = 1;
+  if (has_uuid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->uuid(), output);
+  }
+
+  // required string name = 2;
+  if (has_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->name().data(), this->name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->name(), output);
+  }
+
+  // required int32 owner_uuid = 3;
+  if (has_owner_uuid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->owner_uuid(), output);
+  }
+
+  // optional .game.Update.Unit.MessageType type = 4 [default = PASS];
+  if (has_type()) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      4, this->type(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:game.Update.Unit)
+}
+
+::google::protobuf::uint8* Update_Unit::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:game.Update.Unit)
+  // required int32 uuid = 1;
+  if (has_uuid()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->uuid(), target);
+  }
+
+  // required string name = 2;
+  if (has_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->name().data(), this->name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->name(), target);
+  }
+
+  // required int32 owner_uuid = 3;
+  if (has_owner_uuid()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->owner_uuid(), target);
+  }
+
+  // optional .game.Update.Unit.MessageType type = 4 [default = PASS];
+  if (has_type()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      4, this->type(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:game.Update.Unit)
+  return target;
+}
+
+int Update_Unit::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 uuid = 1;
+    if (has_uuid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->uuid());
+    }
+
+    // required string name = 2;
+    if (has_name()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->name());
+    }
+
+    // required int32 owner_uuid = 3;
+    if (has_owner_uuid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->owner_uuid());
+    }
+
+    // optional .game.Update.Unit.MessageType type = 4 [default = PASS];
+    if (has_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Update_Unit::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Update_Unit* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Update_Unit*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Update_Unit::MergeFrom(const Update_Unit& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_uuid()) {
+      set_uuid(from.uuid());
+    }
+    if (from.has_name()) {
+      set_name(from.name());
+    }
+    if (from.has_owner_uuid()) {
+      set_owner_uuid(from.owner_uuid());
+    }
+    if (from.has_type()) {
+      set_type(from.type());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Update_Unit::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Update_Unit::CopyFrom(const Update_Unit& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Update_Unit::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+
+  return true;
+}
+
+void Update_Unit::Swap(Update_Unit* other) {
+  if (other != this) {
+    std::swap(uuid_, other->uuid_);
+    std::swap(name_, other->name_);
+    std::swap(owner_uuid_, other->owner_uuid_);
+    std::swap(type_, other->type_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Update_Unit::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Update_Unit_descriptor_;
+  metadata.reflection = Update_Unit_reflection_;
+  return metadata;
+}
+
+
+// -------------------------------------------------------------------
+
+const ::google::protobuf::EnumDescriptor* Update_Player_Action_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Update_Player_Action_descriptor_;
+}
+bool Update_Player_Action_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#ifndef _MSC_VER
+const Update_Player_Action Update_Player::NONE;
+const Update_Player_Action Update_Player::JOIN;
+const Update_Player_Action Update_Player::QUIT;
+const Update_Player_Action Update_Player::CONCEDE;
+const Update_Player_Action Update_Player::Action_MIN;
+const Update_Player_Action Update_Player::Action_MAX;
+const int Update_Player::Action_ARRAYSIZE;
+#endif  // _MSC_VER
+#ifndef _MSC_VER
+const int Update_Player::kUuidFieldNumber;
+const int Update_Player::kNameFieldNumber;
+const int Update_Player::kActionFieldNumber;
+const int Update_Player::kTeamUuidFieldNumber;
+const int Update_Player::kTeamNameFieldNumber;
+#endif  // !_MSC_VER
+
+Update_Player::Update_Player()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:game.Update.Player)
+}
+
+void Update_Player::InitAsDefaultInstance() {
+}
+
+Update_Player::Update_Player(const Update_Player& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:game.Update.Player)
+}
+
+void Update_Player::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  uuid_ = 0;
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  action_ = 0;
+  team_uuid_ = 0;
+  team_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Update_Player::~Update_Player() {
+  // @@protoc_insertion_point(destructor:game.Update.Player)
+  SharedDtor();
+}
+
+void Update_Player::SharedDtor() {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (team_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete team_name_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void Update_Player::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Update_Player::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Update_Player_descriptor_;
+}
+
+const Update_Player& Update_Player::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_message_5fformat_2eproto();
+  return *default_instance_;
+}
+
+Update_Player* Update_Player::default_instance_ = NULL;
+
+Update_Player* Update_Player::New() const {
+  return new Update_Player;
+}
+
+void Update_Player::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<Update_Player*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 31) {
+    ZR_(uuid_, action_);
+    if (has_name()) {
+      if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        name_->clear();
+      }
+    }
+    team_uuid_ = 0;
+    if (has_team_name()) {
+      if (team_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        team_name_->clear();
+      }
+    }
+  }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Update_Player::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:game.Update.Player)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 uuid = 1;
+      case 1: {
+        if (tag == 8) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &uuid_)));
+          set_has_uuid();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_name;
+        break;
+      }
+
+      // required string name = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_name:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_name()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->name().data(), this->name().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "name");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(24)) goto parse_action;
+        break;
+      }
+
+      // optional .game.Update.Player.Action action = 3 [default = NONE];
+      case 3: {
+        if (tag == 24) {
+         parse_action:
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::game::Update_Player_Action_IsValid(value)) {
+            set_action(static_cast< ::game::Update_Player_Action >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(3, value);
+          }
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(32)) goto parse_team_uuid;
+        break;
+      }
+
+      // optional int32 team_uuid = 4;
+      case 4: {
+        if (tag == 32) {
+         parse_team_uuid:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &team_uuid_)));
+          set_has_team_uuid();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(42)) goto parse_team_name;
+        break;
+      }
+
+      // optional string team_name = 5;
+      case 5: {
+        if (tag == 42) {
+         parse_team_name:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_team_name()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->team_name().data(), this->team_name().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "team_name");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:game.Update.Player)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:game.Update.Player)
+  return false;
+#undef DO_
+}
+
+void Update_Player::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:game.Update.Player)
+  // required int32 uuid = 1;
+  if (has_uuid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->uuid(), output);
+  }
+
+  // required string name = 2;
+  if (has_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->name().data(), this->name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->name(), output);
+  }
+
+  // optional .game.Update.Player.Action action = 3 [default = NONE];
+  if (has_action()) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      3, this->action(), output);
+  }
+
+  // optional int32 team_uuid = 4;
+  if (has_team_uuid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->team_uuid(), output);
+  }
+
+  // optional string team_name = 5;
+  if (has_team_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->team_name().data(), this->team_name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "team_name");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      5, this->team_name(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:game.Update.Player)
+}
+
+::google::protobuf::uint8* Update_Player::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:game.Update.Player)
+  // required int32 uuid = 1;
+  if (has_uuid()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->uuid(), target);
+  }
+
+  // required string name = 2;
+  if (has_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->name().data(), this->name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->name(), target);
+  }
+
+  // optional .game.Update.Player.Action action = 3 [default = NONE];
+  if (has_action()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      3, this->action(), target);
+  }
+
+  // optional int32 team_uuid = 4;
+  if (has_team_uuid()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->team_uuid(), target);
+  }
+
+  // optional string team_name = 5;
+  if (has_team_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->team_name().data(), this->team_name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "team_name");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        5, this->team_name(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:game.Update.Player)
+  return target;
+}
+
+int Update_Player::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 uuid = 1;
+    if (has_uuid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->uuid());
+    }
+
+    // required string name = 2;
+    if (has_name()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->name());
+    }
+
+    // optional .game.Update.Player.Action action = 3 [default = NONE];
+    if (has_action()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::EnumSize(this->action());
+    }
+
+    // optional int32 team_uuid = 4;
+    if (has_team_uuid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->team_uuid());
+    }
+
+    // optional string team_name = 5;
+    if (has_team_name()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->team_name());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Update_Player::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Update_Player* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Update_Player*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Update_Player::MergeFrom(const Update_Player& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_uuid()) {
+      set_uuid(from.uuid());
+    }
+    if (from.has_name()) {
+      set_name(from.name());
+    }
+    if (from.has_action()) {
+      set_action(from.action());
+    }
+    if (from.has_team_uuid()) {
+      set_team_uuid(from.team_uuid());
+    }
+    if (from.has_team_name()) {
+      set_team_name(from.team_name());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Update_Player::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Update_Player::CopyFrom(const Update_Player& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Update_Player::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+
+  return true;
+}
+
+void Update_Player::Swap(Update_Player* other) {
+  if (other != this) {
+    std::swap(uuid_, other->uuid_);
+    std::swap(name_, other->name_);
+    std::swap(action_, other->action_);
+    std::swap(team_uuid_, other->team_uuid_);
+    std::swap(team_name_, other->team_name_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Update_Player::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Update_Player_descriptor_;
+  metadata.reflection = Update_Player_reflection_;
+  return metadata;
+}
+
+
+// -------------------------------------------------------------------
+
 #ifndef _MSC_VER
 const int Update::kIdFieldNumber;
-const int Update::kEmailFieldNumber;
+const int Update::kUnitsFieldNumber;
+const int Update::kPlayerFieldNumber;
 #endif  // !_MSC_VER
 
 Update::Update()
   : ::google::protobuf::Message() {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:Update)
+  // @@protoc_insertion_point(constructor:game.Update)
 }
 
 void Update::InitAsDefaultInstance() {
@@ -113,26 +1056,21 @@ Update::Update(const Update& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:Update)
+  // @@protoc_insertion_point(copy_constructor:game.Update)
 }
 
 void Update::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   id_ = 0;
-  email_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 Update::~Update() {
-  // @@protoc_insertion_point(destructor:Update)
+  // @@protoc_insertion_point(destructor:game.Update)
   SharedDtor();
 }
 
 void Update::SharedDtor() {
-  if (email_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete email_;
-  }
   if (this != default_instance_) {
   }
 }
@@ -159,14 +1097,9 @@ Update* Update::New() const {
 }
 
 void Update::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    id_ = 0;
-    if (has_email()) {
-      if (email_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        email_->clear();
-      }
-    }
-  }
+  id_ = 0;
+  units_.Clear();
+  player_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -175,7 +1108,7 @@ bool Update::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:Update)
+  // @@protoc_insertion_point(parse_start:game.Update)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
@@ -191,23 +1124,34 @@ bool Update::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(18)) goto parse_email;
+        if (input->ExpectTag(18)) goto parse_units;
         break;
       }
 
-      // optional string email = 2;
+      // repeated .game.Update.Unit units = 2;
       case 2: {
         if (tag == 18) {
-         parse_email:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_email()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->email().data(), this->email().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "email");
+         parse_units:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_units()));
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(18)) goto parse_units;
+        if (input->ExpectTag(26)) goto parse_player;
+        break;
+      }
+
+      // repeated .game.Update.Player player = 3;
+      case 3: {
+        if (tag == 26) {
+         parse_player:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_player()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(26)) goto parse_player;
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -226,63 +1170,68 @@ bool Update::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:Update)
+  // @@protoc_insertion_point(parse_success:game.Update)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:Update)
+  // @@protoc_insertion_point(parse_failure:game.Update)
   return false;
 #undef DO_
 }
 
 void Update::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:Update)
+  // @@protoc_insertion_point(serialize_start:game.Update)
   // required int32 id = 1;
   if (has_id()) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->id(), output);
   }
 
-  // optional string email = 2;
-  if (has_email()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->email().data(), this->email().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "email");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      2, this->email(), output);
+  // repeated .game.Update.Unit units = 2;
+  for (int i = 0; i < this->units_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->units(i), output);
+  }
+
+  // repeated .game.Update.Player player = 3;
+  for (int i = 0; i < this->player_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, this->player(i), output);
   }
 
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
-  // @@protoc_insertion_point(serialize_end:Update)
+  // @@protoc_insertion_point(serialize_end:game.Update)
 }
 
 ::google::protobuf::uint8* Update::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Update)
+  // @@protoc_insertion_point(serialize_to_array_start:game.Update)
   // required int32 id = 1;
   if (has_id()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->id(), target);
   }
 
-  // optional string email = 2;
-  if (has_email()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->email().data(), this->email().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "email");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->email(), target);
+  // repeated .game.Update.Unit units = 2;
+  for (int i = 0; i < this->units_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->units(i), target);
+  }
+
+  // repeated .game.Update.Player player = 3;
+  for (int i = 0; i < this->player_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        3, this->player(i), target);
   }
 
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:Update)
+  // @@protoc_insertion_point(serialize_to_array_end:game.Update)
   return target;
 }
 
@@ -297,14 +1246,23 @@ int Update::ByteSize() const {
           this->id());
     }
 
-    // optional string email = 2;
-    if (has_email()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->email());
-    }
-
   }
+  // repeated .game.Update.Unit units = 2;
+  total_size += 1 * this->units_size();
+  for (int i = 0; i < this->units_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->units(i));
+  }
+
+  // repeated .game.Update.Player player = 3;
+  total_size += 1 * this->player_size();
+  for (int i = 0; i < this->player_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->player(i));
+  }
+
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -330,12 +1288,11 @@ void Update::MergeFrom(const ::google::protobuf::Message& from) {
 
 void Update::MergeFrom(const Update& from) {
   GOOGLE_CHECK_NE(&from, this);
+  units_.MergeFrom(from.units_);
+  player_.MergeFrom(from.player_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_id()) {
       set_id(from.id());
-    }
-    if (from.has_email()) {
-      set_email(from.email());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -356,13 +1313,16 @@ void Update::CopyFrom(const Update& from) {
 bool Update::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
 
+  if (!::google::protobuf::internal::AllAreInitialized(this->units())) return false;
+  if (!::google::protobuf::internal::AllAreInitialized(this->player())) return false;
   return true;
 }
 
 void Update::Swap(Update* other) {
   if (other != this) {
     std::swap(id_, other->id_);
-    std::swap(email_, other->email_);
+    units_.Swap(&other->units_);
+    player_.Swap(&other->player_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -379,5 +1339,7 @@ void Update::Swap(Update* other) {
 
 
 // @@protoc_insertion_point(namespace_scope)
+
+}  // namespace game
 
 // @@protoc_insertion_point(global_scope)

@@ -21,6 +21,7 @@
 #include "castles.hpp"
 #include "geometry.hpp"
 #include "hex_fwd.hpp"
+#include "hex_logical_tiles.hpp"
 #include "hex_object.hpp"
 #include "node.hpp"
 
@@ -29,23 +30,22 @@ namespace hex
 	class hex_map : public std::enable_shared_from_this<hex_map>
 	{
 	public:
-		hex_map() : x_(0), y_(0), width_(0), height_(0), zorder_(-1000) {}
+		hex_map() : zorder_(-1000) {}
 		explicit hex_map(const node& n);
 		int zorder() const { return zorder_; }
 		void set_zorder(int zorder) { zorder_ = zorder; }
 
-		int x() const { return x_; }
-		int y() const { return y_; }
+		int x() const { return map_->x(); }
+		int y() const { return map_->y(); }
 
-		size_t width() const { return width_; }
-		size_t height() const { return height_; }
-		size_t size() const { return width_ * height_; }
+		size_t width() const { return map_->width(); }
+		size_t height() const { return map_->height(); }
+		size_t size() const { return map_->width() * map_->height(); }
 		void build();
 		virtual void draw(const rect& r, const point& cam) const;
 		node write() const;
 
 		bool set_tile(int x, int y, const std::string& tile);
-		const std::vector<hex_object>& get_tiles() const { return tiles_; }
 
 		std::vector<const hex_object*> get_surrounding_tiles(int x, int y) const;
 		const hex_object* get_hex_tile(direction d, int x, int y) const;
@@ -56,19 +56,20 @@ namespace hex
 
 		static point loc_in_dir(int x, int y, direction d);
 		static point loc_in_dir(int x, int y, const std::string& s);
+
+		// this is a convenience function.
+		logical::map_ptr get_logical_map() { return map_; }
 		
-		static hex_map_ptr factory(const node& n, const rectf& screen_area);
+		static hex_map_ptr factory(logical::map_ptr m, const node& n, const rectf& screen_area);
 	private:
-		hex_map(const hex_map&);
-		void operator=(const hex_map&);
-		std::vector<hex_object> tiles_;
-		int x_;
-		int y_;
-		int width_;
-		int height_;
+		logical::map_ptr map_;
 		int zorder_;
 		int border_;
 		rectf screen_area_;
 		std::vector<castle::castle_ptr> castles_;
+		std::vector<hex_object> tiles_;
+
+		hex_map(const hex_map&);
+		void operator=(const hex_map&);
 	};
 }

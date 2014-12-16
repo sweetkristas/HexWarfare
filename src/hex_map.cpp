@@ -31,31 +31,28 @@ namespace hex
 	static const int HexTileSize = 72;
 
 	hex_map::hex_map(const node& value)
-		: x_(value["x"].as_int32(0)),
-		  y_(value["y"].as_int32(0)),
-		  width_(value["width"].as_int32()), 
-		  height_(0),
-		  zorder_(value["zorder"].as_int32(-1000)),
+		: zorder_(value["zorder"].as_int32(-1000)),
 		  border_(value["border"].as_int32(0))
 	{
+		
 		for(auto c : value["castles"].as_map()) {
 			// c.first is a name
 			castles_.emplace_back(castle::castle::factory(c.second));
 		}
 	}
 
-	hex_map_ptr hex_map::factory(const node& n, const rectf& screen_area)
+	hex_map_ptr hex_map::factory(logical::map_ptr m, const node& n, const rectf& screen_area)
 	{
 		hex_map_ptr p = std::make_shared<hex_map>(n);
+		p->map_ = m;
 		int index = 0;
-		p->tiles_.reserve(p->width_ * p->width_);	// approximation
-		for (auto& tile_str : n["tiles"].as_list_strings()) {
-			const int x = index % p->width_;
-			const int y = index / p->width_;
-			p->tiles_.emplace_back(tile_str, x, y, p);
+		p->tiles_.reserve(p->map_->size());
+		for(auto& t : *p->map_) {
+			const int x = index % p->map_->width();
+			const int y = index / p->map_->width();
+			p->tiles_.emplace_back(t->id(), x, y, p);
 			++index;
 		}
-		p->height_ = p->tiles_.size() / p->width_;
 		
 		for(auto& t : p->tiles_) {
 			t.init_neighbors();
@@ -84,29 +81,8 @@ namespace hex
 
 	node hex_map::write() const
 	{
-		node_builder res;
-		if(x_ != 0) {
-			res.add("x", x_);
-		}
-		if(y_ != 0) {
-			res.add("y", y_);
-		}
-		if(zorder_ != -1000) {
-			res.add("zorder", zorder_);
-		}
-
-		if(border_ != 0) {
-			res.add("border", border_);
-		}
-
-		std::vector<node> v;
-		for(auto tile : tiles_) {
-			v.push_back(node(tile.type()));
-		}
-
-		res.add("tiles", node(&v));
-
-		return res.build();
+		ASSERT_LOG(false, "XXX writeme hex_map::write()");
+		return node();
 	}
 
 	std::vector<const hex_object*> hex_map::get_surrounding_tiles(int x, int y) const
@@ -125,9 +101,9 @@ namespace hex
 	{
 		int ox = x;
 		int oy = y;
-		assert(x_ == 0 && y_ == 0);
-		x -= x_;
-		y -= y_;
+		assert(map_->x() == 0 && map_->y() == 0);
+		x -= map_->x();
+		y -= map_->y();
 		if(d == NORTH) {
 			y -= 1;
 		} else if(d == SOUTH) {
@@ -147,11 +123,11 @@ namespace hex
 		} else {
 			ASSERT_LOG(false, "Unrecognised direction: " << d);
 		}
-		if (x < 0 || y < 0 || y >= height_ || x >= width_) {
+		if (x < 0 || y < 0 || y >= map_->height() || x >= map_->width()) {
 			return nullptr;
 		}
 
-		const int index = y * width_ + x;
+		const int index = y * map_->width() + x;
 		assert(index >= 0 && index < static_cast<int>(tiles_.size()));
 		return &tiles_[index];
 	}
@@ -213,24 +189,24 @@ namespace hex
 
 	const hex_object* hex_map::get_tile_at(int x, int y) const
 	{
-		x -= x_;
-		y -= y_;
-		if (x < 0 || y < 0 || y >= height_ || x >= width_) {
+		x -= map_->x();
+		y -= map_->y();
+		if (x < 0 || y < 0 || y >= map_->height() || x >= map_->width()) {
 			return nullptr;
 		}
 
-		const int index = y*width_ + x;
+		const int index = y * map_->width() + x;
 		assert(index >= 0 && index < static_cast<int>(tiles_.size()));
 		return &tiles_[index];
 	}
 
 	bool hex_map::set_tile(int xx, int yy, const std::string& tile)
 	{
-		if(xx < 0 || yy < 0 || xx >= width_ || yy >= height_) {
+		if(xx < 0 || yy < 0 || xx >= map_->width() || yy >= map_->height()) {
 			return false;
 		}
 
-		const int index = yy*width_ + xx;
+		const int index = yy * map_->width() + xx;
 		assert(index >= 0 && index < static_cast<int>(tiles_.size()));
 
 		tiles_[index] = hex_object(tile, xx, yy, shared_from_this());

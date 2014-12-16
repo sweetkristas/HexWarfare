@@ -14,33 +14,24 @@
    limitations under the License.
 */
 
-#include "asserts.hpp"
-#include "internal_client.hpp"
+#pragma once
 
-namespace network
+#include "hex_logical_fwd.hpp"
+
+namespace game
 {
-	namespace internal
+	// Contains the current game state.
+	// Logical representation of the game map
+	// Locations and stats for units.
+	class state
 	{
-		client::client(game::state& gs) 
-			: base(gs)
-		{
-		}
+	public:
+		state();
+		~state();
 
-		void client::add_peer(std::weak_ptr<base> server) 
-		{
-			server_ = server;
-		}
-
-		void client::handle_process() 
-		{
-			// Basically we transfer packets to the server, by directly writing them
-			// into it's receive queue from our send queue.
-			auto peer = server_.lock();
-			ASSERT_LOG(peer != nullptr, "No server peer set in network::internal::client");
-			Update* up;
-			while((up = read_send_queue()) != nullptr) {
-				peer->write_recv_queue(up);
-			}
-		}
-	}
+		void set_map(hex::logical::map_ptr map);
+		//add_unit();
+	private:
+		hex::logical::map_ptr map_;
+	};
 }

@@ -100,9 +100,11 @@
     <ClCompile Include="..\..\src\engine.cpp" />
     <ClCompile Include="..\..\src\filesystem.cpp" />
     <ClCompile Include="..\..\src\font.cpp" />
+    <ClCompile Include="..\..\src\game_state.cpp" />
     <ClCompile Include="..\..\src\grid.cpp" />
     <ClCompile Include="..\..\src\gui_elements.cpp" />
     <ClCompile Include="..\..\src\gui_process.cpp" />
+    <ClCompile Include="..\..\src\hex_logical_tiles.cpp" />
     <ClCompile Include="..\..\src\hex_map.cpp" />
     <ClCompile Include="..\..\src\hex_object.cpp" />
     <ClCompile Include="..\..\src\hex_pathfinding.cpp" />
@@ -157,11 +159,14 @@
     <ClInclude Include="..\..\src\filesystem.hpp" />
     <ClInclude Include="..\..\src\font.hpp" />
     <ClInclude Include="..\..\src\formatter.hpp" />
+    <ClInclude Include="..\..\src\game_state.hpp" />
     <ClInclude Include="..\..\src\geometry.hpp" />
     <ClInclude Include="..\..\src\grid.hpp" />
     <ClInclude Include="..\..\src\gui_elements.hpp" />
     <ClInclude Include="..\..\src\gui_process.hpp" />
     <ClInclude Include="..\..\src\hasher.hpp" />
+    <ClInclude Include="..\..\src\hex_logical_fwd.hpp" />
+    <ClInclude Include="..\..\src\hex_logical_tiles.hpp" />
     <ClInclude Include="..\..\src\hex_map.hpp" />
     <ClInclude Include="..\..\src\hex_fwd.hpp" />
     <ClInclude Include="..\..\src\hex_object.hpp" />
