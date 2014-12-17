@@ -37,7 +37,7 @@ namespace network
 			// into it's receive queue from our send queue.
 			auto peer = server_.lock();
 			ASSERT_LOG(peer != nullptr, "No server peer set in network::internal::client");
-			Update* up;
+			game::Update* up;
 			while((up = read_send_queue()) != nullptr) {
 				peer->write_recv_queue(up);
 			}

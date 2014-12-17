@@ -72,7 +72,7 @@ namespace enet
 		signal(SIGINT, signal_handler);
 
 		ENetEvent ev;
-		Update up;
+		game::Update up;
 		static int peer_cnt = 0;
 		running_ = true;
 		while(is_server_running()) {
@@ -94,8 +94,6 @@ namespace enet
 							<< ev.packet->dataLength 
 							<< " containing " 
 							<< up.id()
-							<< ":" 
-							<< up.email()
 							<< " was received from " 
 							<< reinterpret_cast<int>(ev.peer->data) 
 							<< " on channel " 
@@ -191,14 +189,14 @@ namespace enet
 		thread_->join();
 	}
 
-	void client::send_data(Update* snd)
+	void client::send_data(game::Update* snd)
 	{
 		send_q_.push(snd);
 	}
 
-	Update* client::get_pending_packet()
+	game::Update* client::get_pending_packet()
 	{
-		Update* up;
+		game::Update* up;
 		if(rcv_q_.try_pop(up)) {
 			return up;
 		}
@@ -219,7 +217,7 @@ namespace enet
 				case ENET_EVENT_TYPE_RECEIVE: {
 					std::cerr << "Got message " << ev.packet->dataLength << " bytes long\n";
 					std::string pkt(reinterpret_cast<char*>(ev.packet->data), ev.packet->dataLength);
-					Update* up = new Update();
+					game::Update* up = new game::Update();
 					up->ParseFromString(pkt);
 					rcv_q_.push(up);
 					enet_packet_destroy(ev.packet);
@@ -234,7 +232,7 @@ namespace enet
 
 			// XXX check send queue and send messages here
 			if(!send_q_.empty() && connected) {
-				Update* msg;
+				game::Update* msg;
 				if(send_q_.wait_and_pop(msg)) {
 					static std::string message;
 					msg->SerializeToString(&message);

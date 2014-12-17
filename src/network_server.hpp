@@ -32,16 +32,16 @@ namespace network
 
 		void process();
 
-		void write_send_queue(Update*);
-		Update* read_recv_queue();
+		void write_send_queue(game::Update*);
+		game::Update* read_recv_queue();
 
-		void write_recv_queue(Update* up);
-		Update* read_send_queue();
+		void write_recv_queue(game::Update* up);
+		game::Update* read_send_queue();
 
 		virtual void add_peer(std::weak_ptr<base> peer) = 0;
 	private:
-		queue::queue<Update*> snd_q_;
-		queue::queue<Update*> rcv_q_;
+		queue::queue<game::Update*> snd_q_;
+		queue::queue<game::Update*> rcv_q_;
 		game::state& gamestate_;
 
 		virtual void handle_process() = 0;

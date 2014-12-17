@@ -282,8 +282,6 @@ int main(int argc, char* argv[])
 		e.add_process(std::make_shared<process::ee_collision>());
 
 		auto bw = gui::initiative::create(rectf(0.0f, 0.0f, 0.4f, 0.1f), gui::Justify::H_CENTER | gui::Justify::BOTTOM);
-		//bw->enable_background_rect();
-		//bw->set_background_rect_color(graphics::color(255,0,255,64));
 		e.add_widget(bw);
 
 		auto info_win = gui::dialog::create(rectf(0.0f, 0.0f, 0.2f, 1.0f), gui::Justify::RIGHT | gui::Justify::TOP);
@@ -307,16 +305,11 @@ int main(int argc, char* argv[])
 			SDL_RenderClear(wm.get_renderer());
 			try {
 				running = e.update(60.0/1000.0);
-				// XXX temp
-				//bw->update(e, 60.0/1000.0);
 			} catch(std::bad_weak_ptr& e) {
 				ASSERT_LOG(false, "Bad weak ptr: " << e.what());
 			}
 
 			draw_perf_stats(e, tm.get_time());
-
-			// XXX temp
-			//bw->draw(rect(0, 0, e.get_window().width(), e.get_window().height()), 0.0f, 1.0f);
 
 			SDL_RenderPresent(wm.get_renderer());
 	

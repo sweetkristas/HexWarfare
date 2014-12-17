@@ -33,30 +33,30 @@ namespace network
 		handle_process();
 	}
 
-	void base::write_send_queue(Update* up)
+	void base::write_send_queue(game::Update* up)
 	{
 		snd_q_.push(up);
 	}
 
-	Update* base::read_recv_queue()
+	game::Update* base::read_recv_queue()
 	{
-		Update* up;
+		game::Update* up;
 		if(rcv_q_.try_pop(up)) {
 			return up;
 		}
 		return nullptr;
 	}
 
-	Update* base::read_send_queue()
+	game::Update* base::read_send_queue()
 	{
-		Update* up;
+		game::Update* up;
 		if(snd_q_.try_pop(up)) {
 			return up;
 		}
 		return nullptr;
 	}
 
-	void base::write_recv_queue(Update* up)
+	void base::write_recv_queue(game::Update* up)
 	{
 		rcv_q_.push(up);
 	}

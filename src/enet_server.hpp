@@ -42,8 +42,8 @@ namespace enet
 		int port_;
 		bool running_;
 
-		std::deque<Update*> send_q_;
-		std::deque<Update*> recv_q_;
+		std::deque<game::Update*> send_q_;
+		std::deque<game::Update*> recv_q_;
 
 		static void signal_handler(int signal_number);
 
@@ -60,8 +60,8 @@ namespace enet
 		explicit client(const std::string& address, int port, int down_bw=0, int up_bw=0);
 		~client();
 		void process();
-		void send_data(Update*);
-		Update* get_pending_packet();
+		void send_data(game::Update*);
+		game::Update* get_pending_packet();
 	private:
 		std::string address_;
 		int port_;
@@ -87,8 +87,8 @@ namespace enet
 		threading::Mutex mutex_;
 		std::unique_ptr<threading::Thread> thread_;
 
-		queue::queue<Update*> send_q_;
-		queue::queue<Update*> rcv_q_;
+		queue::queue<game::Update*> send_q_;
+		queue::queue<game::Update*> rcv_q_;
 
 		client() = delete;
 		client(const client&) = delete;
