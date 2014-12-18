@@ -22,6 +22,11 @@
 
 class engine;
 
+namespace game
+{
+	class state;
+};
+
 namespace component
 {
 	struct component_set;

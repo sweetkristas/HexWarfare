@@ -63,11 +63,11 @@ namespace gui
 		}
 	}
 
-	void initiative::handle_update(engine& eng, double t)
+	void initiative::handle_update(const engine& eng, double t)
 	{
 		sprites_.clear();
 
-		for(auto& e : eng.get_entities_initiative_ordered()) {
+		for(auto& e : eng.get_game_state().get_entities()) {
 			auto ini = e->stat->initiative;
 			auto spr = e->spr->tex;
 			sprites_.emplace_back(spr, ini);

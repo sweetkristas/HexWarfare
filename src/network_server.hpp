@@ -18,7 +18,6 @@
 
 #include <memory>
 
-#include "game_state.hpp"
 #include "message_format.pb.h"
 #include "queue.hpp"
 
@@ -27,7 +26,7 @@ namespace network
 	class base
 	{
 	public:
-		base(game::state& gs);
+		base();
 		virtual ~base();
 
 		void process();
@@ -42,7 +41,6 @@ namespace network
 	private:
 		queue::queue<game::Update*> snd_q_;
 		queue::queue<game::Update*> rcv_q_;
-		game::state& gamestate_;
 
 		virtual void handle_process() = 0;
 

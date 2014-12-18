@@ -25,7 +25,7 @@ namespace network
 		class client : public base
 		{
 		public:
-			client(game::state& gs);
+			client();
 
 			void add_peer(std::weak_ptr<base> server) override;
 		private:

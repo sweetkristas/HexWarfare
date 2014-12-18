@@ -18,21 +18,24 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/property_map/property_map.hpp>
 
+#include "hex_logical_tiles.hpp"
 #include "hex_pathfinding.hpp"
 #include "profile_timer.hpp"
 
 namespace hex
 {
-	hex_graph_ptr create_graph(const engine& eng, hex_map_ptr map, int x, int y, int w, int h)
+	// XXX Modify these to work with hex::logical::map
+	hex_graph_ptr create_graph(const game::state& gs, int x, int y, int w, int h)
 	{
 		profile::manager pman("create_graph");
 		
 		using namespace component;
-		static const component_id unit_mask = genmask(Component::POSITION) | genmask(Component::CREATURE);
 
-		std::vector<const hex_object*> vertices;
+		std::vector<point> vertices;
 		std::vector<edge> edges;
 		std::vector<cost> weights;
+
+		auto& map = gs.get_map();
 
 		if(w == 0) {
 			w = map->width();
@@ -51,53 +54,50 @@ namespace hex
 		//std::set<point> friendly_units;
 		std::map<point, component_set_ptr> enemy_units;
 		std::set<point> surrounding_positions;
-		for(auto& e : eng.get_entities()) {
+		auto cp = gs.get_current_player().lock();
+		for(auto& e : gs.get_entities()) {
 			auto owner = e->owner.lock();
-			if((e->mask & unit_mask) == unit_mask) {
-				auto& pos = e->pos->pos;
-				if(eng.get_current_player()->team() != owner->team()) {
-					enemy_units[pos] = e;
-					auto surrounds = map->get_surrounding_tiles(pos.x, pos.y);
-					for(auto& t : surrounds) {
-						surrounding_positions.emplace(t->x(), t->y());
-					}
-				} else {
-					//friendly_units.emplace(pos);
+			auto& pos = e->pos->pos;
+			if(cp->team() != owner->team()) {
+				enemy_units[pos] = e;
+				auto surrounds = map->get_surrounding_positions(pos.x, pos.y);
+				for(auto& t : surrounds) {
+					surrounding_positions.emplace(t);
 				}
+			} else {
+				//friendly_units.emplace(pos);
 			}
 		}
 		// remove enemy entities from surrounding positions
-		for(auto& e : eng.get_entities()) {
+		for(auto& e : gs.get_entities()) {
 			auto owner = e->owner.lock();
-			if((e->mask & unit_mask) == unit_mask && eng.get_current_player()->team() != owner->team()) {
-				auto it = surrounding_positions.find(e->pos->pos);
-				if(it != surrounding_positions.end()) {
-					surrounding_positions.erase(it);
-				}
+			auto it = surrounding_positions.find(e->pos->pos);
+			if(it != surrounding_positions.end()) {
+				surrounding_positions.erase(it);
 			}
 		}
 
-		std::map<const hex_object*, int> reverse_map;
+		std::map<point, int> reverse_map;
 
 		// find vertices and edges to construct the graph.
 		vertices.reserve(w*h);
 		for(int m = y; m != y+h; ++m) {
 			for(int n = x; n != x+w; ++n) {
-				auto n1 = map->get_tile_at(n, m);
-				auto surrounds = map->get_surrounding_tiles(n1->x(), n1->y());
+				point n1(n, m);
+				auto surrounds = map->get_surrounding_positions(n1);
 				// scan through entities for units at t
-				auto it = enemy_units.find(point(n1->x(), n1->y()));
-				const bool in_zoc = surrounding_positions.find(point(n1->x(), n1->y())) != surrounding_positions.end();
+				auto it = enemy_units.find(n1);
+				const bool in_zoc = surrounding_positions.find(n1) != surrounding_positions.end();
 				if(it == enemy_units.end()) {
 					vertices.emplace_back(n1);
 					reverse_map[n1] = vertices.size()-1;
 					for(auto& n2 : surrounds) {
-						if(n2->x() >= x && n2->x() < x+w 
-							&& n2->y() >= y && n2->y() < y+h
-							&& enemy_units.find(point(n2->x(),n2->y())) == enemy_units.end()) {
-							if(!(in_zoc && surrounding_positions.find(point(n2->x(), n2->y())) != surrounding_positions.end())) {
+						if(n2.x >= x && n2.x < x+w 
+							&& n2.y >= y && n2.y < y+h
+							&& enemy_units.find(n2) == enemy_units.end()) {
+							if(!(in_zoc && surrounding_positions.find(n2) != surrounding_positions.end())) {
 								edges.emplace_back(n1, n2);
-								weights.emplace_back(n2->tile()->get_cost());
+								weights.emplace_back(map->get_tile_at(n2)->get_cost());
 							}
 						}
 					}
@@ -120,8 +120,9 @@ namespace hex
 		return graph;
 	}
 
-	hex_graph_ptr create_cost_graph(const engine& eng, hex_map_ptr map, int srcx, int srcy, float max_cost)
+	hex_graph_ptr create_cost_graph(const game::state& gs, int srcx, int srcy, float max_cost)
 	{
+		auto& map = gs.get_map();
 		int max_area = static_cast<int>(max_cost*4.0f+1.0f);
 		int x = srcx - max_area/2;
 		int w = max_area;
@@ -142,10 +143,10 @@ namespace hex
 			y = map->height() - 1;
 		}
 
-		return create_graph(eng, map, x, y, w, h);
+		return create_graph(gs, x, y, w, h);
 	}
 
-	result_list find_available_moves(hex_graph_ptr graph, const hex_object* src, float max_cost)
+	result_list find_available_moves(hex_graph_ptr graph, const point& src, float max_cost)
 	{
 		profile::manager pman("find_available_moves");
 		
@@ -195,29 +196,25 @@ namespace hex
 	{
 	public:
 		typedef typename boost::graph_traits<Graph>::vertex_descriptor Vertex;
-		astar_heuristic(Vertex goal, const std::vector<const hex_object*>& vertices) 
-			: goal_x_(vertices[goal]->x()), 
-			  goal_y_(vertices[goal]->y()), 
+		astar_heuristic(Vertex goal, const std::vector<point>& vertices) 
+			: goal_x_(vertices[goal].x), 
+			  goal_y_(vertices[goal].y), 
 			  vertices_(vertices) {}
 		CostType operator()(Vertex u) 
 		{ 
-			const auto u_x = vertices_[u]->x();
-			const auto u_y = vertices_[u]->y();
+			const auto u_x = vertices_[u].x;
+			const auto u_y = vertices_[u].y;
 			return static_cast<CostType>((abs(u_x - goal_x_) + abs(u_y - goal_y_) + abs(u_x + u_y - goal_x_ - goal_y_)) / 2.0f);
 		}
 	private:
 		int goal_x_;
 		int goal_y_;
-		const std::vector<const hex_object*>& vertices_;
+		const std::vector<point>& vertices_;
 	};
 
-	result_path find_path(hex_graph_ptr graph, const hex_object* src, const hex_object* dst)
+	result_path find_path(hex_graph_ptr graph, const point& src, const point& dst)
 	{
 		profile::manager pman("find_path");
-		if(src == nullptr || dst == nullptr) {
-			std::cerr << "WARN: find_path() called with nullptr. " << intptr_t(src) << " : " << intptr_t(dst) << "\n";
-			return result_path();
-		}
 
 		auto src_it = graph->reverse_map.find(src);
 		ASSERT_LOG(src_it != graph->reverse_map.end(), "source node not in graph.");

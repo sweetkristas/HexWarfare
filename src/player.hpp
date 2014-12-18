@@ -21,6 +21,7 @@
 
 #include "asserts.hpp"
 #include "color.hpp"
+#include "uuid.hpp"
 
 enum class PlayerType {
 	NORMAL,
@@ -60,7 +61,7 @@ inline bool operator!=(const team_ptr& lhs, const team_ptr& rhs) {
 class player
 {
 public:
-	explicit player(team_ptr team, PlayerType pt, const std::string& name);
+	explicit player(team_ptr team, PlayerType pt, const std::string& name, uuid::uuid u=uuid::generate());
 	const std::string& name() const { return name_; }
 	PlayerType player_type() const { return player_type_; }
 	bool is_human() const { return player_type_ == PlayerType::NORMAL; }
@@ -68,12 +69,19 @@ public:
 	const team_ptr& team() const { ASSERT_LOG(team_ != nullptr, "team was null"); return team_; }
 	const graphics::color get_color() const { return color_; }
 	void set_color(graphics::color color) { color_ = color; }
+	const uuid::uuid& get_uuid() const { return uuid_; }
+	int id() const { return id_; }
+	void set_id(int id) { id_ = id; }
 private:
 	PlayerType player_type_;
 	std::string name_;
 	team_ptr team_;
 	// Color 
 	graphics::color color_;
+	uuid::uuid uuid_;
+
+	// simple id, still debating this.
+	int id_;
 };
 
 typedef std::shared_ptr<player> player_ptr;

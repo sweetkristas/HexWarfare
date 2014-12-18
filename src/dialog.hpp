@@ -44,7 +44,7 @@ namespace gui
 		explicit dialog(const rectf& pos, Justify justify);
 		virtual bool handle_events(SDL_Event* evt, bool claimed) override;
 		void handle_draw(const rect& r, float rotation, float scale) const override;
-		void handle_update(engine& eng, double t) override;
+		void handle_update(const engine& eng, double t) override;
 		void handle_init() override;
 		void recalc_dimensions() override;
 		std::vector<graphics::texture> bg_;

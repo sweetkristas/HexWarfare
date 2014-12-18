@@ -21,8 +21,7 @@ namespace network
 {
 	namespace internal
 	{
-		client::client(game::state& gs) 
-			: base(gs)
+		client::client() 
 		{
 		}
 

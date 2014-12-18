@@ -16,7 +16,13 @@
 
 #pragma once
 
+#include <map>
+
+#include "engine_fwd.hpp"
+#include "geometry.hpp"
 #include "hex_logical_fwd.hpp"
+#include "message_format.pb.h"
+#include "player.hpp"
 
 namespace game
 {
@@ -29,9 +35,39 @@ namespace game
 		state();
 		~state();
 
+		const entity_list& get_entities() const { return entities_; }
+
 		void set_map(hex::logical::map_ptr map);
-		//add_unit();
+		const hex::logical::map_ptr& get_map() const { return map_; }
+
+		void add_entity(component_set_ptr e);
+		void remove_entity(component_set_ptr e);
+
+		void end_unit_turn();
+		float get_initiative_counter() const { return initiative_counter_; }
+
+		// Players are abstract and not entities in this case, since we need special handling.
+		void add_player(player_ptr p);
+		void remove_player(player_ptr p);
+		void replace_player(player_ptr to_be_replaced, player_ptr replacement);
+
+		player_weak_ptr get_current_player() const;
+		int get_player_count() const { return players_.size(); }
+		player_ptr get_player(const uuid::uuid& n);
+		player_ptr get_player_by_id(int id);
+
+		Update* unit_summon(component_set_ptr e);
+		Update* unit_move(component_set_ptr e, const std::vector<point>& path);
+
+		std::vector<Update*> validate_and_apply(Update* up);
+
 	private:
+		float initiative_counter_;
 		hex::logical::map_ptr map_;
+		// List of game entities with stats tag. Sorted by intiative.
+		entity_list entities_;
+		std::map<uuid::uuid, player_ptr> players_;
+		// Used to synchronise state with the server.
+		unsigned update_counter_;
 	};
 }

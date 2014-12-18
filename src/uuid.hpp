@@ -14,49 +14,13 @@
    limitations under the License.
 */
 
+#include <boost/uuid/uuid_generators.hpp>
 
-#include "network_server.hpp"
-
-namespace network
+namespace uuid
 {
-	base::base()
-	{
-	}
+	typedef boost::uuids::uuid uuid;
 
-	base::~base()
-	{
-	}
-
-	void base::process()
-	{
-		handle_process();
-	}
-
-	void base::write_send_queue(game::Update* up)
-	{
-		snd_q_.push(up);
-	}
-
-	game::Update* base::read_recv_queue()
-	{
-		game::Update* up;
-		if(rcv_q_.try_pop(up)) {
-			return up;
-		}
-		return nullptr;
-	}
-
-	game::Update* base::read_send_queue()
-	{
-		game::Update* up;
-		if(snd_q_.try_pop(up)) {
-			return up;
-		}
-		return nullptr;
-	}
-
-	void base::write_recv_queue(game::Update* up)
-	{
-		rcv_q_.push(up);
-	}
+	uuid generate();
+	std::string write(const uuid& id);
+	uuid read(const std::string& s);
 }

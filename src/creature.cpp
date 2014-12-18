@@ -18,7 +18,7 @@
 
 #include "component.hpp"
 #include "creature.hpp"
-#include "engine.hpp"
+#include "game_state.hpp"
 #include "random.hpp"
 
 namespace creature
@@ -103,7 +103,7 @@ namespace creature
 		}
 	}
 
-	component_set_ptr creature::create_instance(engine& eng, player_weak_ptr owner, const point& pos) {
+	component_set_ptr creature::create_instance(const game::state& gs, player_weak_ptr owner, const point& pos) {
 		component_set_ptr res = std::make_shared<component::component_set>(80);
 		using namespace component;
 		// XXX fix zorder here.
@@ -114,7 +114,7 @@ namespace creature
 			res->stat->armour = armour_;
 			res->stat->name = name_;
 			res->stat->move = static_cast<float>(movement_);
-			res->stat->initiative = 100.0f/static_cast<float>(initiative_) + eng.get_initiative_counter();
+			res->stat->initiative = 100.0f/static_cast<float>(initiative_) + gs.get_initiative_counter();
 			res->stat->unit = shared_from_this();
 		}
 		if((component_mask_ & genmask(Component::POSITION)) == genmask(Component::POSITION)) {
@@ -154,10 +154,10 @@ namespace creature
 		}
 	}
 
-	component_set_ptr spawn(engine& eng, player_weak_ptr owner, const std::string& type, const point& pos)
+	component_set_ptr spawn(const game::state& gs, player_weak_ptr owner, const std::string& type, const point& pos)
 	{
 		auto it = get_creature_cache().find(type);
 		ASSERT_LOG(it != get_creature_cache().end(), "Couldn't find a definition for creature of type '" << type << "' in the cache.");
-		return it->second->create_instance(eng, owner, pos);
+		return it->second->create_instance(gs, owner, pos);
 	}
 }

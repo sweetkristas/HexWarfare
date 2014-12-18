@@ -89,7 +89,7 @@ namespace gui
 		return handle_events(evt, claimed);
 	}
 
-	void widget::update(engine& eng, double t)
+	void widget::update(const engine& eng, double t)
 	{
 		handle_update(eng, t);
 	}

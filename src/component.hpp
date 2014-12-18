@@ -30,6 +30,7 @@
 #include "node.hpp"
 #include "player.hpp"
 #include "texture.hpp"
+#include "uuid.hpp"
 #include "widget.hpp"
 
 namespace component
@@ -94,6 +95,8 @@ namespace component
 	struct stats : public component
 	{
 		stats() : component(Component::STATS), health(1), attack(0), armour(0), move(1.0f) {}
+		// N.B. If things are added or removed here, this needs to be reflected in the message_format.proto file.
+		// specifically game::Update::UnitStats
 		int health;
 		int attack;
 		int armour;
@@ -141,8 +144,8 @@ namespace component
 
 	struct component_set
 	{
-		component_set(int z = 0);
-		size_t entity_id;
+		component_set(int z = 0, uuid::uuid u=uuid::generate());
+		uuid::uuid entity_id;
 		component_id mask;
 		int zorder;
 		std::shared_ptr<position> pos;

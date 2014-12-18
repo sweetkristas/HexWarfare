@@ -2,6 +2,26 @@ package game;
 
 message Update {
 	required int32 id = 1;
+	optional bool quit = 2;
+
+	message Location {
+		required int32 x = 1;
+		required int32 y = 2;
+	}
+
+	message UnitStats {
+		optional int32 health = 1;
+		optional int32 attack = 2;
+		optional int32 armour = 3;
+		optional float move = 4;
+		optional float initiative = 5;
+		optional string name = 6;
+	}
+
+	message AnimationHints {
+		optional string hint = 1;
+		optional int32 timing = 2;
+	}
 
 	message Unit {
 		enum MessageType {
@@ -9,11 +29,16 @@ message Update {
 			SUMMON = 1;
 			MOVE = 2;
 		}
-		required int32 uuid = 1;
-		required string name = 2;
-		required int32 owner_uuid = 3;
+		required string uuid = 1;
+		optional MessageType type = 2 [default = PASS];
+		optional string name = 3;
+		optional string owner_uuid = 4;
 		
-		optional MessageType type = 4 [default = PASS];
+		optional UnitStats stats = 5;
+
+		repeated Location path = 6;
+
+		repeated AnimationHints animation_hints = 7;
 	}
 
 	message Player {
@@ -24,15 +49,15 @@ message Update {
 			CONCEDE = 3;
 		}
 
-		required int32 uuid = 1;
-		required string name = 2;
+		required string uuid = 1;
+		optional string name = 2;
 		optional Action action = 3 [default = NONE];
 		
-		optional int32 team_uuid = 4;
+		optional string team_uuid = 4;
 		optional string team_name = 5;
 	}
 
-	repeated Unit units = 2;
+	repeated Unit units = 3;
 
-	repeated Player player = 3;
+	repeated Player player = 4;
 }

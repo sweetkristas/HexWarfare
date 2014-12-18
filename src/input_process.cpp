@@ -68,35 +68,40 @@ namespace process
 						&& button.type == SDL_MOUSEBUTTONUP) {
 						if(geometry::pointInRect(point(button.x, button.y), inp->mouse_area + pp)) {
 							inp->selected = true;
-							auto owner = e->owner.lock();
 							// if it is current players turn and current_player owns the entity and
 							// the entity still has some movement allowance left.
-							if(eng.get_current_player() == owner && stats->move > FLT_EPSILON) {
-								inp->graph = hex::create_cost_graph(eng, eng.get_map(), pos.x, pos.y, stats->move);
-								inp->possible_moves = hex::find_available_moves(inp->graph, eng.get_map()->get_tile_at(pos.x, pos.y), stats->move);
+							if(eng.get_game_state().get_entities().front() == e && stats->move > FLT_EPSILON) {
+								inp->graph = hex::create_cost_graph(eng.get_game_state(), pos.x, pos.y, stats->move);
+								inp->possible_moves = hex::find_available_moves(inp->graph, pos, stats->move);
 							}
 						} else {
 							// Test whether point is in inp->possible_moves(...) and is players turn, then we animate moving the entity to
 							// that position, clear the moves and decrement the units movement allowance.
 							auto owner = e->owner.lock();
 							auto tp = hex::hex_map::get_tile_pos_from_pixel_pos(button.x, button.y);
-							auto destination_tile = eng.get_map()->get_tile_at(tp.x, tp.y);
-							auto it = std::find_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&destination_tile](hex::move_cost const& mc){
-								return destination_tile == mc.obj;
+							auto it = std::find_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&tp](hex::move_cost const& mc){
+								return tp == mc.loc;
 							});
 							bool clear_entity = false;
-							if(eng.get_current_player() == owner && stats->move > FLT_EPSILON && it != inp->possible_moves.end()) {
-								pos.x = destination_tile->x();
-								pos.y = destination_tile->y();
+							if(eng.get_game_state().get_entities().front() == e && stats->move > FLT_EPSILON && it != inp->possible_moves.end()) {
+								// Generate an update move message.
+								auto up = eng.get_game_state().unit_move(e, inp->arrow_path);
+								// send message to server.
+								auto netclient = eng.get_netclient().lock();
+								ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
+								netclient->write_send_queue(up);
+
+								pos.x = tp.x;
+								pos.y = tp.y;
 								// decrement movement.
 								stats->move -= it->path_cost;
 								if(stats->move < FLT_EPSILON) {
 									stats->move = 0.0f;
 									clear_entity = true;
 								} else {
-									inp->graph = hex::create_cost_graph(eng, eng.get_map(), pos.x, pos.y, stats->move);
-									inp->possible_moves = hex::find_available_moves(inp->graph, eng.get_map()->get_tile_at(pos.x, pos.y), stats->move);
-									if(inp->possible_moves.empty() || (inp->possible_moves.size() == 1 && inp->possible_moves[0].obj == eng.get_map()->get_tile_at(pos.x, pos.y))) {
+									inp->graph = hex::create_cost_graph(eng.get_game_state(), pos.x, pos.y, stats->move);
+									inp->possible_moves = hex::find_available_moves(inp->graph, pos, stats->move);
+									if(inp->possible_moves.empty() || (inp->possible_moves.size() == 1 && inp->possible_moves[0].loc == pos)) {
 										stats->move = 0.0f;
 										clear_entity = true;
 									}
@@ -127,17 +132,17 @@ namespace process
 					if(inp->selected && !inp->possible_moves.empty() && inp->graph != nullptr) {
 						int x = motion.x;
 						int y = motion.y;
-						auto destination_tile = eng.get_map()->get_tile_from_pixel_pos(x + eng.get_camera().x, y + eng.get_camera().y);
-						if(destination_tile) {
-							auto it = std::find_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&destination_tile](hex::move_cost const& mc){
-								return destination_tile == mc.obj;
+						auto destination_pt = eng.get_map()->get_tile_pos_from_pixel_pos(x + eng.get_camera().x, y + eng.get_camera().y);
+						if(eng.get_map()->get_tile_at(destination_pt.x, destination_pt.y)) {
+							auto it = std::find_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&destination_pt](hex::move_cost const& mc){
+								return destination_pt == mc.loc;
 							});
 
 							if(it != inp->possible_moves.end()) {
-								auto tile_path = hex::find_path(inp->graph, eng.get_map()->get_tile_at(pos.x, pos.y), destination_tile);
+								auto tile_path = hex::find_path(inp->graph, pos, destination_pt);
 								inp->arrow_path.clear();
 								for(auto& t : tile_path) {
-									auto p = hex::hex_map::get_pixel_pos_from_tile_pos(t->x(), t->y()) + point(eng.get_tile_size().x/2, eng.get_tile_size().y/2);
+									auto p = hex::hex_map::get_pixel_pos_from_tile_pos(t.x, t.y) + point(eng.get_tile_size().x/2, eng.get_tile_size().y/2);
 									inp->arrow_path.emplace_back(p);
 								}
 							}

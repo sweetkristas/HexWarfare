@@ -36,11 +36,9 @@ namespace
 engine::engine(game::state& game_state, graphics::window_manager& wm)
 	: game_state_(game_state),
 	  state_(EngineState::PLAY),
-	  turns_(1),
 	  camera_scale_(2),
 	  wm_(wm),
-	  particles_(wm.get_renderer()),
-	  current_player_(0)
+	  particles_(wm.get_renderer())
 {
 }
 
@@ -50,23 +48,28 @@ engine::~engine()
 
 component_set_ptr engine::add_entity(component_set_ptr e)
 {
+	static component_id stat_mask 
+		= component::genmask(component::Component::STATS) 
+		| component::genmask(component::Component::POSITION);
 	entity_list_.emplace_back(e);
 	std::stable_sort(entity_list_.begin(), entity_list_.end());
-	if((e->mask & component::genmask(component::Component::STATS)) == component::genmask(component::Component::STATS)) {
-		entities_initiative_order_.emplace_back(e);
-		std::stable_sort(entities_initiative_order_.begin(), entities_initiative_order_.end(), component::initiative_compare);
+	if((e->mask & stat_mask) == stat_mask) {
+		game_state_.add_entity(e);
 	}
 	return e;
 }
 
 void engine::remove_entity(component_set_ptr e1)
 {
+	static component_id stat_mask 
+		= component::genmask(component::Component::STATS) 
+		| component::genmask(component::Component::POSITION);
 	entity_list_.erase(std::remove_if(entity_list_.begin(), entity_list_.end(), [&e1](component_set_ptr e2) {
 		return e1 == e2; 
 	}), entity_list_.end());
-	entities_initiative_order_.erase(std::remove_if(entities_initiative_order_.begin(), entities_initiative_order_.end(), [&e1](component_set_ptr e2) {
-		return e1 == e2; 
-	}), entities_initiative_order_.end());
+	if((e1->mask & stat_mask) == stat_mask) {
+		game_state_.remove_entity(e1);
+	}
 }
 
 void engine::add_process(process::process_ptr s)
@@ -83,31 +86,6 @@ void engine::remove_process(process::process_ptr s)
 	s->end();
 	process_list_.erase(std::remove_if(process_list_.begin(), process_list_.end(), 
 		[&s](process::process_ptr sp) { return sp == s; }), process_list_.end());
-}
-
-void engine::add_player(player_ptr p)
-{
-	players_.emplace_back(p);
-}
-
-void engine::remove_player(player_ptr p)
-{
-	auto it = std::find(players_.begin(), players_.end(), p);
-	ASSERT_LOG(it != players_.end(), "Attempted to remove player " << p->name() << " failed, player doesn't exist.");
-	players_.erase(it);
-}
-
-void engine::replace_player(player_ptr to_be_replaced, player_ptr replacement)
-{
-	auto it = std::find(players_.begin(), players_.end(), to_be_replaced);
-	ASSERT_LOG(it != players_.end(), "Attempted to remove player " << to_be_replaced->name() << " failed, player doesn't exist.");
-	*it = replacement;
-}
-
-player_ptr engine::get_player(int n)
-{
-	ASSERT_LOG(n < players_.size(), "Requested player index outside of bounds. " << n << " >= " << players_.size());
-	return players_[n];
 }
 
 float engine::get_zoom() const
@@ -261,27 +239,10 @@ bool engine::update(double time)
 	return true;
 }
 
-const player_ptr& engine::get_current_player() const
-{
-	ASSERT_LOG(current_player_ < players_.size(), "current_player is out of bounds: " << current_player_ << " >= " << players_.size());
-	return players_[current_player_];
-}
-
 // Does end of turn processing. Like incrementing to the next player.
 void engine::end_turn()
 {	
-	if(entities_initiative_order_.size() > 0) {
-		auto e = entities_initiative_order_.front();
-		e->stat->initiative += 100.0f/e->stat->unit->get_initiative();
-		std::stable_sort(entities_initiative_order_.begin(), entities_initiative_order_.end(), component::initiative_compare);
-		initiative_counter_ = entities_initiative_order_.front()->stat->initiative;
-	}
-
-	std::cerr << "Initative list:";
-	for(auto& e : entities_initiative_order_) {
-		std::cerr << "   " << e->stat->name << ":" << e->stat->initiative;
-	}
-	std::cerr << "\n";
+	game_state_.end_unit_turn();
 }
 
 void engine::set_extents(const rect& extents) 

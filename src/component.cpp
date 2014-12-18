@@ -19,19 +19,10 @@
 
 namespace component
 {
-	namespace 
-	{
-		size_t generate_entity_id()
-		{
-			static size_t id = 100;
-			return id++;
-		}
-	}
-
-	component_set::component_set(int z) 
+	component_set::component_set(int z, uuid::uuid u) 
 		: mask(component_id(0)), 
 		  zorder(z),
-		  entity_id(generate_entity_id())
+		  entity_id(u)
 	{
 	}
 

@@ -20,10 +20,13 @@
 
 namespace hex
 {
+	enum direction { NORTH, NORTH_EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, NORTH_WEST };
+
 	namespace logical
 	{
 		class tile;
 		typedef std::shared_ptr<tile> tile_ptr;
+		typedef std::shared_ptr<const tile> const_tile_ptr;
 		class map;
 		typedef std::shared_ptr<map> map_ptr;
 	}

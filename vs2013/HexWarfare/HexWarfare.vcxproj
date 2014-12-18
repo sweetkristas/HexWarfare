@@ -134,6 +134,7 @@
     <ClCompile Include="..\..\src\tile.cpp" />
     <ClCompile Include="..\..\src\unit_test.cpp" />
     <ClCompile Include="..\..\src\utility.cpp" />
+    <ClCompile Include="..\..\src\uuid.cpp" />
     <ClCompile Include="..\..\src\widget.cpp" />
     <ClCompile Include="..\..\src\wm.cpp" />
   </ItemGroup>
@@ -205,6 +206,7 @@
     <ClInclude Include="..\..\src\unit_test.hpp" />
     <ClInclude Include="..\..\src\utf8_to_codepoint.hpp" />
     <ClInclude Include="..\..\src\utility.hpp" />
+    <ClInclude Include="..\..\src\uuid.hpp" />
     <ClInclude Include="..\..\src\widget.hpp" />
     <ClInclude Include="..\..\src\wm.hpp" />
   </ItemGroup>

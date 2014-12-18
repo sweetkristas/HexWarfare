@@ -17,6 +17,7 @@
 			//auto tex = graphics::texture::get("images/noise1.png");
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <boost/lexical_cast.hpp>
@@ -42,6 +43,7 @@
 #include "enet_server.hpp"
 #include "engine.hpp"
 #include "font.hpp"
+#include "game_state.hpp"
 #include "gui_elements.hpp"
 #include "gui_process.hpp"
 #include "hex_pathfinding.hpp"
@@ -118,6 +120,7 @@ void create_gui(engine& eng)
 
 void load_scenario(engine& eng, const std::string& name)
 {
+	auto& gs = eng.get_game_state();
 	try {
 		auto scen = json::parse_from_file(name);
 		ASSERT_LOG(scen.is_map(), "Scenario must be a map, got: " << scen.type_as_string());
@@ -125,7 +128,7 @@ void load_scenario(engine& eng, const std::string& name)
 			"Scenario file must have 'name', 'map' and 'starting_units' attributes.");
 		std::cerr << "Loading scenario " << scen["name"].as_string() << " from " << name << "\n";
 		if(scen.has_key("max_players")) {
-			if(eng.get_player_count() > scen["max_players"].as_int()) {
+			if(gs.get_player_count() > scen["max_players"].as_int()) {
 				ASSERT_LOG(false, "Unable to load scenario number of players in game is greater than the maximum number allowed.");
 			}
 		}
@@ -134,12 +137,35 @@ void load_scenario(engine& eng, const std::string& name)
 			ASSERT_LOG(c.has_key("name"), "In 'starting_units' list, you must provide a 'name' attribute.");
 			ASSERT_LOG(c.has_key("location"), "In 'starting_units' list, you must provide a 'location' attribute.");
 			ASSERT_LOG(c.has_key("player"), "In 'starting_units' list, you must provide a 'player' attribute.");
-			eng.add_entity(creature::spawn(eng, eng.get_player(c["player"].as_int32()), c["name"].as_string(), node_to_point(c["location"])));
+			// N.B. Don't really like this way of matching player in scenario file to player instance.
+			// XXX should come up with a better way.
+			int player_id = c["player"].as_int32();
+			eng.add_entity(creature::spawn(gs, gs.get_player_by_id(player_id), c["name"].as_string(), node_to_point(c["location"])));
 		}
 	} catch(json::parse_error& pe) {
 		ASSERT_LOG(false, "Error parsing data/castles.cfg: " << pe.what());
 	}
+	gs.set_map(eng.get_map()->get_logical_map());
+}
 
+void local_server_code(game::state gs, network::server_ptr server)
+{
+	game::Update* up;
+	bool running = true;
+	while(running) {
+		if((up = server->read_recv_queue()) != nullptr) {
+			std::cerr << "local_server_code: Got message: " << up->id() << "\n";
+			// XXX do more processing here.
+			auto msgs = gs.validate_and_apply(up);
+			for(auto& msg : msgs) {
+				server->write_send_queue(msg);
+			}
+			if(up->has_quit() && up->quit()) {
+				running = false;
+			}
+			delete up;
+		}
+	}
 }
 
 COMMAND_LINE_UTILITY(server)
@@ -157,7 +183,7 @@ int main(int argc, char* argv[])
 		args.push_back(argv[i]);
 	}
 
-	bool local_server = false;
+	bool local_server = true;
 	std::string server_name = "localhost";
 	int server_port = 9000;
 	int width = 800;
@@ -175,9 +201,10 @@ int main(int argc, char* argv[])
 			width = boost::lexical_cast<int>(arg_value);
 		} else if(arg_name == "--height") {
 			height = boost::lexical_cast<int>(arg_value);
-		} else if(arg_name == "--local-server") {
-			local_server = true;
 		} else if(arg_name == "--utility") {
+			if(arg_value == "server") {
+				local_server = false; 
+			}
 			utility_name = arg_value;
 			utility_args = std::vector<std::string>(it+1, args.end());
 		}
@@ -252,25 +279,32 @@ int main(int argc, char* argv[])
 		team_ptr t2 = std::make_shared<team>(2, "Bad guys");
 
 		auto p1 = std::make_shared<player>(t1, PlayerType::NORMAL, "Player 1");
-		e.add_player(p1);
+		p1->set_id(0);
+		gs.add_player(p1);
 		auto b1 = std::make_shared<player>(t2, PlayerType::AI, "Evil Bot");
-		e.add_player(b1);
+		b1->set_id(1);
+		gs.add_player(b1);
 
 		load_scenario(e, "data/scenario/scenario1.cfg");
 		gs.set_map(e.get_map()->get_logical_map());
 
 		create_gui(e);
 
+		std::unique_ptr<std::thread> local_server_thread;
+
 		network::server_ptr nserver;
 		network::client_ptr nclient;
 		if(local_server) {
-			nserver = std::make_shared<network::internal::server>(gs);
-			nclient = std::make_shared<network::internal::client>(gs);
+			nserver = std::make_shared<network::internal::server>();
+			nclient = std::make_shared<network::internal::client>();
 			nserver->add_peer(nclient);
 			nclient->add_peer(nserver);
+
+			local_server_thread.reset(new std::thread(local_server_code, gs, nserver));
 		} else {
 			//nclient = std::make_shared<network::enet::client>(server_name, server_port);
 		}
+		e.set_netclient(nclient);
 
  		e.add_process(std::make_shared<process::input>());
 		e.add_process(std::make_shared<process::render>());
@@ -320,6 +354,17 @@ int main(int argc, char* argv[])
 			} else {
 				SDL_Delay(FRAME_RATE - delay);
 			}
+		}
+
+
+		if(local_server_thread && local_server_thread->joinable()) {
+			if(nserver) {
+				game::Update* up = new game::Update();
+				up->set_id(-1);
+				up->set_quit(true);
+				nserver->write_recv_queue(up);
+			}
+			local_server_thread->join();
 		}
 	} catch(std::exception& ex) {
 		std::cerr << ex.what();

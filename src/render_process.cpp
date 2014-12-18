@@ -79,7 +79,7 @@ namespace process
 				if(inp->selected && !inp->possible_moves.empty()) {
 					SDL_SetRenderDrawColor(eng.get_renderer(), 0, 255, 0, 127);
 					for(auto& r : inp->possible_moves) {
-						point p(hex::hex_map::get_pixel_pos_from_tile_pos(r.obj->x(), r.obj->y()));
+						point p(hex::hex_map::get_pixel_pos_from_tile_pos(r.loc.x, r.loc.y));
 						SDL_Rect dest = {p.x+ts.x/4-cam.x, p.y+ts.x/4-cam.y, ts.x/2, ts.y/2};
 						SDL_RenderFillRect(eng.get_renderer(), &dest);
 					}

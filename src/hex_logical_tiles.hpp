@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include "geometry.hpp"
 #include "hex_logical_fwd.hpp"
 #include "node.hpp"
 
@@ -60,6 +61,15 @@ namespace hex
 			const_iterator begin() const { return tiles_.begin(); }
 			const_iterator end() const { return tiles_.end(); }
 			std::size_t size() { return tiles_.size(); }
+
+			const_tile_ptr get_hex_tile(direction d, int x, int y) const;
+			std::vector<const_tile_ptr> get_surrounding_tiles(int x, int y) const;
+			// Get the positions of the valid tiles surrounding the tile at (x,y)
+			std::vector<point> get_surrounding_positions(int x, int y) const;
+			std::vector<point> get_surrounding_positions(const point& p) const;
+			const_tile_ptr get_tile_at(int xx, int yy) const;
+			const_tile_ptr get_tile_at(const point& p) const;
+			point get_coordinates_in_dir(direction d, int x, int y) const;
 
 			static map_ptr factory(const node& n);
 		private:

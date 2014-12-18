@@ -97,8 +97,11 @@ namespace gui
 		std::stable_sort(children_.begin(), children_.end());
 	}
 	
-	void dialog::handle_update(engine& eng, double t)
+	void dialog::handle_update(const engine& eng, double t)
 	{
 		// XXX
+		for(auto& w : children_) {
+			w->update(eng, t);
+		}
 	}
 }

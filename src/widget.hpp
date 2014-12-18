@@ -61,7 +61,7 @@ namespace gui
 		virtual ~widget();
 		void draw(const rect& r, float rotation, float scale) const;
 		bool process_events(SDL_Event* evt, bool claimed);
-		void update(engine& eng, double t);
+		void update(const engine& eng, double t);
 
 		void set_area(const rectf& area) { area_ = area; area_set_ = true; update_area(); }
 		const rectf& get_area() const { return real_area_; }
@@ -97,7 +97,7 @@ namespace gui
 		float get_parent_absolute_width();
 		float get_parent_absolute_height();
 	private:
-		virtual void handle_update(engine& eng, double t) {}
+		virtual void handle_update(const engine& eng, double t) {}
 		virtual void handle_draw(const rect& r, float rotation, float scale) const {}
 		virtual bool handle_events(SDL_Event* evt, bool claimed) { return claimed; }
 		void update_area();

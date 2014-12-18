@@ -19,10 +19,11 @@
 #include <memory>
 #include <vector>
 
+#include "geometry.hpp"
+#include "hex_logical_fwd.hpp"
+
 namespace hex 
 {
-	enum direction { NORTH, NORTH_EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, NORTH_WEST };
-
 	class hex_map;
 	class hex_object;
 	class tile_sheet;
@@ -35,13 +36,12 @@ namespace hex
 
 	struct move_cost
 	{
-		move_cost(const hex_object* o, float c) : obj(o), path_cost(c) {}
-		const hex_object* obj;
+		move_cost(const point& p, float c) : loc(p), path_cost(c) {}
+		point loc;
 		float path_cost;
 	};
 	// XXX result_list might be better served as a std::set
 	typedef std::vector<move_cost> result_list;
-	typedef std::vector<const hex_object*> result_path;
 
 	struct graph_t;
 	typedef std::shared_ptr<graph_t> hex_graph_ptr;

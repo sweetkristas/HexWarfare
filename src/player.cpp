@@ -16,10 +16,12 @@
 
 #include "player.hpp"
 
-player::player(team_ptr team, PlayerType pt, const std::string& name)
+player::player(team_ptr team, PlayerType pt, const std::string& name, uuid::uuid u)
 	: player_type_(pt),
 	  name_(name),
-	  team_(team)
+	  team_(team),
+	  uuid_(u)
+
 {
 
 }
