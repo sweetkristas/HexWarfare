@@ -59,7 +59,12 @@ namespace game
 		Update* unit_summon(component_set_ptr e);
 		Update* unit_move(component_set_ptr e, const std::vector<point>& path);
 
+		// Server-side function for validating the received update.
 		std::vector<Update*> validate_and_apply(Update* up);
+		// Client-side function for processing recived update, checking the reply
+		// And making client side stuff happen. (i.e. animated moving -- if we haven't done so already)
+		// validating that the update counter is correct. 
+		// Adjusting everything if it's a re-sync update.
 
 	private:
 		float initiative_counter_;
@@ -68,6 +73,12 @@ namespace game
 		entity_list entities_;
 		std::map<uuid::uuid, player_ptr> players_;
 		// Used to synchronise state with the server.
-		unsigned update_counter_;
+		int update_counter_;
+		std::string fail_reason_;
+
+		component_set_ptr get_entity_by_uuid(const uuid::uuid& id);
+		void set_validation_fail_reason(const std::string& reason);
+
+		bool validate_move(component_set_ptr e, const ::google::protobuf::RepeatedPtrField<Update_Location>& path);
 	};
 }

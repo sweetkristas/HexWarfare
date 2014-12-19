@@ -72,3 +72,9 @@ namespace uuid
 		return result;
 	}
 }
+
+std::ostream& operator<<(std::ostream& os, const uuid::uuid& uid)
+{
+	os << uuid::write(uid);
+	return os;
+}

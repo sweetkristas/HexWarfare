@@ -21,6 +21,8 @@ namespace uuid
 	typedef boost::uuids::uuid uuid;
 
 	uuid generate();
-	std::string write(const uuid& id);
+	std::string write(const uuid& uid);
 	uuid read(const std::string& s);
 }
+
+std::ostream& operator<<(std::ostream& os, const uuid::uuid& uid);

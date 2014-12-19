@@ -3,6 +3,8 @@ package game;
 message Update {
 	required int32 id = 1;
 	optional bool quit = 2;
+	
+	optional string fail_reason = 3;
 
 	message Location {
 		required int32 x = 1;
@@ -25,12 +27,13 @@ message Update {
 
 	message Unit {
 		enum MessageType {
-			PASS = 0;
+			CANONICAL_STATE = 0;
 			SUMMON = 1;
 			MOVE = 2;
+			PASS = 3;
 		}
 		required string uuid = 1;
-		optional MessageType type = 2 [default = PASS];
+		optional MessageType type = 2 [default = CANONICAL_STATE];
 		optional string name = 3;
 		optional string owner_uuid = 4;
 		
@@ -43,7 +46,7 @@ message Update {
 
 	message Player {
 		enum Action {
-			NONE = 0;
+			CANONICAL_STATE = 0;
 			JOIN = 1;
 			QUIT = 2;
 			CONCEDE = 3;
@@ -51,13 +54,13 @@ message Update {
 
 		required string uuid = 1;
 		optional string name = 2;
-		optional Action action = 3 [default = NONE];
+		optional Action action = 3 [default = CANONICAL_STATE];
 		
 		optional string team_uuid = 4;
 		optional string team_name = 5;
 	}
 
-	repeated Unit units = 3;
+	repeated Unit units = 4;
 
-	repeated Player player = 4;
+	repeated Player player = 5;
 }

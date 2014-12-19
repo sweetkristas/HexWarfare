@@ -42,13 +42,14 @@ class Update_Unit;
 class Update_Player;
 
 enum Update_Unit_MessageType {
-  Update_Unit_MessageType_PASS = 0,
+  Update_Unit_MessageType_CANONICAL_STATE = 0,
   Update_Unit_MessageType_SUMMON = 1,
-  Update_Unit_MessageType_MOVE = 2
+  Update_Unit_MessageType_MOVE = 2,
+  Update_Unit_MessageType_PASS = 3
 };
 bool Update_Unit_MessageType_IsValid(int value);
-const Update_Unit_MessageType Update_Unit_MessageType_MessageType_MIN = Update_Unit_MessageType_PASS;
-const Update_Unit_MessageType Update_Unit_MessageType_MessageType_MAX = Update_Unit_MessageType_MOVE;
+const Update_Unit_MessageType Update_Unit_MessageType_MessageType_MIN = Update_Unit_MessageType_CANONICAL_STATE;
+const Update_Unit_MessageType Update_Unit_MessageType_MessageType_MAX = Update_Unit_MessageType_PASS;
 const int Update_Unit_MessageType_MessageType_ARRAYSIZE = Update_Unit_MessageType_MessageType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* Update_Unit_MessageType_descriptor();
@@ -62,13 +63,13 @@ inline bool Update_Unit_MessageType_Parse(
     Update_Unit_MessageType_descriptor(), name, value);
 }
 enum Update_Player_Action {
-  Update_Player_Action_NONE = 0,
+  Update_Player_Action_CANONICAL_STATE = 0,
   Update_Player_Action_JOIN = 1,
   Update_Player_Action_QUIT = 2,
   Update_Player_Action_CONCEDE = 3
 };
 bool Update_Player_Action_IsValid(int value);
-const Update_Player_Action Update_Player_Action_Action_MIN = Update_Player_Action_NONE;
+const Update_Player_Action Update_Player_Action_Action_MIN = Update_Player_Action_CANONICAL_STATE;
 const Update_Player_Action Update_Player_Action_Action_MAX = Update_Player_Action_CONCEDE;
 const int Update_Player_Action_Action_ARRAYSIZE = Update_Player_Action_Action_MAX + 1;
 
@@ -453,9 +454,10 @@ class Update_Unit : public ::google::protobuf::Message {
   // nested types ----------------------------------------------------
 
   typedef Update_Unit_MessageType MessageType;
-  static const MessageType PASS = Update_Unit_MessageType_PASS;
+  static const MessageType CANONICAL_STATE = Update_Unit_MessageType_CANONICAL_STATE;
   static const MessageType SUMMON = Update_Unit_MessageType_SUMMON;
   static const MessageType MOVE = Update_Unit_MessageType_MOVE;
+  static const MessageType PASS = Update_Unit_MessageType_PASS;
   static inline bool MessageType_IsValid(int value) {
     return Update_Unit_MessageType_IsValid(value);
   }
@@ -491,7 +493,7 @@ class Update_Unit : public ::google::protobuf::Message {
   inline ::std::string* release_uuid();
   inline void set_allocated_uuid(::std::string* uuid);
 
-  // optional .game.Update.Unit.MessageType type = 2 [default = PASS];
+  // optional .game.Update.Unit.MessageType type = 2 [default = CANONICAL_STATE];
   inline bool has_type() const;
   inline void clear_type();
   static const int kTypeFieldNumber = 2;
@@ -640,7 +642,7 @@ class Update_Player : public ::google::protobuf::Message {
   // nested types ----------------------------------------------------
 
   typedef Update_Player_Action Action;
-  static const Action NONE = Update_Player_Action_NONE;
+  static const Action CANONICAL_STATE = Update_Player_Action_CANONICAL_STATE;
   static const Action JOIN = Update_Player_Action_JOIN;
   static const Action QUIT = Update_Player_Action_QUIT;
   static const Action CONCEDE = Update_Player_Action_CONCEDE;
@@ -691,7 +693,7 @@ class Update_Player : public ::google::protobuf::Message {
   inline ::std::string* release_name();
   inline void set_allocated_name(::std::string* name);
 
-  // optional .game.Update.Player.Action action = 3 [default = NONE];
+  // optional .game.Update.Player.Action action = 3 [default = CANONICAL_STATE];
   inline bool has_action() const;
   inline void clear_action();
   static const int kActionFieldNumber = 3;
@@ -826,10 +828,22 @@ class Update : public ::google::protobuf::Message {
   inline bool quit() const;
   inline void set_quit(bool value);
 
-  // repeated .game.Update.Unit units = 3;
+  // optional string fail_reason = 3;
+  inline bool has_fail_reason() const;
+  inline void clear_fail_reason();
+  static const int kFailReasonFieldNumber = 3;
+  inline const ::std::string& fail_reason() const;
+  inline void set_fail_reason(const ::std::string& value);
+  inline void set_fail_reason(const char* value);
+  inline void set_fail_reason(const char* value, size_t size);
+  inline ::std::string* mutable_fail_reason();
+  inline ::std::string* release_fail_reason();
+  inline void set_allocated_fail_reason(::std::string* fail_reason);
+
+  // repeated .game.Update.Unit units = 4;
   inline int units_size() const;
   inline void clear_units();
-  static const int kUnitsFieldNumber = 3;
+  static const int kUnitsFieldNumber = 4;
   inline const ::game::Update_Unit& units(int index) const;
   inline ::game::Update_Unit* mutable_units(int index);
   inline ::game::Update_Unit* add_units();
@@ -838,10 +852,10 @@ class Update : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::game::Update_Unit >*
       mutable_units();
 
-  // repeated .game.Update.Player player = 4;
+  // repeated .game.Update.Player player = 5;
   inline int player_size() const;
   inline void clear_player();
-  static const int kPlayerFieldNumber = 4;
+  static const int kPlayerFieldNumber = 5;
   inline const ::game::Update_Player& player(int index) const;
   inline ::game::Update_Player* mutable_player(int index);
   inline ::game::Update_Player* add_player();
@@ -856,6 +870,8 @@ class Update : public ::google::protobuf::Message {
   inline void clear_has_id();
   inline void set_has_quit();
   inline void clear_has_quit();
+  inline void set_has_fail_reason();
+  inline void clear_has_fail_reason();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -863,6 +879,7 @@ class Update : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::int32 id_;
   bool quit_;
+  ::std::string* fail_reason_;
   ::google::protobuf::RepeatedPtrField< ::game::Update_Unit > units_;
   ::google::protobuf::RepeatedPtrField< ::game::Update_Player > player_;
   friend void  protobuf_AddDesc_message_5fformat_2eproto();
@@ -1311,7 +1328,7 @@ inline void Update_Unit::set_allocated_uuid(::std::string* uuid) {
   // @@protoc_insertion_point(field_set_allocated:game.Update.Unit.uuid)
 }
 
-// optional .game.Update.Unit.MessageType type = 2 [default = PASS];
+// optional .game.Update.Unit.MessageType type = 2 [default = CANONICAL_STATE];
 inline bool Update_Unit::has_type() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -1745,7 +1762,7 @@ inline void Update_Player::set_allocated_name(::std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:game.Update.Player.name)
 }
 
-// optional .game.Update.Player.Action action = 3 [default = NONE];
+// optional .game.Update.Player.Action action = 3 [default = CANONICAL_STATE];
 inline bool Update_Player::has_action() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -1974,7 +1991,83 @@ inline void Update::set_quit(bool value) {
   // @@protoc_insertion_point(field_set:game.Update.quit)
 }
 
-// repeated .game.Update.Unit units = 3;
+// optional string fail_reason = 3;
+inline bool Update::has_fail_reason() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Update::set_has_fail_reason() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Update::clear_has_fail_reason() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Update::clear_fail_reason() {
+  if (fail_reason_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    fail_reason_->clear();
+  }
+  clear_has_fail_reason();
+}
+inline const ::std::string& Update::fail_reason() const {
+  // @@protoc_insertion_point(field_get:game.Update.fail_reason)
+  return *fail_reason_;
+}
+inline void Update::set_fail_reason(const ::std::string& value) {
+  set_has_fail_reason();
+  if (fail_reason_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    fail_reason_ = new ::std::string;
+  }
+  fail_reason_->assign(value);
+  // @@protoc_insertion_point(field_set:game.Update.fail_reason)
+}
+inline void Update::set_fail_reason(const char* value) {
+  set_has_fail_reason();
+  if (fail_reason_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    fail_reason_ = new ::std::string;
+  }
+  fail_reason_->assign(value);
+  // @@protoc_insertion_point(field_set_char:game.Update.fail_reason)
+}
+inline void Update::set_fail_reason(const char* value, size_t size) {
+  set_has_fail_reason();
+  if (fail_reason_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    fail_reason_ = new ::std::string;
+  }
+  fail_reason_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:game.Update.fail_reason)
+}
+inline ::std::string* Update::mutable_fail_reason() {
+  set_has_fail_reason();
+  if (fail_reason_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    fail_reason_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:game.Update.fail_reason)
+  return fail_reason_;
+}
+inline ::std::string* Update::release_fail_reason() {
+  clear_has_fail_reason();
+  if (fail_reason_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = fail_reason_;
+    fail_reason_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Update::set_allocated_fail_reason(::std::string* fail_reason) {
+  if (fail_reason_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete fail_reason_;
+  }
+  if (fail_reason) {
+    set_has_fail_reason();
+    fail_reason_ = fail_reason;
+  } else {
+    clear_has_fail_reason();
+    fail_reason_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:game.Update.fail_reason)
+}
+
+// repeated .game.Update.Unit units = 4;
 inline int Update::units_size() const {
   return units_.size();
 }
@@ -2004,7 +2097,7 @@ Update::mutable_units() {
   return &units_;
 }
 
-// repeated .game.Update.Player player = 4;
+// repeated .game.Update.Player player = 5;
 inline int Update::player_size() const {
   return player_.size();
 }

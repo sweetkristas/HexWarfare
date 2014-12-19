@@ -16,7 +16,9 @@
 
 #include "asserts.hpp"
 #include "component.hpp"
+#include "formatter.hpp"
 #include "game_state.hpp"
+#include "profile_timer.hpp"
 
 namespace game
 {
@@ -129,7 +131,7 @@ namespace game
 	{
 		// Generate a message to be sent to the server
 		Update* u = new Update();
-		u->set_id(update_counter_);
+		u->set_id(++update_counter_);
 		Update_Unit *unit = u->add_units();
 		unit->set_uuid(uuid::write(e->entity_id));
 		unit->set_type(Update_Unit_MessageType::Update_Unit_MessageType_MOVE);
@@ -146,7 +148,7 @@ namespace game
 	{
 		std::vector<Update*> res;
 
-		if(up->id() <= update_counter_) {
+		if(up->id() < update_counter_) {
 			// XXX we should resend the complete state as this update seems old.
 			//res.emplace_back(generate_complete());
 			return res;
@@ -156,7 +158,7 @@ namespace game
 			// XXX deal with stuff
 			switch(players.action())
 			{
-				case Update_Player_Action_NONE:
+				case Update_Player_Action_CANONICAL_STATE:
 				case Update_Player_Action_JOIN:
 				case Update_Player_Action_QUIT:
 				case Update_Player_Action_CONCEDE:
@@ -169,15 +171,28 @@ namespace game
 		for(auto& units : up->units()) {
 			switch(units.type())
 			{
-				case Update_Unit_MessageType_PASS:
+				case Update_Unit_MessageType_CANONICAL_STATE:
+					// we should never ever recieve this message from a client!
+					ASSERT_LOG(false, "Got unit 'STATE' message from client. This is an error in the client code.");
+					break;
 				case Update_Unit_MessageType_SUMMON:
 					break;
-				case Update_Unit_MessageType_MOVE:
+				case Update_Unit_MessageType_MOVE: {
 					// Validate that the unit has enough move to afford going along the given path.
-					// XXX
-					//if(validate_move(units.uuid(), units.path()) {
+					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
+					if(validate_move(e, units.path())) {
 					//	res.
-					//}
+						++update_counter_;
+						// XXX send the path update to all the clients here.
+						up->set_id(update_counter_);
+						res.emplace_back(up);
+					} else {
+						// The path provided has a cost which is more than the number of move left.
+						// XXX Re-send the complete game state.
+					}
+					break;
+				}
+				case Update_Unit_MessageType_PASS:
 					break;
 				default: 
 					ASSERT_LOG(false, "Unrecognised units.type() value: " << units.type());
@@ -185,5 +200,80 @@ namespace game
 		}
 
 		return res;
+	}
+
+	component_set_ptr state::get_entity_by_uuid(const uuid::uuid& id)
+	{
+		auto it = std::find_if(entities_.begin(), entities_.end(), [&id](component_set_ptr e){
+			return e->entity_id == id;
+		});
+		ASSERT_LOG(it != entities_.end(), "Couldn't find entity with uuid: " << id);
+		return *it;
+	}
+
+	void state::set_validation_fail_reason(const std::string& reason)
+	{
+		fail_reason_ = reason;
+	}
+
+	bool state::validate_move(component_set_ptr e, const ::google::protobuf::RepeatedPtrField<Update_Location>& path)
+	{
+		profile::manager pman("state::validate_move");
+		// check that it is the turn of e to move/action.
+		if(entities_.front() != e) {
+			set_validation_fail_reason(formatter() << "entity(" << e->entity_id << ") wasn't the current unit with initiative(" << entities_.front()->entity_id << ").");
+			return false;
+		}
+
+		std::set<point> enemy_locations;
+		std::set<point> zoc_locations;
+		// Create sets of enemy locations and tiles under zoc
+		auto e1_owner = e->owner.lock();
+		for(auto entity : entities_) {
+			auto pos = entity->pos->pos;
+			auto e2_owner = entity->owner.lock();
+			if(e1_owner->team() != e2_owner->team()) {
+				enemy_locations.emplace(pos);
+				for(auto& p : map_->get_surrounding_positions(pos)) {
+					zoc_locations.emplace(p);
+				}
+			}
+		}
+		// remove enemy locations from zoc
+		for(auto& p : enemy_locations) {
+			auto it = zoc_locations.find(p);
+			if(it != zoc_locations.end()) {
+				zoc_locations.erase(it);
+			}
+		}
+		float cost(0);
+		for(auto& p : path) {
+			point pp(p.x(), p.y());
+			auto tile = map_->get_tile_at(p.x(), p.y());
+			cost += tile->get_cost();
+
+			auto it = enemy_locations.find(pp);
+			if(it != enemy_locations.end()) {
+				set_validation_fail_reason(formatter() << "Enemy unit exists in given path at (" << p.x() << "," << p.y() << ")");
+				return false;
+			}
+			// check that if we pass into a ZoC tile then we stop, i.e. no ZoC tiles mid-path.
+			auto zit = zoc_locations.find(pp);
+			if(zit != zoc_locations.end() && (pp.x != path.end()->x() && pp.y != path.end()->y())) {
+				set_validation_fail_reason(formatter() << "ZOC tile at (" << p.x() << "," << p.y() << ") was in middle of path.");
+				return false;
+			}
+		}
+		if(e->stat->move >= cost) {
+			e->stat->move -= cost;
+			if(e->stat->move < FLT_EPSILON) {
+				e->stat->move = 0;
+			}
+			e->pos->pos.x = path.end()->x();
+			e->pos->pos.y = path.end()->y();
+			return true;
+		}
+		set_validation_fail_reason(formatter() << "Unit didn't have enough movement left. " << e->stat->move << cost);
+		return false;
 	}
 }
