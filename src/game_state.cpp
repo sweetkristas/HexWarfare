@@ -28,6 +28,23 @@ namespace game
 	{
 	}
 
+	state::state(const state& obj)
+		: initiative_counter_(obj.initiative_counter_),
+		  update_counter_(obj.update_counter_),
+		  map_(obj.map_->clone())
+	{
+		for(auto& p : obj.players_) {
+			players_[p.first] = p.second->clone();
+		}
+		for(auto& e : obj.entities_) {
+			auto owner = e->owner.lock();
+			ASSERT_LOG(owner != nullptr, "Couldn't lock owner of entity " << e);
+			auto it = players_.find(owner->get_uuid());
+			ASSERT_LOG(it != players_.end(), "Couldn't find owner for entity: " << e);
+			entities_.emplace_back(e->clone(it->second));
+		}
+	}
+
 	state::~state()
 	{
 	}
@@ -54,6 +71,9 @@ namespace game
 	{
 		if(entities_.size() > 0) {
 			auto e = entities_.front();
+			// reset the movement for the unit at the front of the list.
+			e->stat->move = e->stat->unit->get_movement();
+			// update the unit at the front of the list initiative.
 			e->stat->initiative += 100.0f/e->stat->unit->get_initiative();
 			std::stable_sort(entities_.begin(), entities_.end(), component::initiative_compare);
 			initiative_counter_ = entities_.front()->stat->initiative;
@@ -127,6 +147,14 @@ namespace game
 		return nullptr;
 	}
 
+	Update* state::end_turn()
+	{
+		Update* u = new Update();
+		u->set_id(++update_counter_);
+		u->set_end_turn(true);
+		return u;
+	}
+
 	Update* state::unit_move(component_set_ptr e, const std::vector<point>& path)
 	{
 		// Generate a message to be sent to the server
@@ -184,11 +212,13 @@ namespace game
 					//	res.
 						++update_counter_;
 						// XXX send the path update to all the clients here.
-						up->set_id(update_counter_);
-						res.emplace_back(up);
+						auto nup = new Update(*up);
+						nup->set_id(update_counter_);
+						res.emplace_back(nup);
 					} else {
 						// The path provided has a cost which is more than the number of move left.
 						// XXX Re-send the complete game state.
+						LOG_WARN("Failed to validate move: " << up->fail_reason());
 					}
 					break;
 				}
@@ -199,6 +229,9 @@ namespace game
 			}
 		}
 
+		if(up->has_end_turn() && up->end_turn()) {
+			this->end_unit_turn();
+		}
 		return res;
 	}
 
@@ -247,20 +280,22 @@ namespace game
 			}
 		}
 		float cost(0);
-		for(auto& p : path) {
-			point pp(p.x(), p.y());
-			auto tile = map_->get_tile_at(p.x(), p.y());
+		for(auto& p = path.begin()+1; p != path.end(); ++p) {
+			point pp(p->x(), p->y());
+			auto tile = map_->get_tile_at(p->x(), p->y());
+			ASSERT_LOG(tile != nullptr, "No tile exists at point: " << pp);
 			cost += tile->get_cost();
+			LOG_DEBUG("tile" << pp << ": " << tile->name() << " : " << tile->get_cost());
 
 			auto it = enemy_locations.find(pp);
 			if(it != enemy_locations.end()) {
-				set_validation_fail_reason(formatter() << "Enemy unit exists in given path at (" << p.x() << "," << p.y() << ")");
+				set_validation_fail_reason(formatter() << "Enemy unit exists in given path at " << pp);
 				return false;
 			}
 			// check that if we pass into a ZoC tile then we stop, i.e. no ZoC tiles mid-path.
 			auto zit = zoc_locations.find(pp);
-			if(zit != zoc_locations.end() && (pp.x != path.end()->x() && pp.y != path.end()->y())) {
-				set_validation_fail_reason(formatter() << "ZOC tile at (" << p.x() << "," << p.y() << ") was in middle of path.");
+			if(zit != zoc_locations.end() && (pp.x != path.rbegin()->x() && pp.y != path.rbegin()->y())) {
+				set_validation_fail_reason(formatter() << "ZOC tile at " << pp << " was in middle of path.");
 				return false;
 			}
 		}
@@ -269,11 +304,68 @@ namespace game
 			if(e->stat->move < FLT_EPSILON) {
 				e->stat->move = 0;
 			}
-			e->pos->pos.x = path.end()->x();
-			e->pos->pos.y = path.end()->y();
+			e->pos->pos.x = path.rbegin()->x();
+			e->pos->pos.y = path.rbegin()->y();
 			return true;
 		}
 		set_validation_fail_reason(formatter() << "Unit didn't have enough movement left. " << e->stat->move << cost);
 		return false;
+	}
+
+	void state::apply(Update* up)
+	{
+		// client side update
+		update_counter_ = up->id();
+		if(up->has_fail_reason()) {
+			LOG_WARN("Server failed last command. Reason: " << up->fail_reason());
+		}
+
+		for(auto& players : up->player()) {
+			// XXX deal with stuff
+			switch(players.action())
+			{
+				case Update_Player_Action_CANONICAL_STATE:
+				case Update_Player_Action_JOIN:
+				case Update_Player_Action_QUIT:
+				case Update_Player_Action_CONCEDE:
+					break;
+				default: 
+					ASSERT_LOG(false, "Unrecognised player.action() value: " << players.action());
+			}
+		}
+
+		for(auto& units : up->units()) {
+			switch(units.type())
+			{
+				case Update_Unit_MessageType_CANONICAL_STATE:
+					break;
+				case Update_Unit_MessageType_SUMMON:
+					break;
+				case Update_Unit_MessageType_MOVE: {
+					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
+					auto p = units.path().rbegin();
+					auto start_p = point(units.path().begin()->x(), units.path().begin()->y());
+					LOG_INFO("moving unit " << units.uuid() << " to position " << point(p->x(), p->y()) << " from " << start_p);
+					if(e->pos->pos.x != p->x() && e->pos->pos.y != p->y()) {
+						// Unit hasn't been moved yet, so play attached animation and move unit along path.
+						/// XXX todo
+						//for(auto& t : units.path()) {
+							//auto p = hex::hex_map::get_pixel_pos_from_tile_pos(t.x(), t.y()) + point(eng.get_tile_size().x/2, eng.get_tile_size().y/2);
+							//inp->move_path.emplace_back(p);
+						//}
+
+						// move unit to final position
+						e->pos->pos.x = p->x();
+						e->pos->pos.y = p->y();
+					}
+					break;
+				}
+				case Update_Unit_MessageType_PASS:
+					break;
+				default: 
+					ASSERT_LOG(false, "Unrecognised units.type() value: " << units.type());
+			}
+		}
+
 	}
 }

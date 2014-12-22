@@ -20,10 +20,33 @@
 namespace component
 {
 	component_set::component_set(int z, uuid::uuid u) 
-		: mask(component_id(0)), 
-		  zorder(z),
-		  entity_id(u)
+		: entity_id(u),
+		  mask(component_id(0)), 
+		  zorder(z)		  
 	{
+	}
+
+	component_set::component_set(const component_set& cs, player_weak_ptr new_owner)
+		: entity_id(cs.entity_id),
+		  mask(cs.mask),
+		  zorder(cs.zorder),
+		  owner(new_owner)
+	{
+		if(cs.pos != nullptr) {
+			pos = cs.pos->clone();
+		}
+		if(cs.spr != nullptr) {
+			spr = cs.spr->clone();
+		}
+		if(cs.stat != nullptr) {
+			stat = cs.stat->clone();
+		}
+		if(cs.inp != nullptr) {
+			inp = cs.inp->clone();
+		}
+		if(cs.gui != nullptr) {
+			gui = cs.gui->clone();
+		}
 	}
 
 	Component get_component_from_string(const std::string& s)
@@ -76,4 +99,11 @@ namespace component
 	lights::~lights()
 	{
 	}
+}
+
+std::ostream& operator<<(std::ostream& os, const component_set_ptr& e)
+{
+	// XX fill this out more
+	os << e->entity_id;
+	return os;
 }

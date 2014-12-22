@@ -28,6 +28,10 @@ enum class PlayerType {
 	AI,
 };
 
+class player;
+typedef std::shared_ptr<player> player_ptr;
+typedef std::weak_ptr<player> player_weak_ptr;
+
 class team
 {
 public:
@@ -72,6 +76,8 @@ public:
 	const uuid::uuid& get_uuid() const { return uuid_; }
 	int id() const { return id_; }
 	void set_id(int id) { id_ = id; }
+
+	player_ptr clone();
 private:
 	PlayerType player_type_;
 	std::string name_;
@@ -83,6 +89,3 @@ private:
 	// simple id, still debating this.
 	int id_;
 };
-
-typedef std::shared_ptr<player> player_ptr;
-typedef std::weak_ptr<player> player_weak_ptr;

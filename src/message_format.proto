@@ -3,8 +3,9 @@ package game;
 message Update {
 	required int32 id = 1;
 	optional bool quit = 2;
+	optional bool end_turn = 3;
 	
-	optional string fail_reason = 3;
+	optional string fail_reason = 4;
 
 	message Location {
 		required int32 x = 1;
@@ -60,7 +61,7 @@ message Update {
 		optional string team_name = 5;
 	}
 
-	repeated Unit units = 4;
+	repeated Unit units = 5;
 
-	repeated Player player = 5;
+	repeated Player player = 6;
 }

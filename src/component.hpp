@@ -33,6 +33,8 @@
 #include "uuid.hpp"
 #include "widget.hpp"
 
+#define CLONE(cname) std::shared_ptr<cname> clone() { return std::shared_ptr<cname>(new cname(*this)); }
+
 namespace component
 {
 	// XXX Todo thing of a cleaner way of doing this with bitsets.
@@ -78,6 +80,7 @@ namespace component
 	{
 		position() : component(Component::POSITION) {}
 		position(const point& p) : component(Component::POSITION), pos(p) {}
+		CLONE(position)
 		point pos;
 		point mov;
 	};
@@ -88,6 +91,7 @@ namespace component
 		sprite(surface_ptr surf, const rect& area=rect());
 		sprite(const std::string& filename, const rect& area=rect());
 		~sprite();
+		CLONE(sprite)
 		void update_texture(surface_ptr surf);
 		graphics::texture tex;
 	};
@@ -95,6 +99,7 @@ namespace component
 	struct stats : public component
 	{
 		stats() : component(Component::STATS), health(1), attack(0), armour(0), move(1.0f) {}
+		CLONE(stats)
 		// N.B. If things are added or removed here, this needs to be reflected in the message_format.proto file.
 		// specifically game::Update::UnitStats
 		int health;
@@ -109,11 +114,13 @@ namespace component
 	struct input : public component
 	{
 		input() : component(Component::INPUT), selected(false) {}
+		CLONE(input)
 		rect mouse_area;
 		bool selected;
 		hex::result_list possible_moves;
 		hex::hex_graph_ptr graph;
 		std::vector<point> arrow_path;
+		std::vector<point> tile_path;
 	};
 
 	struct point_light
@@ -131,6 +138,7 @@ namespace component
 	{
 		lights();
 		~lights();
+		CLONE(lights)
 		// XXX These should in some sort of quadtree like structure.
 		std::vector<point_light> light_list;
 		graphics::texture tex;
@@ -139,12 +147,15 @@ namespace component
 	struct gui_component : public component
 	{
 		gui_component() : component(Component::GUI) {}
+		CLONE(gui_component)
 		std::vector<gui::widget_ptr> widgets;
 	};
 
 	struct component_set
 	{
 		component_set(int z = 0, uuid::uuid u=uuid::generate());
+		component_set(const component_set&, player_weak_ptr new_owner);
+		std::shared_ptr<component_set> clone(player_weak_ptr new_owner) { return std::shared_ptr<component_set>(new component_set(*this, new_owner)); }
 		uuid::uuid entity_id;
 		component_id mask;
 		int zorder;
@@ -154,6 +165,8 @@ namespace component
 		std::shared_ptr<input> inp;
 		std::shared_ptr<gui_component> gui;
 		player_weak_ptr owner;
+		component_set(const component_set&) = delete;
+		void operator=(const component_set&) = delete;
 	};
 	
 	inline bool operator<(const component_set_ptr& lhs, const component_set_ptr& rhs)
@@ -169,6 +182,8 @@ namespace component
 		return lhs->stat->initiative < rhs->stat->initiative;
 	}
 }
+
+std::ostream& operator<<(std::ostream& os, const component_set_ptr& e);
 
 typedef std::shared_ptr<component::component_set> component_set_ptr;
 typedef std::weak_ptr<component::component_set> component_set_weak_ptr;

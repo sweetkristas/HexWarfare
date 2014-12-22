@@ -104,10 +104,24 @@ namespace process
 			if((e->mask & sprite_mask) == sprite_mask) {
 				auto& spr = e->spr;
 				auto& pos = e->pos;
+				if(eng.get_game_state().get_entities().front() == e) {
+					static int alpha_cycle = 64;
+					static bool cycle_fwd = true;
+					spr->tex.set_alpha(alpha_cycle);
+					alpha_cycle += cycle_fwd ? 8 : -8;
+					if(alpha_cycle > 255) {
+						alpha_cycle = 255;
+						cycle_fwd = false;
+					} else if(alpha_cycle < 64) {
+						alpha_cycle = 64;
+						cycle_fwd = true;
+					}
+				}
 				if(spr->tex.is_valid()) {
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
 					spr->tex.blit(rect(pp.x - cam.x, pp.y - cam.y, ts.x, ts.y));
 				}
+				spr->tex.set_alpha(255);
 			}
 		}
 

@@ -828,10 +828,17 @@ class Update : public ::google::protobuf::Message {
   inline bool quit() const;
   inline void set_quit(bool value);
 
-  // optional string fail_reason = 3;
+  // optional bool end_turn = 3;
+  inline bool has_end_turn() const;
+  inline void clear_end_turn();
+  static const int kEndTurnFieldNumber = 3;
+  inline bool end_turn() const;
+  inline void set_end_turn(bool value);
+
+  // optional string fail_reason = 4;
   inline bool has_fail_reason() const;
   inline void clear_fail_reason();
-  static const int kFailReasonFieldNumber = 3;
+  static const int kFailReasonFieldNumber = 4;
   inline const ::std::string& fail_reason() const;
   inline void set_fail_reason(const ::std::string& value);
   inline void set_fail_reason(const char* value);
@@ -840,10 +847,10 @@ class Update : public ::google::protobuf::Message {
   inline ::std::string* release_fail_reason();
   inline void set_allocated_fail_reason(::std::string* fail_reason);
 
-  // repeated .game.Update.Unit units = 4;
+  // repeated .game.Update.Unit units = 5;
   inline int units_size() const;
   inline void clear_units();
-  static const int kUnitsFieldNumber = 4;
+  static const int kUnitsFieldNumber = 5;
   inline const ::game::Update_Unit& units(int index) const;
   inline ::game::Update_Unit* mutable_units(int index);
   inline ::game::Update_Unit* add_units();
@@ -852,10 +859,10 @@ class Update : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::game::Update_Unit >*
       mutable_units();
 
-  // repeated .game.Update.Player player = 5;
+  // repeated .game.Update.Player player = 6;
   inline int player_size() const;
   inline void clear_player();
-  static const int kPlayerFieldNumber = 5;
+  static const int kPlayerFieldNumber = 6;
   inline const ::game::Update_Player& player(int index) const;
   inline ::game::Update_Player* mutable_player(int index);
   inline ::game::Update_Player* add_player();
@@ -870,6 +877,8 @@ class Update : public ::google::protobuf::Message {
   inline void clear_has_id();
   inline void set_has_quit();
   inline void clear_has_quit();
+  inline void set_has_end_turn();
+  inline void clear_has_end_turn();
   inline void set_has_fail_reason();
   inline void clear_has_fail_reason();
 
@@ -879,6 +888,7 @@ class Update : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::int32 id_;
   bool quit_;
+  bool end_turn_;
   ::std::string* fail_reason_;
   ::google::protobuf::RepeatedPtrField< ::game::Update_Unit > units_;
   ::google::protobuf::RepeatedPtrField< ::game::Update_Player > player_;
@@ -1991,15 +2001,39 @@ inline void Update::set_quit(bool value) {
   // @@protoc_insertion_point(field_set:game.Update.quit)
 }
 
-// optional string fail_reason = 3;
-inline bool Update::has_fail_reason() const {
+// optional bool end_turn = 3;
+inline bool Update::has_end_turn() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void Update::set_has_fail_reason() {
+inline void Update::set_has_end_turn() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void Update::clear_has_fail_reason() {
+inline void Update::clear_has_end_turn() {
   _has_bits_[0] &= ~0x00000004u;
+}
+inline void Update::clear_end_turn() {
+  end_turn_ = false;
+  clear_has_end_turn();
+}
+inline bool Update::end_turn() const {
+  // @@protoc_insertion_point(field_get:game.Update.end_turn)
+  return end_turn_;
+}
+inline void Update::set_end_turn(bool value) {
+  set_has_end_turn();
+  end_turn_ = value;
+  // @@protoc_insertion_point(field_set:game.Update.end_turn)
+}
+
+// optional string fail_reason = 4;
+inline bool Update::has_fail_reason() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void Update::set_has_fail_reason() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void Update::clear_has_fail_reason() {
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void Update::clear_fail_reason() {
   if (fail_reason_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -2067,7 +2101,7 @@ inline void Update::set_allocated_fail_reason(::std::string* fail_reason) {
   // @@protoc_insertion_point(field_set_allocated:game.Update.fail_reason)
 }
 
-// repeated .game.Update.Unit units = 4;
+// repeated .game.Update.Unit units = 5;
 inline int Update::units_size() const {
   return units_.size();
 }
@@ -2097,7 +2131,7 @@ Update::mutable_units() {
   return &units_;
 }
 
-// repeated .game.Update.Player player = 5;
+// repeated .game.Update.Player player = 6;
 inline int Update::player_size() const {
   return player_.size();
 }

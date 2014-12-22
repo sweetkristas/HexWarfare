@@ -51,9 +51,10 @@ void protobuf_AssignDesc_message_5fformat_2eproto() {
       "message_format.proto");
   GOOGLE_CHECK(file != NULL);
   Update_descriptor_ = file->message_type(0);
-  static const int Update_offsets_[5] = {
+  static const int Update_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, quit_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, end_turn_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, fail_reason_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, units_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, player_),
@@ -213,28 +214,29 @@ void protobuf_AddDesc_message_5fformat_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\024message_format.proto\022\004game\"\304\006\n\006Update\022"
-    "\n\n\002id\030\001 \002(\005\022\014\n\004quit\030\002 \001(\010\022\023\n\013fail_reason"
-    "\030\003 \001(\t\022 \n\005units\030\004 \003(\0132\021.game.Update.Unit"
-    "\022#\n\006player\030\005 \003(\0132\023.game.Update.Player\032 \n"
-    "\010Location\022\t\n\001x\030\001 \002(\005\022\t\n\001y\030\002 \002(\005\032k\n\tUnitS"
-    "tats\022\016\n\006health\030\001 \001(\005\022\016\n\006attack\030\002 \001(\005\022\016\n\006"
-    "armour\030\003 \001(\005\022\014\n\004move\030\004 \001(\002\022\022\n\ninitiative"
-    "\030\005 \001(\002\022\014\n\004name\030\006 \001(\t\032.\n\016AnimationHints\022\014"
-    "\n\004hint\030\001 \001(\t\022\016\n\006timing\030\002 \001(\005\032\272\002\n\004Unit\022\014\n"
-    "\004uuid\030\001 \002(\t\022<\n\004type\030\002 \001(\0162\035.game.Update."
-    "Unit.MessageType:\017CANONICAL_STATE\022\014\n\004nam"
-    "e\030\003 \001(\t\022\022\n\nowner_uuid\030\004 \001(\t\022%\n\005stats\030\005 \001"
-    "(\0132\026.game.Update.UnitStats\022#\n\004path\030\006 \003(\013"
-    "2\025.game.Update.Location\0224\n\017animation_hin"
-    "ts\030\007 \003(\0132\033.game.Update.AnimationHints\"B\n"
-    "\013MessageType\022\023\n\017CANONICAL_STATE\020\000\022\n\n\006SUM"
-    "MON\020\001\022\010\n\004MOVE\020\002\022\010\n\004PASS\020\003\032\307\001\n\006Player\022\014\n\004"
-    "uuid\030\001 \002(\t\022\014\n\004name\030\002 \001(\t\022;\n\006action\030\003 \001(\016"
-    "2\032.game.Update.Player.Action:\017CANONICAL_"
-    "STATE\022\021\n\tteam_uuid\030\004 \001(\t\022\021\n\tteam_name\030\005 "
-    "\001(\t\">\n\006Action\022\023\n\017CANONICAL_STATE\020\000\022\010\n\004JO"
-    "IN\020\001\022\010\n\004QUIT\020\002\022\013\n\007CONCEDE\020\003", 867);
+    "\n\024message_format.proto\022\004game\"\326\006\n\006Update\022"
+    "\n\n\002id\030\001 \002(\005\022\014\n\004quit\030\002 \001(\010\022\020\n\010end_turn\030\003 "
+    "\001(\010\022\023\n\013fail_reason\030\004 \001(\t\022 \n\005units\030\005 \003(\0132"
+    "\021.game.Update.Unit\022#\n\006player\030\006 \003(\0132\023.gam"
+    "e.Update.Player\032 \n\010Location\022\t\n\001x\030\001 \002(\005\022\t"
+    "\n\001y\030\002 \002(\005\032k\n\tUnitStats\022\016\n\006health\030\001 \001(\005\022\016"
+    "\n\006attack\030\002 \001(\005\022\016\n\006armour\030\003 \001(\005\022\014\n\004move\030\004"
+    " \001(\002\022\022\n\ninitiative\030\005 \001(\002\022\014\n\004name\030\006 \001(\t\032."
+    "\n\016AnimationHints\022\014\n\004hint\030\001 \001(\t\022\016\n\006timing"
+    "\030\002 \001(\005\032\272\002\n\004Unit\022\014\n\004uuid\030\001 \002(\t\022<\n\004type\030\002 "
+    "\001(\0162\035.game.Update.Unit.MessageType:\017CANO"
+    "NICAL_STATE\022\014\n\004name\030\003 \001(\t\022\022\n\nowner_uuid\030"
+    "\004 \001(\t\022%\n\005stats\030\005 \001(\0132\026.game.Update.UnitS"
+    "tats\022#\n\004path\030\006 \003(\0132\025.game.Update.Locatio"
+    "n\0224\n\017animation_hints\030\007 \003(\0132\033.game.Update"
+    ".AnimationHints\"B\n\013MessageType\022\023\n\017CANONI"
+    "CAL_STATE\020\000\022\n\n\006SUMMON\020\001\022\010\n\004MOVE\020\002\022\010\n\004PAS"
+    "S\020\003\032\307\001\n\006Player\022\014\n\004uuid\030\001 \002(\t\022\014\n\004name\030\002 \001"
+    "(\t\022;\n\006action\030\003 \001(\0162\032.game.Update.Player."
+    "Action:\017CANONICAL_STATE\022\021\n\tteam_uuid\030\004 \001"
+    "(\t\022\021\n\tteam_name\030\005 \001(\t\">\n\006Action\022\023\n\017CANON"
+    "ICAL_STATE\020\000\022\010\n\004JOIN\020\001\022\010\n\004QUIT\020\002\022\013\n\007CONC"
+    "EDE\020\003", 885);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "message_format.proto", &protobuf_RegisterTypes);
   Update::default_instance_ = new Update();
@@ -2320,6 +2322,7 @@ void Update_Player::Swap(Update_Player* other) {
 #ifndef _MSC_VER
 const int Update::kIdFieldNumber;
 const int Update::kQuitFieldNumber;
+const int Update::kEndTurnFieldNumber;
 const int Update::kFailReasonFieldNumber;
 const int Update::kUnitsFieldNumber;
 const int Update::kPlayerFieldNumber;
@@ -2346,6 +2349,7 @@ void Update::SharedCtor() {
   _cached_size_ = 0;
   id_ = 0;
   quit_ = false;
+  end_turn_ = false;
   fail_reason_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -2395,8 +2399,8 @@ void Update::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 7) {
-    ZR_(id_, quit_);
+  if (_has_bits_[0 / 32] & 15) {
+    ZR_(id_, end_turn_);
     if (has_fail_reason()) {
       if (fail_reason_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         fail_reason_->clear();
@@ -2448,13 +2452,28 @@ bool Update::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(26)) goto parse_fail_reason;
+        if (input->ExpectTag(24)) goto parse_end_turn;
         break;
       }
 
-      // optional string fail_reason = 3;
+      // optional bool end_turn = 3;
       case 3: {
-        if (tag == 26) {
+        if (tag == 24) {
+         parse_end_turn:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &end_turn_)));
+          set_has_end_turn();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(34)) goto parse_fail_reason;
+        break;
+      }
+
+      // optional string fail_reason = 4;
+      case 4: {
+        if (tag == 34) {
          parse_fail_reason:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_fail_reason()));
@@ -2465,34 +2484,34 @@ bool Update::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(34)) goto parse_units;
+        if (input->ExpectTag(42)) goto parse_units;
         break;
       }
 
-      // repeated .game.Update.Unit units = 4;
-      case 4: {
-        if (tag == 34) {
+      // repeated .game.Update.Unit units = 5;
+      case 5: {
+        if (tag == 42) {
          parse_units:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_units()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(34)) goto parse_units;
-        if (input->ExpectTag(42)) goto parse_player;
+        if (input->ExpectTag(42)) goto parse_units;
+        if (input->ExpectTag(50)) goto parse_player;
         break;
       }
 
-      // repeated .game.Update.Player player = 5;
-      case 5: {
-        if (tag == 42) {
+      // repeated .game.Update.Player player = 6;
+      case 6: {
+        if (tag == 50) {
          parse_player:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_player()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(42)) goto parse_player;
+        if (input->ExpectTag(50)) goto parse_player;
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -2532,26 +2551,31 @@ void Update::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->quit(), output);
   }
 
-  // optional string fail_reason = 3;
+  // optional bool end_turn = 3;
+  if (has_end_turn()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->end_turn(), output);
+  }
+
+  // optional string fail_reason = 4;
   if (has_fail_reason()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->fail_reason().data(), this->fail_reason().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "fail_reason");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      3, this->fail_reason(), output);
+      4, this->fail_reason(), output);
   }
 
-  // repeated .game.Update.Unit units = 4;
+  // repeated .game.Update.Unit units = 5;
   for (int i = 0; i < this->units_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->units(i), output);
+      5, this->units(i), output);
   }
 
-  // repeated .game.Update.Player player = 5;
+  // repeated .game.Update.Player player = 6;
   for (int i = 0; i < this->player_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->player(i), output);
+      6, this->player(i), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -2574,7 +2598,12 @@ void Update::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->quit(), target);
   }
 
-  // optional string fail_reason = 3;
+  // optional bool end_turn = 3;
+  if (has_end_turn()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->end_turn(), target);
+  }
+
+  // optional string fail_reason = 4;
   if (has_fail_reason()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->fail_reason().data(), this->fail_reason().length(),
@@ -2582,21 +2611,21 @@ void Update::SerializeWithCachedSizes(
       "fail_reason");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        3, this->fail_reason(), target);
+        4, this->fail_reason(), target);
   }
 
-  // repeated .game.Update.Unit units = 4;
+  // repeated .game.Update.Unit units = 5;
   for (int i = 0; i < this->units_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        4, this->units(i), target);
+        5, this->units(i), target);
   }
 
-  // repeated .game.Update.Player player = 5;
+  // repeated .game.Update.Player player = 6;
   for (int i = 0; i < this->player_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        5, this->player(i), target);
+        6, this->player(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -2623,7 +2652,12 @@ int Update::ByteSize() const {
       total_size += 1 + 1;
     }
 
-    // optional string fail_reason = 3;
+    // optional bool end_turn = 3;
+    if (has_end_turn()) {
+      total_size += 1 + 1;
+    }
+
+    // optional string fail_reason = 4;
     if (has_fail_reason()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -2631,7 +2665,7 @@ int Update::ByteSize() const {
     }
 
   }
-  // repeated .game.Update.Unit units = 4;
+  // repeated .game.Update.Unit units = 5;
   total_size += 1 * this->units_size();
   for (int i = 0; i < this->units_size(); i++) {
     total_size +=
@@ -2639,7 +2673,7 @@ int Update::ByteSize() const {
         this->units(i));
   }
 
-  // repeated .game.Update.Player player = 5;
+  // repeated .game.Update.Player player = 6;
   total_size += 1 * this->player_size();
   for (int i = 0; i < this->player_size(); i++) {
     total_size +=
@@ -2681,6 +2715,9 @@ void Update::MergeFrom(const Update& from) {
     if (from.has_quit()) {
       set_quit(from.quit());
     }
+    if (from.has_end_turn()) {
+      set_end_turn(from.end_turn());
+    }
     if (from.has_fail_reason()) {
       set_fail_reason(from.fail_reason());
     }
@@ -2712,6 +2749,7 @@ void Update::Swap(Update* other) {
   if (other != this) {
     std::swap(id_, other->id_);
     std::swap(quit_, other->quit_);
+    std::swap(end_turn_, other->end_turn_);
     std::swap(fail_reason_, other->fail_reason_);
     units_.Swap(&other->units_);
     player_.Swap(&other->player_);

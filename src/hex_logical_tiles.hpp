@@ -50,6 +50,8 @@ namespace hex
 			typedef std::vector<tile_ptr>::const_iterator const_iterator;
 
 			explicit map(const node& n);
+			map_ptr clone();
+
 			int x() const { return x_; }
 			int y() const { return y_; }
 			int width() const { return width_; }
@@ -79,6 +81,7 @@ namespace hex
 			int height_;
 
 			std::vector<tile_ptr> tiles_;
+			map(const map&);
 		};
 
 		void loader(const node& n);

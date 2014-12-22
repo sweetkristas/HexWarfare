@@ -85,6 +85,8 @@ namespace graphics
 
 		void set_blend(BlendMode bm);
 
+		void set_alpha(int alpha);
+
 		SDL_Texture* get() { return tex_.get(); }
 
 		bool is_valid() const { return tex_ != nullptr; }

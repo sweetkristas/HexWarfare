@@ -32,7 +32,7 @@ namespace queue
 		void push(T const& data)
 		{
 			boost::mutex::scoped_lock lock(guard_);
-			q_.push(std::move(data));
+			q_.push(data);
 			lock.unlock();
 			cv_.notify_one();
 		}
@@ -70,7 +70,7 @@ namespace queue
 				}
 			}
         
-			popped_value = std::move(q_.front());
+			popped_value = q_.front();
 			q_.pop();
 			return true;
 		}

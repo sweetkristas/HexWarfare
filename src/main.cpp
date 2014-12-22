@@ -209,6 +209,8 @@ int main(int argc, char* argv[])
 			utility_args = std::vector<std::string>(it+1, args.end());
 		}
 	}
+	
+	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
 
 	if(!test::run_tests()) {
 		// Just exit if some tests failed.
@@ -286,7 +288,6 @@ int main(int argc, char* argv[])
 		gs.add_player(b1);
 
 		load_scenario(e, "data/scenario/scenario1.cfg");
-		gs.set_map(e.get_map()->get_logical_map());
 
 		create_gui(e);
 
@@ -331,6 +332,12 @@ int main(int argc, char* argv[])
 
 			if(nclient) {
 				nclient->process();
+				game::Update* up;
+				while((up = nclient->read_recv_queue()) != nullptr) {
+					std::cerr << "client: Got message: " << up->id() << "\n";
+					gs.apply(up);
+					delete up;
+				}
 			}
 			if(nserver) {
 				nserver->process();

@@ -54,7 +54,11 @@ namespace process
 		static component_id pos_mask = component::genmask(component::Component::POSITION) | component::genmask(component::Component::STATS);
 		// Clear the input queue of keystrokes for now.
 		while(!keys_pressed_.empty()) {
+			auto key = keys_pressed_.front();
 			keys_pressed_.pop();
+			if(key == SDL_SCANCODE_E) {
+				eng.end_turn();
+			}
 		}
 		if(!mouse_button_events_.empty()) {
 			auto button = mouse_button_events_.front(); mouse_button_events_.pop();
@@ -84,8 +88,14 @@ namespace process
 							});
 							bool clear_entity = false;
 							if(eng.get_game_state().get_entities().front() == e && stats->move > FLT_EPSILON && it != inp->possible_moves.end()) {
+								ASSERT_LOG(!inp->tile_path.empty(), "tile path was empty.");
+								for(auto& t : inp->tile_path) {
+									auto tile = eng.get_map()->get_tile_at(t.x, t.y);
+									ASSERT_LOG(tile != nullptr, "No tile exists at point: " << pp);
+									LOG_DEBUG("tile" << t << ": " << tile->tile()->id() << " : " << tile->tile()->get_cost());
+								}
 								// Generate an update move message.
-								auto up = eng.get_game_state().unit_move(e, inp->arrow_path);
+								auto up = eng.get_game_state().unit_move(e, inp->tile_path);
 								// send message to server.
 								auto netclient = eng.get_netclient().lock();
 								ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
@@ -115,6 +125,7 @@ namespace process
 								inp->possible_moves.clear();
 								inp->graph.reset();
 								inp->arrow_path.clear();
+								inp->tile_path.clear();
 							}
 						}
 					}
@@ -132,16 +143,16 @@ namespace process
 					if(inp->selected && !inp->possible_moves.empty() && inp->graph != nullptr) {
 						int x = motion.x;
 						int y = motion.y;
-						auto destination_pt = eng.get_map()->get_tile_pos_from_pixel_pos(x + eng.get_camera().x, y + eng.get_camera().y);
+						auto destination_pt = eng.get_map()->get_tile_pos_from_pixel_pos(x, y);
 						if(eng.get_map()->get_tile_at(destination_pt.x, destination_pt.y)) {
 							auto it = std::find_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&destination_pt](hex::move_cost const& mc){
 								return destination_pt == mc.loc;
 							});
 
 							if(it != inp->possible_moves.end()) {
-								auto tile_path = hex::find_path(inp->graph, pos, destination_pt);
+								inp->tile_path = std::move(hex::find_path(inp->graph, pos, destination_pt));
 								inp->arrow_path.clear();
-								for(auto& t : tile_path) {
+								for(auto& t : inp->tile_path) {
 									auto p = hex::hex_map::get_pixel_pos_from_tile_pos(t.x, t.y) + point(eng.get_tile_size().x/2, eng.get_tile_size().y/2);
 									inp->arrow_path.emplace_back(p);
 								}

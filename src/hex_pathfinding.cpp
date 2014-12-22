@@ -114,7 +114,7 @@ namespace hex
 			edge_descriptor e;
 			bool inserted;
 			boost::tie(e, inserted) = boost::add_edge(graph->reverse_map[ep.first], graph->reverse_map[ep.second], graph->graph);
-			weightmap[e] = weights[n++];
+			weightmap[e] = map->get_tile_at(graph->vertices[e.m_target])->get_cost();//weights[n++];
 		}
 
 		return graph;

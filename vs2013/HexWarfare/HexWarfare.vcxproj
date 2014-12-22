@@ -52,7 +52,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>c:\Projects\boost\;c:\projects\SDL\include;c:\projects\SDL_mixer;c:\projects\SDL_ttf;c:\projects\SDL_image;C:\Projects\HexWarfare\include;..\..\external\include;C:\Projects\HexWarfare\src\lua;C:\Projects\HexWarfare\LuaBridge\Source\LuaBridge;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_SCL_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -71,7 +71,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>c:\Projects\boost\;c:\projects\SDL\include;..\..\external\include;c:\projects\SDL_mixer;c:\projects\SDL_ttf;c:\projects\SDL_image;C:\Projects\HexWarfare\src\lua;C:\Projects\HexWarfare\include;C:\Projects\HexWarfare\LuaBridge\Source\LuaBridge;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_SCL_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -214,9 +214,9 @@
     <None Include="..\..\src\geometry.inl" />
     <CustomBuild Include="..\..\src\message_format.proto">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\utils\win32\protoc.exe -I=%(RelativeDir) --cpp_out=%(RelativeDir) %(Identity)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Creating the protocol files.</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)%(Filename).bp.cc;%(RelativeDir)%(Filename).bp.h;%(Outputs)</Outputs>
+      <Command>$(SolutionDir)..\utils\win32\protoc.exe -I=%(RelativeDir) --cpp_out=%(RelativeDir) %(Identity)</Command>
+      <Message>Creating the protocol files.</Message>
+      <Outputs>..\..\src\message_format.bp.cc;..\..\src\message_format.bp.h;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

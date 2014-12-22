@@ -149,6 +149,12 @@ namespace graphics
 		texture_from_surface(const_cast<SDL_Surface*>(surf->get()), this);
 	}
 
+	void texture::set_alpha(int alpha)
+	{
+		alpha = std::min(std::max(0, alpha), 255);
+		SDL_SetTextureAlphaMod(tex_.get(), static_cast<Uint8>(alpha));
+	}
+
 	void texture::blit(const rect& dest) const
 	{
 		ASSERT_LOG(get_renderer() != nullptr, "Renderer not set. call graphics::texture::manager texman(...);");

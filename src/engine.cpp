@@ -242,6 +242,10 @@ bool engine::update(double time)
 // Does end of turn processing. Like incrementing to the next player.
 void engine::end_turn()
 {	
+	auto netclient = get_netclient().lock();
+	ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
+	game::Update* up = game_state_.end_turn();
+	netclient->write_send_queue(up);
 	game_state_.end_unit_turn();
 }
 

@@ -78,6 +78,17 @@ namespace hex
 			height_ = tiles_.size() / width_;
 		}
 
+		map::map(const map& m)
+			: x_(m.x_),
+			  y_(m.y_),
+			  width_(m.width_),
+			  height_(m.height_),
+			  tiles_(m.tiles_)
+		{
+			// XX if we ever have a case where we need to modify tiles differently between the
+			// internal server and here then we need to clone all the elements in m.tiles_.
+		}
+
 		const_tile_ptr map::get_hex_tile(direction d, int xx, int yy) const
 		{
 			int ox = xx;
@@ -192,5 +203,9 @@ namespace hex
 			return get_tile_at(p.x, p.y);
 		}
 
+		map_ptr map::clone()
+		{
+			return map_ptr(new map(*this));
+		}
 	}
 }

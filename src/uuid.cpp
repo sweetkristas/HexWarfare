@@ -44,11 +44,8 @@ namespace uuid
 	std::string write(const boost::uuids::uuid& id) 
 	{
 		std::stringstream str;
-		str.fill('0');
-		str.width(2);
-		str.flags(std::ios::hex);
 		for(auto num : id) {
-			str << static_cast<int>(num);
+			str << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(num);
 		}
 		return str.str();
 	}

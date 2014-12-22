@@ -36,9 +36,10 @@ namespace network
 			clients_.erase(std::remove_if(clients_.begin(), clients_.end(), [](std::weak_ptr<base> p){ return p.lock() == nullptr; }), clients_.end());
 
 			// Take messages from our send queue and send them to each connected client.
-			game::Update* up;
+			game::Update* up = nullptr;
 			while((up = read_send_queue()) != nullptr) {
 				for(auto& c : clients_) {
+					LOG_DEBUG("Writing message(" << up->id() << ") to client");
 					auto peer = c.lock();
 					ASSERT_LOG(peer != nullptr, "client has gone away, peer == nullptr");
 					peer->write_recv_queue(new game::Update(*up));

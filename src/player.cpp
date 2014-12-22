@@ -23,5 +23,9 @@ player::player(team_ptr team, PlayerType pt, const std::string& name, uuid::uuid
 	  uuid_(u)
 
 {
+}
 
+player_ptr player::clone()
+{
+	return player_ptr(new player(*this));
 }
