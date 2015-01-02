@@ -127,6 +127,7 @@
     <ClCompile Include="..\..\src\particles.cpp" />
     <ClCompile Include="..\..\src\player.cpp" />
     <ClCompile Include="..\..\src\process.cpp" />
+    <ClCompile Include="..\..\src\property_animate.cpp" />
     <ClCompile Include="..\..\src\random.cpp" />
     <ClCompile Include="..\..\src\render_process.cpp" />
     <ClCompile Include="..\..\src\surface.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="..\..\src\dialog.hpp" />
     <ClInclude Include="..\..\src\dir_monitor.hpp" />
     <ClInclude Include="..\..\src\draw_primitives.hpp" />
+    <ClInclude Include="..\..\src\easing.hpp" />
     <ClInclude Include="..\..\src\enet_server.hpp" />
     <ClInclude Include="..\..\src\engine.hpp" />
     <ClInclude Include="..\..\src\engine_fwd.hpp" />
@@ -193,6 +195,7 @@
     <ClInclude Include="..\..\src\player.hpp" />
     <ClInclude Include="..\..\src\process.hpp" />
     <ClInclude Include="..\..\src\profile_timer.hpp" />
+    <ClInclude Include="..\..\src\property_animate.hpp" />
     <ClInclude Include="..\..\src\quadtree.hpp" />
     <ClInclude Include="..\..\src\queue.hpp" />
     <ClInclude Include="..\..\src\random.hpp" />

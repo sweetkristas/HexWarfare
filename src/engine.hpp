@@ -24,6 +24,7 @@
 #include "particles.hpp"
 #include "process.hpp"
 #include "profile_timer.hpp"
+#include "property_animate.hpp"
 #include "quadtree.hpp"
 #include "widget.hpp"
 #include "wm.hpp"
@@ -66,7 +67,8 @@ public:
 	void set_extents(const rect& extents);
 	const rect& get_extents() const;
 
-	void set_camera(const point& cam) { camera_ = cam; }
+	void set_camera(const point& cam);
+	void set_camera(int x, int y);
 	const point& get_camera() { return camera_; }
 
 	void set_camera_scale(int scale) { camera_scale_ = scale; }
@@ -92,6 +94,8 @@ public:
 	network::client_weak_ptr get_netclient() const { return client_; }
 	void set_netclient(network::client_weak_ptr c) { client_ = c; }
 
+	void add_animated_property(const std::string& name, property::animate_ptr a);
+
 private:
 	game::state& game_state_;
 	EngineState state_;
@@ -106,9 +110,12 @@ private:
 	hex::hex_map_ptr map_;
 	std::vector<gui::widget_ptr> widgets_;
 	network::client_weak_ptr client_;
+	property::manager property_manager_;
 
 	void translate_mouse_coords(SDL_Event* evt);
 	void process_events();
+
+	void clip_camera_to_extents();
 
 	engine() = delete;
 	engine(const engine&) = delete;

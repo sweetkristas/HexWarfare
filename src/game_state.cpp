@@ -16,6 +16,7 @@
 
 #include "asserts.hpp"
 #include "component.hpp"
+#include "easing.hpp"
 #include "formatter.hpp"
 #include "game_state.hpp"
 #include "profile_timer.hpp"
@@ -231,6 +232,11 @@ namespace game
 
 		if(up->has_end_turn() && up->end_turn()) {
 			this->end_unit_turn();
+			++update_counter_;
+			// XXX send the path update to all the clients here.
+			auto nup = new Update(*up);
+			nup->set_id(update_counter_);
+			res.emplace_back(nup);
 		}
 		return res;
 	}
@@ -263,7 +269,7 @@ namespace game
 		// Create sets of enemy locations and tiles under zoc
 		auto e1_owner = e->owner.lock();
 		for(auto entity : entities_) {
-			auto pos = entity->pos->pos;
+			auto pos = entity->pos->gs_pos;
 			auto e2_owner = entity->owner.lock();
 			if(e1_owner->team() != e2_owner->team()) {
 				enemy_locations.emplace(pos);
@@ -312,7 +318,7 @@ namespace game
 		return false;
 	}
 
-	void state::apply(Update* up)
+	void state::apply(engine& eng, Update* up)
 	{
 		// client side update
 		update_counter_ = up->id();
@@ -346,7 +352,7 @@ namespace game
 					auto p = units.path().rbegin();
 					auto start_p = point(units.path().begin()->x(), units.path().begin()->y());
 					LOG_INFO("moving unit " << units.uuid() << " to position " << point(p->x(), p->y()) << " from " << start_p);
-					if(e->pos->pos.x != p->x() && e->pos->pos.y != p->y()) {
+					if(e->pos->gs_pos.x != p->x() && e->pos->gs_pos.y != p->y()) {
 						// Unit hasn't been moved yet, so play attached animation and move unit along path.
 						/// XXX todo
 						//for(auto& t : units.path()) {
@@ -355,8 +361,8 @@ namespace game
 						//}
 
 						// move unit to final position
-						e->pos->pos.x = p->x();
-						e->pos->pos.y = p->y();
+						e->pos->gs_pos.x = p->x();
+						e->pos->gs_pos.y = p->y();
 					}
 					break;
 				}
@@ -367,5 +373,16 @@ namespace game
 			}
 		}
 
+		if(up->has_end_turn() && up->end_turn()) {
+			// do client side end turn.
+			end_unit_turn();
+			auto& ep = entities_.front()->pos->gs_pos;
+			auto fp = eng.get_map()->get_pixel_pos_from_tile_pos(ep.x, ep.y);
+			fp += point(eng.get_tile_size().x/2 - eng.get_window().width()/2, eng.get_tile_size().y/2 - eng.get_window().height()/2);			
+			eng.add_animated_property("camera", 
+				std::make_shared<property::animate<double, glm::vec2>>([&eng, fp](double t, double d){ 
+									return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(eng.get_camera().x), static_cast<float>(eng.get_camera().y)), glm::vec2(static_cast<float>(fp.x-eng.get_camera().x), static_cast<float>(fp.y-eng.get_camera().y)), d); }, 
+									[&eng](const glm::vec2& v){eng.set_camera(static_cast<int>(std::round(v.x)), static_cast<int>(std::round(v.y))); LOG_DEBUG("cam = " << v.x << "," << v.y); }, 0.4));
+		}
 	}
 }

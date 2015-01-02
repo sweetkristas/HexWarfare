@@ -17,6 +17,7 @@
 #include "SDL.h"
 
 #include "component.hpp"
+#include "easing.hpp"
 #include "input_process.hpp"
 
 namespace process
@@ -64,7 +65,7 @@ namespace process
 			auto button = mouse_button_events_.front(); mouse_button_events_.pop();
 			for(auto& e : elist) {
 				if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
-					auto& pos = e->pos->pos;
+					auto& pos = e->pos->gs_pos;
 					auto& inp = e->inp;
 					auto& stats = e->stat;
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
@@ -101,8 +102,12 @@ namespace process
 								ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
 								netclient->write_send_queue(up);
 
-								pos.x = tp.x;
-								pos.y = tp.y;
+								auto old_pos = e->pos->pos;
+								eng.add_animated_property("unit", std::make_shared<property::animate<double, glm::vec2>>([old_pos, tp](double t, double d){ 
+									return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(old_pos.x), static_cast<float>(old_pos.y)), glm::vec2(static_cast<float>(tp.x-old_pos.x), static_cast<float>(tp.y-old_pos.y)), d); }, 
+									[&e](const glm::vec2& v){ e->pos->pos.x = static_cast<int>(std::round(v.x)); e->pos->pos.y = static_cast<int>(std::round(v.y)); LOG_DEBUG("pos = " << v.x << "," << v.y); }, 0.4));
+								//pos.x = tp.x;
+								//pos.y = tp.y;
 								// decrement movement.
 								stats->move -= it->path_cost;
 								if(stats->move < FLT_EPSILON) {
@@ -137,7 +142,7 @@ namespace process
 			auto motion = mouse_motion_events_.front(); mouse_motion_events_.pop();
 			for(auto& e : elist) {
 				if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
-					auto& pos = e->pos->pos;
+					auto& pos = e->pos->gs_pos;
 					auto& inp = e->inp;
 					auto& stats = e->stat;
 					if(inp->selected && !inp->possible_moves.empty() && inp->graph != nullptr) {

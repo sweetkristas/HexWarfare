@@ -49,10 +49,6 @@ namespace process
 					}
 					if((e2->mask & collision_mask) == collision_mask) {
 						// entity - entity collision
-						auto& e2pos = e2->pos;
-						if(e1pos->pos + e1pos->mov == e2pos->pos) {
-							e1pos->mov.clear();
-						}						
 					}
 				}
 			}

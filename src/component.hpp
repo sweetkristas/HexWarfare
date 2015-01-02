@@ -79,10 +79,10 @@ namespace component
 	struct position : public component
 	{
 		position() : component(Component::POSITION) {}
-		position(const point& p) : component(Component::POSITION), pos(p) {}
+		position(const point& p) : component(Component::POSITION), pos(p), gs_pos(p) {}
 		CLONE(position)
 		point pos;
-		point mov;
+		point gs_pos;
 	};
 
 	struct sprite : public component

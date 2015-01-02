@@ -335,7 +335,7 @@ int main(int argc, char* argv[])
 				game::Update* up;
 				while((up = nclient->read_recv_queue()) != nullptr) {
 					std::cerr << "client: Got message: " << up->id() << "\n";
-					gs.apply(up);
+					gs.apply(e, up);
 					delete up;
 				}
 			}

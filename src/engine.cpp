@@ -151,24 +151,16 @@ void engine::process_events()
 					return;
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_W) {
 					camera_.y -= tile_size_.y;
-					if(camera_.y <= extents_.y()) {
-						camera_.y = extents_.y();
-					}
+					clip_camera_to_extents();
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_A) {
 					camera_.x -= tile_size_.x;
-					if(camera_.x <= extents_.x()) {
-						camera_.x = extents_.x();
-					}
+					clip_camera_to_extents();
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_S) {
 					camera_.y += tile_size_.y;
-					if(camera_.y >= extents_.y2() - wm_.height()) {
-						camera_.y = extents_.y2() - wm_.height();
-					}
+					clip_camera_to_extents();
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_D) {
 					camera_.x += tile_size_.x;
-					if(camera_.x >= extents_.x2() - wm_.width()) {
-						camera_.x = extents_.x2() - wm_.width();
-					}
+					clip_camera_to_extents();
 				} else if(evt.key.keysym.scancode == SDL_SCANCODE_P) {
 					if(SDL_GetModState() & KMOD_CTRL) {
 						if(get_state() == EngineState::PLAY) {
@@ -222,6 +214,7 @@ void engine::process_events()
 bool engine::update(double time)
 {
 	process_events();
+	property_manager_.process(time);
 	if(state_ == EngineState::PAUSE || state_ == EngineState::QUIT) {
 		return state_ == EngineState::PAUSE ? true : false;
 	}
@@ -246,7 +239,6 @@ void engine::end_turn()
 	ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
 	game::Update* up = game_state_.end_turn();
 	netclient->write_send_queue(up);
-	game_state_.end_unit_turn();
 }
 
 void engine::set_extents(const rect& extents) 
@@ -260,4 +252,38 @@ void engine::set_extents(const rect& extents)
 const rect& engine::get_extents() const 
 { 
 	return extents_; 
+}
+
+void engine::add_animated_property(const std::string& name, property::animate_ptr a)
+{
+	property_manager_.add(name, a);
+}
+
+void engine::set_camera(const point& cam) 
+{ 
+	camera_ = cam;
+	clip_camera_to_extents();
+}
+
+void engine::set_camera(int x, int y)
+{
+	camera_.x = x; 
+	camera_.y = y;
+	clip_camera_to_extents();
+}
+
+void engine::clip_camera_to_extents()
+{
+	if(camera_.y <= extents_.y()) {
+		camera_.y = extents_.y();
+	}
+	if(camera_.x <= extents_.x()) {
+		camera_.x = extents_.x();
+	}
+	if(camera_.y >= extents_.y2() - wm_.height()) {
+		camera_.y = extents_.y2() - wm_.height();
+	}
+	if(camera_.x >= extents_.x2() - wm_.width()) {
+		camera_.x = extents_.x2() - wm_.width();
+	}
 }

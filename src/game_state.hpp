@@ -67,7 +67,7 @@ namespace game
 		// And making client side stuff happen. (i.e. animated moving -- if we haven't done so already)
 		// validating that the update counter is correct. 
 		// Adjusting everything if it's a re-sync update.
-		void apply(Update* up);
+		void apply(engine& eng, Update* up);
 
 	private:
 		float initiative_counter_;
