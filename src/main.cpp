@@ -224,15 +224,15 @@ int main(int argc, char* argv[])
 
 	try {
 		graphics::SDL sdl(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-		SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "opengl", SDL_HINT_OVERRIDE);
+		//SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "opengl", SDL_HINT_OVERRIDE);
 		graphics::window_manager wm;
-		sdl_gl_setup();
+		//sdl_gl_setup();
 		wm.create_window("HexWarfare",
 			SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED,
 			width,
 			height,
-			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+			/*SDL_WINDOW_OPENGL |*/ SDL_WINDOW_RESIZABLE);
 		wm.set_icon("images/icon.png");
 		wm.gl_init();
 

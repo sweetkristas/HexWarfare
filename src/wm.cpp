@@ -48,8 +48,8 @@ namespace graphics
 		
 	void window_manager::create_window(const std::string& title, int x, int y, int w, int h, Uint32 flags)
 	{
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
 		profile::manager prof("SDL_CreateWindow");
 		window_ = SDL_CreateWindow(title.c_str(), x, y, w, h, flags);
@@ -73,6 +73,7 @@ namespace graphics
 		for(int n = 0; n != num_rend; ++n) {
 			SDL_RendererInfo ri;
 			int err = SDL_GetRenderDriverInfo(n, &ri);
+			std::cerr << "XXX: Probing driver " << ri.name << ": " << ri.flags << " : texture dimensions " << ri.max_texture_width << "," << ri.max_texture_height << "\n";
 			if(err != 0) {
 				std::stringstream ss;
 				ss << "error getting details for renderer " << n << ": " << SDL_GetError() << "\n";
@@ -113,8 +114,8 @@ namespace graphics
 
 	void window_manager::gl_init()
 	{
-		profile::manager prof("SDL_GL_CreateContext");
-		glcontext_ = SDL_GL_CreateContext(window_);
+		//profile::manager prof("SDL_GL_CreateContext");
+		//glcontext_ = SDL_GL_CreateContext(window_);
 		/*
 
 		glEnable(GL_BLEND);
@@ -150,7 +151,7 @@ namespace graphics
 
 	window_manager::~window_manager()
 	{
-		SDL_GL_DeleteContext(glcontext_);
+		//SDL_GL_DeleteContext(glcontext_);
 		SDL_DestroyRenderer(renderer_);
 		SDL_DestroyWindow(window_);
 	}
