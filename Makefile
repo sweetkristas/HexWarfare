@@ -53,7 +53,7 @@ BASE_CXXFLAGS += -std=c++11 -g -rdynamic -fno-inline-functions \
 	-fthreadsafe-statics -Werror -Wall -Wno-reorder -Wno-unused-variable
 
 # Compiler include options, used after CXXFLAGS and CPPFLAGS.
-INC := -Isrc -Iinclude -Isrc/lua -ILuaBridge $(shell pkg-config --cflags x11 sdl2 glew SDL2_image SDL2_ttf libpng zlib libwebsockets)
+INC := -Isrc -Iinclude -Isrc/lua -ILuaBridge/Source/LuaBridge $(shell pkg-config --cflags x11 sdl2 glew SDL2_image SDL2_ttf libpng zlib libenet protobuf)
 
 ifdef STEAM_RUNTIME_ROOT
 	INC += -I$(STEAM_RUNTIME_ROOT)/include
@@ -61,11 +61,21 @@ endif
 
 # Linker library options.
 LIBS := $(shell pkg-config --libs x11 gl ) \
-	$(shell pkg-config --libs sdl2 glew SDL2_image libpng zlib libwebsockets) -lSDL2_ttf -lSDL2_mixer
+	$(shell pkg-config --libs sdl2 glew SDL2_image libpng zlib protobuf libenet) -lSDL2_ttf -lSDL2_mixer -lboost_system -lboost_thread -lboost_chrono
 
 include Makefile.common
 
-src/%.o : src/%.cpp
+src/%.o : src/%.cpp 
+	@echo "Building:" $<
+	@$(CCACHE) $(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -c -o $@ $<
+	@$(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -MM $< > $*.d
+	@mv -f $*.d $*.d.tmp
+	@sed -e 's|.*:|src/$*.o:|' < $*.d.tmp > src/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> src/$*.d
+	@rm -f $*.d.tmp
+
+src/%.o : src/%.cc
 	@echo "Building:" $<
 	@$(CCACHE) $(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -c -o $@ $<
 	@$(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -MM $< > $*.d

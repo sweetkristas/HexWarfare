@@ -27,7 +27,7 @@ namespace gui
 
 	grid& grid::add_item(widget_ptr c)
 	{
-		if(children_.back().size() >= ncols_) {
+		if(children_.back().size() >= static_cast<size_t>(ncols_)) {
 			std::vector<widget_ptr> e;
 			children_.emplace_back(e);
 		}

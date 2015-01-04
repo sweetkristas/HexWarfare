@@ -39,7 +39,7 @@ namespace network
 
 	game::Update* base::read_recv_queue()
 	{
-		game::Update* up;
+		game::Update* up = nullptr;
 		if(rcv_q_.try_pop(up)) {
 			return up;
 		}
@@ -48,7 +48,7 @@ namespace network
 
 	game::Update* base::read_send_queue()
 	{
-		game::Update* up;
+		game::Update* up = nullptr;
 		if(snd_q_.try_pop(up)) {
 			return up;
 		}

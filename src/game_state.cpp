@@ -286,7 +286,9 @@ namespace game
 			}
 		}
 		float cost(0);
-		for(auto& p = path.begin()+1; p != path.end(); ++p) {
+		auto p = path.begin();
+		++p;
+		for(; p != path.end(); ++p) {
 			point pp(p->x(), p->y());
 			auto tile = map_->get_tile_at(p->x(), p->y());
 			ASSERT_LOG(tile != nullptr, "No tile exists at point: " << pp);

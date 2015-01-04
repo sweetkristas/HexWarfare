@@ -17,6 +17,7 @@
 #include <SDL.h>
 
 #include <csignal>
+#include <memory>
 
 #include "asserts.hpp"
 #include "enet_server.hpp"
@@ -63,7 +64,7 @@ namespace enet
 
 	void server::run()
 	{
-		ENetAddress address = { ENET_HOST_ANY, port_ };
+		ENetAddress address = { ENET_HOST_ANY, static_cast<unsigned short>(port_) };
 		// up to 32 clients, 2 channels, any amount incoming bandwidth, any amount of outgoing bandwidth.
 		std::shared_ptr<ENetHost> e_server(enet_host_create (&address, 32, 2, 0, 0), enet_host_destroy);
 		ASSERT_LOG(e_server != nullptr, "An error occurred while trying to create an ENet server host.");
@@ -95,7 +96,7 @@ namespace enet
 							<< " containing " 
 							<< up.id()
 							<< " was received from " 
-							<< reinterpret_cast<int>(ev.peer->data) 
+							<< reinterpret_cast<intptr_t>(ev.peer->data) 
 							<< " on channel " 
 							<< ev.channelID
 							<< "\n";
@@ -103,7 +104,7 @@ namespace enet
 						break;
 					}
 					case ENET_EVENT_TYPE_DISCONNECT: {
-						int peer_value = reinterpret_cast<int>(ev.peer->data);
+						int peer_value = reinterpret_cast<intptr_t>(ev.peer->data);
 						auto it = peers_.find(peer_value);
 						if(it != peers_.end()) {
 							std::cerr << peer_value << " disconnected.\n";
@@ -112,6 +113,7 @@ namespace enet
 						}
 						break;
 					}
+					default: break;
 				}
 			}
 		}
@@ -128,6 +130,7 @@ namespace enet
 					case ENET_EVENT_TYPE_DISCONNECT: 
 						disconnect_ok = true;
 						break;
+					default: break;
 				}
 			}
 			if(!disconnect_ok) {
@@ -160,7 +163,11 @@ namespace enet
 		ASSERT_LOG(peer_ != nullptr, "No available peers for initiating an ENet connection.");
 
 		std::cerr << "Creating client communications thread.\n";
+#ifdef _MSC_VER
 		thread_ = std::make_unique<threading::Thread>("enet_client", std::bind(&client::run, this));
+#else
+		thread_ = std::unique_ptr<threading::Thread>(new threading::Thread("enet_clent", std::bind(&client::run, this)));
+#endif
 		ASSERT_LOG(thread_ != nullptr, "Unable to create enet_client thread.");
 	}
 
@@ -196,7 +203,7 @@ namespace enet
 
 	game::Update* client::get_pending_packet()
 	{
-		game::Update* up;
+		game::Update* up = nullptr;
 		if(rcv_q_.try_pop(up)) {
 			return up;
 		}
@@ -227,6 +234,7 @@ namespace enet
 					std::cerr << "Disconnected " << (ev.peer->data != nullptr ? reinterpret_cast<char*>(ev.peer->data) : "null") << "\n";
 					connected = false;
 					break;
+				default: break;
 				}
 			}
 
