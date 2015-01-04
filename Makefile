@@ -53,7 +53,7 @@ BASE_CXXFLAGS += -std=c++11 -g -rdynamic -fno-inline-functions \
 	-fthreadsafe-statics -Werror -Wall -Wno-reorder -Wno-unused-variable
 
 # Compiler include options, used after CXXFLAGS and CPPFLAGS.
-INC := -Isrc -Iinclude $(shell pkg-config --cflags x11 sdl2 glew SDL2_image SDL2_ttf libpng zlib libwebsockets)
+INC := -Isrc -Iinclude -Isrc/lua -ILuaBridge $(shell pkg-config --cflags x11 sdl2 glew SDL2_image SDL2_ttf libpng zlib libwebsockets)
 
 ifdef STEAM_RUNTIME_ROOT
 	INC += -I$(STEAM_RUNTIME_ROOT)/include
