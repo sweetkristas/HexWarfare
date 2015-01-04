@@ -68,6 +68,16 @@ namespace process
 					auto& pos = e->pos->gs_pos;
 					auto& inp = e->inp;
 					auto& stats = e->stat;
+
+					if(inp->clear_selection) {
+						inp->selected = false;
+						inp->possible_moves.clear();
+						inp->graph.reset();
+						inp->arrow_path.clear();
+						inp->tile_path.clear();
+						inp->clear_selection = false;
+					}
+
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
 					if(button.button == SDL_BUTTON_LEFT 
 						&& button.type == SDL_MOUSEBUTTONUP) {

@@ -113,9 +113,10 @@ namespace component
 
 	struct input : public component
 	{
-		input() : component(Component::INPUT), selected(false) {}
+		input() : component(Component::INPUT), clear_selection(false), selected(false) {}
 		CLONE(input)
 		rect mouse_area;
+		bool clear_selection;
 		bool selected;
 		hex::result_list possible_moves;
 		hex::hex_graph_ptr graph;

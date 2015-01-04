@@ -366,11 +366,9 @@ namespace game
 					}
 					/// XXX clear any pathing related stuff, or at least signal engine to do it in the input process.
 					auto& inp = e->inp;
-					inp->selected = false;
-					inp->possible_moves.clear();
-					inp->graph.reset();
-					inp->arrow_path.clear();
-					inp->tile_path.clear();
+					if(inp) {
+						inp->clear_selection = true;
+					}
 					break;
 				}
 				case Update_Unit_MessageType_PASS:
