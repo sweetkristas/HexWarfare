@@ -80,7 +80,7 @@ namespace graphics
 			}
 			renderer_list << " : " << ri.name;
 			if(std::string(ri.name) == "opengl") {
-				renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
+				renderer_ = SDL_CreateRenderer(window_, n, SDL_RENDERER_ACCELERATED);
 				if(!renderer_) {
 					std::stringstream ss;
 					ss << "Could not create renderer: " << SDL_GetError() << "\n";
