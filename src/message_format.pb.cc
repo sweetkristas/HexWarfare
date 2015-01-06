@@ -60,32 +60,32 @@ void protobuf_AssignDesc_message_5fformat_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, player_),
   };
   Update_reflection_ =
-    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+    new ::google::protobuf::internal::GeneratedMessageReflection(
       Update_descriptor_,
       Update::default_instance_,
       Update_offsets_,
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, _unknown_fields_),
       -1,
-      -1,
-      sizeof(Update),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update, _internal_metadata_),
-      -1);
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Update));
   Update_Location_descriptor_ = Update_descriptor_->nested_type(0);
   static const int Update_Location_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Location, x_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Location, y_),
   };
   Update_Location_reflection_ =
-    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+    new ::google::protobuf::internal::GeneratedMessageReflection(
       Update_Location_descriptor_,
       Update_Location::default_instance_,
       Update_Location_offsets_,
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Location, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Location, _unknown_fields_),
       -1,
-      -1,
-      sizeof(Update_Location),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Location, _internal_metadata_),
-      -1);
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Update_Location));
   Update_UnitStats_descriptor_ = Update_descriptor_->nested_type(1);
   static const int Update_UnitStats_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_UnitStats, health_),
@@ -96,32 +96,32 @@ void protobuf_AssignDesc_message_5fformat_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_UnitStats, name_),
   };
   Update_UnitStats_reflection_ =
-    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+    new ::google::protobuf::internal::GeneratedMessageReflection(
       Update_UnitStats_descriptor_,
       Update_UnitStats::default_instance_,
       Update_UnitStats_offsets_,
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_UnitStats, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_UnitStats, _unknown_fields_),
       -1,
-      -1,
-      sizeof(Update_UnitStats),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_UnitStats, _internal_metadata_),
-      -1);
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Update_UnitStats));
   Update_AnimationHints_descriptor_ = Update_descriptor_->nested_type(2);
   static const int Update_AnimationHints_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_AnimationHints, hint_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_AnimationHints, timing_),
   };
   Update_AnimationHints_reflection_ =
-    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+    new ::google::protobuf::internal::GeneratedMessageReflection(
       Update_AnimationHints_descriptor_,
       Update_AnimationHints::default_instance_,
       Update_AnimationHints_offsets_,
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_AnimationHints, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_AnimationHints, _unknown_fields_),
       -1,
-      -1,
-      sizeof(Update_AnimationHints),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_AnimationHints, _internal_metadata_),
-      -1);
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Update_AnimationHints));
   Update_Unit_descriptor_ = Update_descriptor_->nested_type(3);
   static const int Update_Unit_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, uuid_),
@@ -133,16 +133,16 @@ void protobuf_AssignDesc_message_5fformat_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, animation_hints_),
   };
   Update_Unit_reflection_ =
-    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+    new ::google::protobuf::internal::GeneratedMessageReflection(
       Update_Unit_descriptor_,
       Update_Unit::default_instance_,
       Update_Unit_offsets_,
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, _unknown_fields_),
       -1,
-      -1,
-      sizeof(Update_Unit),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Unit, _internal_metadata_),
-      -1);
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Update_Unit));
   Update_Unit_MessageType_descriptor_ = Update_Unit_descriptor_->enum_type(0);
   Update_Player_descriptor_ = Update_descriptor_->nested_type(4);
   static const int Update_Player_offsets_[5] = {
@@ -153,16 +153,16 @@ void protobuf_AssignDesc_message_5fformat_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, team_name_),
   };
   Update_Player_reflection_ =
-    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+    new ::google::protobuf::internal::GeneratedMessageReflection(
       Update_Player_descriptor_,
       Update_Player::default_instance_,
       Update_Player_offsets_,
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, _unknown_fields_),
       -1,
-      -1,
-      sizeof(Update_Player),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Update_Player, _internal_metadata_),
-      -1);
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Update_Player));
   Update_Player_Action_descriptor_ = Update_Player_descriptor_->enum_type(0);
 }
 
@@ -177,17 +177,17 @@ inline void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-      Update_descriptor_, &Update::default_instance());
+    Update_descriptor_, &Update::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-      Update_Location_descriptor_, &Update_Location::default_instance());
+    Update_Location_descriptor_, &Update_Location::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-      Update_UnitStats_descriptor_, &Update_UnitStats::default_instance());
+    Update_UnitStats_descriptor_, &Update_UnitStats::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-      Update_AnimationHints_descriptor_, &Update_AnimationHints::default_instance());
+    Update_AnimationHints_descriptor_, &Update_AnimationHints::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-      Update_Unit_descriptor_, &Update_Unit::default_instance());
+    Update_Unit_descriptor_, &Update_Unit::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-      Update_Player_descriptor_, &Update_Player::default_instance());
+    Update_Player_descriptor_, &Update_Player::default_instance());
 }
 
 }  // namespace
@@ -261,16 +261,6 @@ struct StaticDescriptorInitializer_message_5fformat_2eproto {
   }
 } static_descriptor_initializer_message_5fformat_2eproto_;
 
-namespace {
-
-static void MergeFromFail(int line) GOOGLE_ATTRIBUTE_COLD;
-static void MergeFromFail(int line) {
-  GOOGLE_CHECK(false) << __FILE__ << ":" << line;
-}
-
-}  // namespace
-
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -279,7 +269,7 @@ const int Update_Location::kYFieldNumber;
 #endif  // !_MSC_VER
 
 Update_Location::Update_Location()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message() {
   SharedCtor();
   // @@protoc_insertion_point(constructor:game.Update.Location)
 }
@@ -288,8 +278,7 @@ void Update_Location::InitAsDefaultInstance() {
 }
 
 Update_Location::Update_Location(const Update_Location& from)
-  : ::google::protobuf::Message(),
-    _internal_metadata_(NULL) {
+  : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
   // @@protoc_insertion_point(copy_constructor:game.Update.Location)
@@ -329,12 +318,8 @@ const Update_Location& Update_Location::default_instance() {
 
 Update_Location* Update_Location::default_instance_ = NULL;
 
-Update_Location* Update_Location::New(::google::protobuf::Arena* arena) const {
-  Update_Location* n = new Update_Location;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
+Update_Location* Update_Location::New() const {
+  return new Update_Location;
 }
 
 void Update_Location::Clear() {
@@ -354,9 +339,7 @@ void Update_Location::Clear() {
 #undef ZR_
 
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
+  mutable_unknown_fields()->Clear();
 }
 
 bool Update_Location::MergePartialFromCodedStream(
@@ -433,7 +416,7 @@ void Update_Location::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->y(), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
@@ -453,7 +436,7 @@ void Update_Location::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->y(), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
@@ -461,43 +444,26 @@ void Update_Location::SerializeWithCachedSizes(
   return target;
 }
 
-int Update_Location::RequiredFieldsByteSizeFallback() const {
-  int total_size = 0;
-
-  if (has_x()) {
-    // required int32 x = 1;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->x());
-  }
-
-  if (has_y()) {
-    // required int32 y = 2;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->y());
-  }
-
-  return total_size;
-}
 int Update_Location::ByteSize() const {
   int total_size = 0;
 
-  if (((_has_bits_[0] & 0x00000003) ^ 0x00000003) == 0) {  // All required fields are present.
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     // required int32 x = 1;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->x());
+    if (has_x()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->x());
+    }
 
     // required int32 y = 2;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->y());
+    if (has_y()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->y());
+    }
 
-  } else {
-    total_size += RequiredFieldsByteSizeFallback();
   }
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
@@ -509,7 +475,7 @@ int Update_Location::ByteSize() const {
 }
 
 void Update_Location::MergeFrom(const ::google::protobuf::Message& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   const Update_Location* source =
     ::google::protobuf::internal::dynamic_cast_if_available<const Update_Location*>(
       &from);
@@ -521,7 +487,7 @@ void Update_Location::MergeFrom(const ::google::protobuf::Message& from) {
 }
 
 void Update_Location::MergeFrom(const Update_Location& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_x()) {
       set_x(from.x());
@@ -530,9 +496,7 @@ void Update_Location::MergeFrom(const Update_Location& from) {
       set_y(from.y());
     }
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
 void Update_Location::CopyFrom(const ::google::protobuf::Message& from) {
@@ -554,15 +518,13 @@ bool Update_Location::IsInitialized() const {
 }
 
 void Update_Location::Swap(Update_Location* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
-void Update_Location::InternalSwap(Update_Location* other) {
-  std::swap(x_, other->x_);
-  std::swap(y_, other->y_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  std::swap(_cached_size_, other->_cached_size_);
+  if (other != this) {
+    std::swap(x_, other->x_);
+    std::swap(y_, other->y_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
 }
 
 ::google::protobuf::Metadata Update_Location::GetMetadata() const {
@@ -586,7 +548,7 @@ const int Update_UnitStats::kNameFieldNumber;
 #endif  // !_MSC_VER
 
 Update_UnitStats::Update_UnitStats()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message() {
   SharedCtor();
   // @@protoc_insertion_point(constructor:game.Update.UnitStats)
 }
@@ -595,8 +557,7 @@ void Update_UnitStats::InitAsDefaultInstance() {
 }
 
 Update_UnitStats::Update_UnitStats(const Update_UnitStats& from)
-  : ::google::protobuf::Message(),
-    _internal_metadata_(NULL) {
+  : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
   // @@protoc_insertion_point(copy_constructor:game.Update.UnitStats)
@@ -610,7 +571,7 @@ void Update_UnitStats::SharedCtor() {
   armour_ = 0;
   move_ = 0;
   initiative_ = 0;
-  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -620,7 +581,9 @@ Update_UnitStats::~Update_UnitStats() {
 }
 
 void Update_UnitStats::SharedDtor() {
-  name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -642,12 +605,8 @@ const Update_UnitStats& Update_UnitStats::default_instance() {
 
 Update_UnitStats* Update_UnitStats::default_instance_ = NULL;
 
-Update_UnitStats* Update_UnitStats::New(::google::protobuf::Arena* arena) const {
-  Update_UnitStats* n = new Update_UnitStats;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
+Update_UnitStats* Update_UnitStats::New() const {
+  return new Update_UnitStats;
 }
 
 void Update_UnitStats::Clear() {
@@ -665,7 +624,9 @@ void Update_UnitStats::Clear() {
     ZR_(health_, move_);
     initiative_ = 0;
     if (has_name()) {
-      name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        name_->clear();
+      }
     }
   }
 
@@ -673,9 +634,7 @@ void Update_UnitStats::Clear() {
 #undef ZR_
 
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
+  mutable_unknown_fields()->Clear();
 }
 
 bool Update_UnitStats::MergePartialFromCodedStream(
@@ -771,7 +730,7 @@ bool Update_UnitStats::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->name().data(), this->name().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "game.Update.UnitStats.name");
+            "name");
         } else {
           goto handle_unusual;
         }
@@ -834,12 +793,12 @@ void Update_UnitStats::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.UnitStats.name");
+      "name");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       6, this->name(), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
@@ -879,13 +838,13 @@ void Update_UnitStats::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.UnitStats.name");
+      "name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         6, this->name(), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
@@ -896,7 +855,7 @@ void Update_UnitStats::SerializeWithCachedSizes(
 int Update_UnitStats::ByteSize() const {
   int total_size = 0;
 
-  if (_has_bits_[0 / 32] & 63) {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     // optional int32 health = 1;
     if (has_health()) {
       total_size += 1 +
@@ -936,7 +895,7 @@ int Update_UnitStats::ByteSize() const {
     }
 
   }
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
@@ -948,7 +907,7 @@ int Update_UnitStats::ByteSize() const {
 }
 
 void Update_UnitStats::MergeFrom(const ::google::protobuf::Message& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   const Update_UnitStats* source =
     ::google::protobuf::internal::dynamic_cast_if_available<const Update_UnitStats*>(
       &from);
@@ -960,7 +919,7 @@ void Update_UnitStats::MergeFrom(const ::google::protobuf::Message& from) {
 }
 
 void Update_UnitStats::MergeFrom(const Update_UnitStats& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_health()) {
       set_health(from.health());
@@ -978,13 +937,10 @@ void Update_UnitStats::MergeFrom(const Update_UnitStats& from) {
       set_initiative(from.initiative());
     }
     if (from.has_name()) {
-      set_has_name();
-      name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+      set_name(from.name());
     }
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
 void Update_UnitStats::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1005,19 +961,17 @@ bool Update_UnitStats::IsInitialized() const {
 }
 
 void Update_UnitStats::Swap(Update_UnitStats* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
-void Update_UnitStats::InternalSwap(Update_UnitStats* other) {
-  std::swap(health_, other->health_);
-  std::swap(attack_, other->attack_);
-  std::swap(armour_, other->armour_);
-  std::swap(move_, other->move_);
-  std::swap(initiative_, other->initiative_);
-  name_.Swap(&other->name_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  std::swap(_cached_size_, other->_cached_size_);
+  if (other != this) {
+    std::swap(health_, other->health_);
+    std::swap(attack_, other->attack_);
+    std::swap(armour_, other->armour_);
+    std::swap(move_, other->move_);
+    std::swap(initiative_, other->initiative_);
+    std::swap(name_, other->name_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
 }
 
 ::google::protobuf::Metadata Update_UnitStats::GetMetadata() const {
@@ -1037,7 +991,7 @@ const int Update_AnimationHints::kTimingFieldNumber;
 #endif  // !_MSC_VER
 
 Update_AnimationHints::Update_AnimationHints()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message() {
   SharedCtor();
   // @@protoc_insertion_point(constructor:game.Update.AnimationHints)
 }
@@ -1046,8 +1000,7 @@ void Update_AnimationHints::InitAsDefaultInstance() {
 }
 
 Update_AnimationHints::Update_AnimationHints(const Update_AnimationHints& from)
-  : ::google::protobuf::Message(),
-    _internal_metadata_(NULL) {
+  : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
   // @@protoc_insertion_point(copy_constructor:game.Update.AnimationHints)
@@ -1056,7 +1009,7 @@ Update_AnimationHints::Update_AnimationHints(const Update_AnimationHints& from)
 void Update_AnimationHints::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  hint_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  hint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   timing_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1067,7 +1020,9 @@ Update_AnimationHints::~Update_AnimationHints() {
 }
 
 void Update_AnimationHints::SharedDtor() {
-  hint_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (hint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete hint_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -1089,25 +1044,21 @@ const Update_AnimationHints& Update_AnimationHints::default_instance() {
 
 Update_AnimationHints* Update_AnimationHints::default_instance_ = NULL;
 
-Update_AnimationHints* Update_AnimationHints::New(::google::protobuf::Arena* arena) const {
-  Update_AnimationHints* n = new Update_AnimationHints;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
+Update_AnimationHints* Update_AnimationHints::New() const {
+  return new Update_AnimationHints;
 }
 
 void Update_AnimationHints::Clear() {
   if (_has_bits_[0 / 32] & 3) {
     if (has_hint()) {
-      hint_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (hint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        hint_->clear();
+      }
     }
     timing_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
+  mutable_unknown_fields()->Clear();
 }
 
 bool Update_AnimationHints::MergePartialFromCodedStream(
@@ -1128,7 +1079,7 @@ bool Update_AnimationHints::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->hint().data(), this->hint().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "game.Update.AnimationHints.hint");
+            "hint");
         } else {
           goto handle_unusual;
         }
@@ -1181,7 +1132,7 @@ void Update_AnimationHints::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->hint().data(), this->hint().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.AnimationHints.hint");
+      "hint");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->hint(), output);
   }
@@ -1191,7 +1142,7 @@ void Update_AnimationHints::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->timing(), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
@@ -1206,7 +1157,7 @@ void Update_AnimationHints::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->hint().data(), this->hint().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.AnimationHints.hint");
+      "hint");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         1, this->hint(), target);
@@ -1217,7 +1168,7 @@ void Update_AnimationHints::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->timing(), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
@@ -1228,7 +1179,7 @@ void Update_AnimationHints::SerializeWithCachedSizes(
 int Update_AnimationHints::ByteSize() const {
   int total_size = 0;
 
-  if (_has_bits_[0 / 32] & 3) {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     // optional string hint = 1;
     if (has_hint()) {
       total_size += 1 +
@@ -1244,7 +1195,7 @@ int Update_AnimationHints::ByteSize() const {
     }
 
   }
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
@@ -1256,7 +1207,7 @@ int Update_AnimationHints::ByteSize() const {
 }
 
 void Update_AnimationHints::MergeFrom(const ::google::protobuf::Message& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   const Update_AnimationHints* source =
     ::google::protobuf::internal::dynamic_cast_if_available<const Update_AnimationHints*>(
       &from);
@@ -1268,19 +1219,16 @@ void Update_AnimationHints::MergeFrom(const ::google::protobuf::Message& from) {
 }
 
 void Update_AnimationHints::MergeFrom(const Update_AnimationHints& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_hint()) {
-      set_has_hint();
-      hint_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.hint_);
+      set_hint(from.hint());
     }
     if (from.has_timing()) {
       set_timing(from.timing());
     }
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
 void Update_AnimationHints::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1301,15 +1249,13 @@ bool Update_AnimationHints::IsInitialized() const {
 }
 
 void Update_AnimationHints::Swap(Update_AnimationHints* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
-void Update_AnimationHints::InternalSwap(Update_AnimationHints* other) {
-  hint_.Swap(&other->hint_);
-  std::swap(timing_, other->timing_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  std::swap(_cached_size_, other->_cached_size_);
+  if (other != this) {
+    std::swap(hint_, other->hint_);
+    std::swap(timing_, other->timing_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
 }
 
 ::google::protobuf::Metadata Update_AnimationHints::GetMetadata() const {
@@ -1359,7 +1305,7 @@ const int Update_Unit::kAnimationHintsFieldNumber;
 #endif  // !_MSC_VER
 
 Update_Unit::Update_Unit()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message() {
   SharedCtor();
   // @@protoc_insertion_point(constructor:game.Update.Unit)
 }
@@ -1369,8 +1315,7 @@ void Update_Unit::InitAsDefaultInstance() {
 }
 
 Update_Unit::Update_Unit(const Update_Unit& from)
-  : ::google::protobuf::Message(),
-    _internal_metadata_(NULL) {
+  : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
   // @@protoc_insertion_point(copy_constructor:game.Update.Unit)
@@ -1379,10 +1324,10 @@ Update_Unit::Update_Unit(const Update_Unit& from)
 void Update_Unit::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  uuid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  uuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   type_ = 0;
-  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  owner_uuid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  owner_uuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   stats_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1393,9 +1338,15 @@ Update_Unit::~Update_Unit() {
 }
 
 void Update_Unit::SharedDtor() {
-  uuid_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  owner_uuid_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (uuid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete uuid_;
+  }
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (owner_uuid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete owner_uuid_;
+  }
   if (this != default_instance_) {
     delete stats_;
   }
@@ -1418,25 +1369,27 @@ const Update_Unit& Update_Unit::default_instance() {
 
 Update_Unit* Update_Unit::default_instance_ = NULL;
 
-Update_Unit* Update_Unit::New(::google::protobuf::Arena* arena) const {
-  Update_Unit* n = new Update_Unit;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
+Update_Unit* Update_Unit::New() const {
+  return new Update_Unit;
 }
 
 void Update_Unit::Clear() {
   if (_has_bits_[0 / 32] & 31) {
     if (has_uuid()) {
-      uuid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (uuid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        uuid_->clear();
+      }
     }
     type_ = 0;
     if (has_name()) {
-      name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        name_->clear();
+      }
     }
     if (has_owner_uuid()) {
-      owner_uuid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (owner_uuid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        owner_uuid_->clear();
+      }
     }
     if (has_stats()) {
       if (stats_ != NULL) stats_->::game::Update_UnitStats::Clear();
@@ -1445,9 +1398,7 @@ void Update_Unit::Clear() {
   path_.Clear();
   animation_hints_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
+  mutable_unknown_fields()->Clear();
 }
 
 bool Update_Unit::MergePartialFromCodedStream(
@@ -1468,7 +1419,7 @@ bool Update_Unit::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->uuid().data(), this->uuid().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "game.Update.Unit.uuid");
+            "uuid");
         } else {
           goto handle_unusual;
         }
@@ -1505,7 +1456,7 @@ bool Update_Unit::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->name().data(), this->name().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "game.Update.Unit.name");
+            "name");
         } else {
           goto handle_unusual;
         }
@@ -1522,7 +1473,7 @@ bool Update_Unit::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->owner_uuid().data(), this->owner_uuid().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "game.Update.Unit.owner_uuid");
+            "owner_uuid");
         } else {
           goto handle_unusual;
         }
@@ -1601,7 +1552,7 @@ void Update_Unit::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->uuid().data(), this->uuid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Unit.uuid");
+      "uuid");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->uuid(), output);
   }
@@ -1617,7 +1568,7 @@ void Update_Unit::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Unit.name");
+      "name");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       3, this->name(), output);
   }
@@ -1627,7 +1578,7 @@ void Update_Unit::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->owner_uuid().data(), this->owner_uuid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Unit.owner_uuid");
+      "owner_uuid");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       4, this->owner_uuid(), output);
   }
@@ -1635,22 +1586,22 @@ void Update_Unit::SerializeWithCachedSizes(
   // optional .game.Update.UnitStats stats = 5;
   if (has_stats()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, *this->stats_, output);
+      5, this->stats(), output);
   }
 
   // repeated .game.Update.Location path = 6;
-  for (unsigned int i = 0, n = this->path_size(); i < n; i++) {
+  for (int i = 0; i < this->path_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       6, this->path(i), output);
   }
 
   // repeated .game.Update.AnimationHints animation_hints = 7;
-  for (unsigned int i = 0, n = this->animation_hints_size(); i < n; i++) {
+  for (int i = 0; i < this->animation_hints_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       7, this->animation_hints(i), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
@@ -1665,7 +1616,7 @@ void Update_Unit::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->uuid().data(), this->uuid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Unit.uuid");
+      "uuid");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         1, this->uuid(), target);
@@ -1682,7 +1633,7 @@ void Update_Unit::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Unit.name");
+      "name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         3, this->name(), target);
@@ -1693,7 +1644,7 @@ void Update_Unit::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->owner_uuid().data(), this->owner_uuid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Unit.owner_uuid");
+      "owner_uuid");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         4, this->owner_uuid(), target);
@@ -1703,24 +1654,24 @@ void Update_Unit::SerializeWithCachedSizes(
   if (has_stats()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        5, *this->stats_, target);
+        5, this->stats(), target);
   }
 
   // repeated .game.Update.Location path = 6;
-  for (unsigned int i = 0, n = this->path_size(); i < n; i++) {
+  for (int i = 0; i < this->path_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         6, this->path(i), target);
   }
 
   // repeated .game.Update.AnimationHints animation_hints = 7;
-  for (unsigned int i = 0, n = this->animation_hints_size(); i < n; i++) {
+  for (int i = 0; i < this->animation_hints_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         7, this->animation_hints(i), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
@@ -1731,13 +1682,14 @@ void Update_Unit::SerializeWithCachedSizes(
 int Update_Unit::ByteSize() const {
   int total_size = 0;
 
-  // required string uuid = 1;
-  if (has_uuid()) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->uuid());
-  }
-  if (_has_bits_[1 / 32] & 30) {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required string uuid = 1;
+    if (has_uuid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->uuid());
+    }
+
     // optional .game.Update.Unit.MessageType type = 2 [default = CANONICAL_STATE];
     if (has_type()) {
       total_size += 1 +
@@ -1762,7 +1714,7 @@ int Update_Unit::ByteSize() const {
     if (has_stats()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          *this->stats_);
+          this->stats());
     }
 
   }
@@ -1782,7 +1734,7 @@ int Update_Unit::ByteSize() const {
         this->animation_hints(i));
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
@@ -1794,7 +1746,7 @@ int Update_Unit::ByteSize() const {
 }
 
 void Update_Unit::MergeFrom(const ::google::protobuf::Message& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   const Update_Unit* source =
     ::google::protobuf::internal::dynamic_cast_if_available<const Update_Unit*>(
       &from);
@@ -1806,32 +1758,27 @@ void Update_Unit::MergeFrom(const ::google::protobuf::Message& from) {
 }
 
 void Update_Unit::MergeFrom(const Update_Unit& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   path_.MergeFrom(from.path_);
   animation_hints_.MergeFrom(from.animation_hints_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_uuid()) {
-      set_has_uuid();
-      uuid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.uuid_);
+      set_uuid(from.uuid());
     }
     if (from.has_type()) {
       set_type(from.type());
     }
     if (from.has_name()) {
-      set_has_name();
-      name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+      set_name(from.name());
     }
     if (from.has_owner_uuid()) {
-      set_has_owner_uuid();
-      owner_uuid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.owner_uuid_);
+      set_owner_uuid(from.owner_uuid());
     }
     if (from.has_stats()) {
       mutable_stats()->::game::Update_UnitStats::MergeFrom(from.stats());
     }
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
 void Update_Unit::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1854,20 +1801,18 @@ bool Update_Unit::IsInitialized() const {
 }
 
 void Update_Unit::Swap(Update_Unit* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
-void Update_Unit::InternalSwap(Update_Unit* other) {
-  uuid_.Swap(&other->uuid_);
-  std::swap(type_, other->type_);
-  name_.Swap(&other->name_);
-  owner_uuid_.Swap(&other->owner_uuid_);
-  std::swap(stats_, other->stats_);
-  path_.UnsafeArenaSwap(&other->path_);
-  animation_hints_.UnsafeArenaSwap(&other->animation_hints_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  std::swap(_cached_size_, other->_cached_size_);
+  if (other != this) {
+    std::swap(uuid_, other->uuid_);
+    std::swap(type_, other->type_);
+    std::swap(name_, other->name_);
+    std::swap(owner_uuid_, other->owner_uuid_);
+    std::swap(stats_, other->stats_);
+    path_.Swap(&other->path_);
+    animation_hints_.Swap(&other->animation_hints_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
 }
 
 ::google::protobuf::Metadata Update_Unit::GetMetadata() const {
@@ -1915,7 +1860,7 @@ const int Update_Player::kTeamNameFieldNumber;
 #endif  // !_MSC_VER
 
 Update_Player::Update_Player()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message() {
   SharedCtor();
   // @@protoc_insertion_point(constructor:game.Update.Player)
 }
@@ -1924,8 +1869,7 @@ void Update_Player::InitAsDefaultInstance() {
 }
 
 Update_Player::Update_Player(const Update_Player& from)
-  : ::google::protobuf::Message(),
-    _internal_metadata_(NULL) {
+  : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
   // @@protoc_insertion_point(copy_constructor:game.Update.Player)
@@ -1934,11 +1878,11 @@ Update_Player::Update_Player(const Update_Player& from)
 void Update_Player::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  uuid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  uuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   action_ = 0;
-  team_uuid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  team_name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  team_uuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  team_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1948,10 +1892,18 @@ Update_Player::~Update_Player() {
 }
 
 void Update_Player::SharedDtor() {
-  uuid_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  team_uuid_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  team_name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (uuid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete uuid_;
+  }
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (team_uuid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete team_uuid_;
+  }
+  if (team_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete team_name_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -1973,34 +1925,36 @@ const Update_Player& Update_Player::default_instance() {
 
 Update_Player* Update_Player::default_instance_ = NULL;
 
-Update_Player* Update_Player::New(::google::protobuf::Arena* arena) const {
-  Update_Player* n = new Update_Player;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
+Update_Player* Update_Player::New() const {
+  return new Update_Player;
 }
 
 void Update_Player::Clear() {
   if (_has_bits_[0 / 32] & 31) {
     if (has_uuid()) {
-      uuid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (uuid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        uuid_->clear();
+      }
     }
     if (has_name()) {
-      name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        name_->clear();
+      }
     }
     action_ = 0;
     if (has_team_uuid()) {
-      team_uuid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (team_uuid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        team_uuid_->clear();
+      }
     }
     if (has_team_name()) {
-      team_name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (team_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        team_name_->clear();
+      }
     }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
+  mutable_unknown_fields()->Clear();
 }
 
 bool Update_Player::MergePartialFromCodedStream(
@@ -2021,7 +1975,7 @@ bool Update_Player::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->uuid().data(), this->uuid().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "game.Update.Player.uuid");
+            "uuid");
         } else {
           goto handle_unusual;
         }
@@ -2038,7 +1992,7 @@ bool Update_Player::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->name().data(), this->name().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "game.Update.Player.name");
+            "name");
         } else {
           goto handle_unusual;
         }
@@ -2075,7 +2029,7 @@ bool Update_Player::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->team_uuid().data(), this->team_uuid().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "game.Update.Player.team_uuid");
+            "team_uuid");
         } else {
           goto handle_unusual;
         }
@@ -2092,7 +2046,7 @@ bool Update_Player::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->team_name().data(), this->team_name().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "game.Update.Player.team_name");
+            "team_name");
         } else {
           goto handle_unusual;
         }
@@ -2130,7 +2084,7 @@ void Update_Player::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->uuid().data(), this->uuid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Player.uuid");
+      "uuid");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->uuid(), output);
   }
@@ -2140,7 +2094,7 @@ void Update_Player::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Player.name");
+      "name");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->name(), output);
   }
@@ -2156,7 +2110,7 @@ void Update_Player::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->team_uuid().data(), this->team_uuid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Player.team_uuid");
+      "team_uuid");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       4, this->team_uuid(), output);
   }
@@ -2166,12 +2120,12 @@ void Update_Player::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->team_name().data(), this->team_name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Player.team_name");
+      "team_name");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       5, this->team_name(), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
@@ -2186,7 +2140,7 @@ void Update_Player::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->uuid().data(), this->uuid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Player.uuid");
+      "uuid");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         1, this->uuid(), target);
@@ -2197,7 +2151,7 @@ void Update_Player::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Player.name");
+      "name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         2, this->name(), target);
@@ -2214,7 +2168,7 @@ void Update_Player::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->team_uuid().data(), this->team_uuid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Player.team_uuid");
+      "team_uuid");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         4, this->team_uuid(), target);
@@ -2225,13 +2179,13 @@ void Update_Player::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->team_name().data(), this->team_name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.Player.team_name");
+      "team_name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         5, this->team_name(), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
@@ -2242,13 +2196,14 @@ void Update_Player::SerializeWithCachedSizes(
 int Update_Player::ByteSize() const {
   int total_size = 0;
 
-  // required string uuid = 1;
-  if (has_uuid()) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->uuid());
-  }
-  if (_has_bits_[1 / 32] & 30) {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required string uuid = 1;
+    if (has_uuid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->uuid());
+    }
+
     // optional string name = 2;
     if (has_name()) {
       total_size += 1 +
@@ -2277,7 +2232,7 @@ int Update_Player::ByteSize() const {
     }
 
   }
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
@@ -2289,7 +2244,7 @@ int Update_Player::ByteSize() const {
 }
 
 void Update_Player::MergeFrom(const ::google::protobuf::Message& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   const Update_Player* source =
     ::google::protobuf::internal::dynamic_cast_if_available<const Update_Player*>(
       &from);
@@ -2301,31 +2256,25 @@ void Update_Player::MergeFrom(const ::google::protobuf::Message& from) {
 }
 
 void Update_Player::MergeFrom(const Update_Player& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_uuid()) {
-      set_has_uuid();
-      uuid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.uuid_);
+      set_uuid(from.uuid());
     }
     if (from.has_name()) {
-      set_has_name();
-      name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+      set_name(from.name());
     }
     if (from.has_action()) {
       set_action(from.action());
     }
     if (from.has_team_uuid()) {
-      set_has_team_uuid();
-      team_uuid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.team_uuid_);
+      set_team_uuid(from.team_uuid());
     }
     if (from.has_team_name()) {
-      set_has_team_name();
-      team_name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.team_name_);
+      set_team_name(from.team_name());
     }
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
 void Update_Player::CopyFrom(const ::google::protobuf::Message& from) {
@@ -2347,18 +2296,16 @@ bool Update_Player::IsInitialized() const {
 }
 
 void Update_Player::Swap(Update_Player* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
-void Update_Player::InternalSwap(Update_Player* other) {
-  uuid_.Swap(&other->uuid_);
-  name_.Swap(&other->name_);
-  std::swap(action_, other->action_);
-  team_uuid_.Swap(&other->team_uuid_);
-  team_name_.Swap(&other->team_name_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  std::swap(_cached_size_, other->_cached_size_);
+  if (other != this) {
+    std::swap(uuid_, other->uuid_);
+    std::swap(name_, other->name_);
+    std::swap(action_, other->action_);
+    std::swap(team_uuid_, other->team_uuid_);
+    std::swap(team_name_, other->team_name_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
 }
 
 ::google::protobuf::Metadata Update_Player::GetMetadata() const {
@@ -2382,7 +2329,7 @@ const int Update::kPlayerFieldNumber;
 #endif  // !_MSC_VER
 
 Update::Update()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message() {
   SharedCtor();
   // @@protoc_insertion_point(constructor:game.Update)
 }
@@ -2391,8 +2338,7 @@ void Update::InitAsDefaultInstance() {
 }
 
 Update::Update(const Update& from)
-  : ::google::protobuf::Message(),
-    _internal_metadata_(NULL) {
+  : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
   // @@protoc_insertion_point(copy_constructor:game.Update)
@@ -2404,7 +2350,7 @@ void Update::SharedCtor() {
   id_ = 0;
   quit_ = false;
   end_turn_ = false;
-  fail_reason_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  fail_reason_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -2414,7 +2360,9 @@ Update::~Update() {
 }
 
 void Update::SharedDtor() {
-  fail_reason_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (fail_reason_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete fail_reason_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -2436,12 +2384,8 @@ const Update& Update::default_instance() {
 
 Update* Update::default_instance_ = NULL;
 
-Update* Update::New(::google::protobuf::Arena* arena) const {
-  Update* n = new Update;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
+Update* Update::New() const {
+  return new Update;
 }
 
 void Update::Clear() {
@@ -2458,7 +2402,9 @@ void Update::Clear() {
   if (_has_bits_[0 / 32] & 15) {
     ZR_(id_, end_turn_);
     if (has_fail_reason()) {
-      fail_reason_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (fail_reason_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        fail_reason_->clear();
+      }
     }
   }
 
@@ -2468,9 +2414,7 @@ void Update::Clear() {
   units_.Clear();
   player_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
+  mutable_unknown_fields()->Clear();
 }
 
 bool Update::MergePartialFromCodedStream(
@@ -2536,7 +2480,7 @@ bool Update::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->fail_reason().data(), this->fail_reason().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "game.Update.fail_reason");
+            "fail_reason");
         } else {
           goto handle_unusual;
         }
@@ -2617,24 +2561,24 @@ void Update::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->fail_reason().data(), this->fail_reason().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.fail_reason");
+      "fail_reason");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       4, this->fail_reason(), output);
   }
 
   // repeated .game.Update.Unit units = 5;
-  for (unsigned int i = 0, n = this->units_size(); i < n; i++) {
+  for (int i = 0; i < this->units_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       5, this->units(i), output);
   }
 
   // repeated .game.Update.Player player = 6;
-  for (unsigned int i = 0, n = this->player_size(); i < n; i++) {
+  for (int i = 0; i < this->player_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       6, this->player(i), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
@@ -2664,27 +2608,27 @@ void Update::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->fail_reason().data(), this->fail_reason().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "game.Update.fail_reason");
+      "fail_reason");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         4, this->fail_reason(), target);
   }
 
   // repeated .game.Update.Unit units = 5;
-  for (unsigned int i = 0, n = this->units_size(); i < n; i++) {
+  for (int i = 0; i < this->units_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         5, this->units(i), target);
   }
 
   // repeated .game.Update.Player player = 6;
-  for (unsigned int i = 0, n = this->player_size(); i < n; i++) {
+  for (int i = 0; i < this->player_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         6, this->player(i), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
@@ -2695,13 +2639,14 @@ void Update::SerializeWithCachedSizes(
 int Update::ByteSize() const {
   int total_size = 0;
 
-  // required int32 id = 1;
-  if (has_id()) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->id());
-  }
-  if (_has_bits_[1 / 32] & 14) {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 id = 1;
+    if (has_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->id());
+    }
+
     // optional bool quit = 2;
     if (has_quit()) {
       total_size += 1 + 1;
@@ -2736,7 +2681,7 @@ int Update::ByteSize() const {
         this->player(i));
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
@@ -2748,7 +2693,7 @@ int Update::ByteSize() const {
 }
 
 void Update::MergeFrom(const ::google::protobuf::Message& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   const Update* source =
     ::google::protobuf::internal::dynamic_cast_if_available<const Update*>(
       &from);
@@ -2760,7 +2705,7 @@ void Update::MergeFrom(const ::google::protobuf::Message& from) {
 }
 
 void Update::MergeFrom(const Update& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   units_.MergeFrom(from.units_);
   player_.MergeFrom(from.player_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
@@ -2774,13 +2719,10 @@ void Update::MergeFrom(const Update& from) {
       set_end_turn(from.end_turn());
     }
     if (from.has_fail_reason()) {
-      set_has_fail_reason();
-      fail_reason_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.fail_reason_);
+      set_fail_reason(from.fail_reason());
     }
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
 void Update::CopyFrom(const ::google::protobuf::Message& from) {
@@ -2804,19 +2746,17 @@ bool Update::IsInitialized() const {
 }
 
 void Update::Swap(Update* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
-void Update::InternalSwap(Update* other) {
-  std::swap(id_, other->id_);
-  std::swap(quit_, other->quit_);
-  std::swap(end_turn_, other->end_turn_);
-  fail_reason_.Swap(&other->fail_reason_);
-  units_.UnsafeArenaSwap(&other->units_);
-  player_.UnsafeArenaSwap(&other->player_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  std::swap(_cached_size_, other->_cached_size_);
+  if (other != this) {
+    std::swap(id_, other->id_);
+    std::swap(quit_, other->quit_);
+    std::swap(end_turn_, other->end_turn_);
+    std::swap(fail_reason_, other->fail_reason_);
+    units_.Swap(&other->units_);
+    player_.Swap(&other->player_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
 }
 
 ::google::protobuf::Metadata Update::GetMetadata() const {

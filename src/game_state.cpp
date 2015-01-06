@@ -82,9 +82,9 @@ namespace game
 
 		std::cerr << "Initative list:";
 		for(auto& e : entities_) {
-			std::cerr << "   " << e->stat->name << ":" << e->stat->initiative;
+			std::cerr << "\t" << e->stat->name << ":" << e->stat->initiative << " : move(" << e->stat->move << ")\n";
 		}
-		std::cerr << "\n";
+		//std::cerr << "\n";
 	}
 
 	void state::add_player(player_ptr p)
