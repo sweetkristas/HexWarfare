@@ -354,17 +354,20 @@ namespace game
 					auto p = units.path().rbegin();
 					auto start_p = point(units.path().begin()->x(), units.path().begin()->y());
 					LOG_INFO("moving unit " << units.uuid() << " to position " << point(p->x(), p->y()) << " from " << start_p);
-					if(e->pos->gs_pos.x != p->x() && e->pos->gs_pos.y != p->y()) {
+					if(e->pos->gs_pos.x != p->x() || e->pos->gs_pos.y != p->y()) {
 						// Unit hasn't been moved yet, so play attached animation and move unit along path.
+						// move unit to final position
+						e->pos->gs_pos.x = p->x();
+						e->pos->gs_pos.y = p->y();
+					}
+					if(e->pos->pos.x != p->x() || e->pos->pos.y != p->y()) {
 						/// XXX todo
 						//for(auto& t : units.path()) {
 							//auto p = hex::hex_map::get_pixel_pos_from_tile_pos(t.x(), t.y()) + point(eng.get_tile_size().x/2, eng.get_tile_size().y/2);
 							//inp->move_path.emplace_back(p);
 						//}
-
-						// move unit to final position
-						e->pos->gs_pos.x = p->x();
-						e->pos->gs_pos.y = p->y();
+						e->pos->pos.x = p->x();
+						e->pos->pos.y = p->y();
 					}
 					/// XXX clear any pathing related stuff, or at least signal engine to do it in the input process.
 					auto& inp = e->inp;

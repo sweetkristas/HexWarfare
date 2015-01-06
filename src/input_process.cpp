@@ -80,6 +80,8 @@ namespace process
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
 					if(button.button == SDL_BUTTON_LEFT 
 						&& button.type == SDL_MOUSEBUTTONUP) {
+						std::cerr << "Adjust mouse click position: " << point(button.x, button.y) << "\n";
+						std::cerr << "Entity(" << e->stat->name << ") position: " << (inp->mouse_area + pp) << "\n";
 						if(geometry::pointInRect(point(button.x, button.y), inp->mouse_area + pp)) {
 							inp->selected = true;
 							// if it is current players turn and current_player owns the entity and
@@ -117,6 +119,10 @@ namespace process
 									[&e](const glm::vec2& v){ e->pos->pos.x = static_cast<int>(std::round(v.x)); e->pos->pos.y = static_cast<int>(std::round(v.y)); LOG_DEBUG("pos = " << v.x << "," << v.y); }, 0.4));
 								//pos.x = tp.x;
 								//pos.y = tp.y;
+
+								// update game state position
+								e->pos->gs_pos = tp;
+
 								// decrement movement.
 								stats->move -= it->path_cost;
 								if(stats->move < FLT_EPSILON) {
