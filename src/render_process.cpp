@@ -104,6 +104,10 @@ namespace process
 			if((e->mask & sprite_mask) == sprite_mask) {
 				auto& spr = e->spr;
 				auto& pos = e->pos;
+				auto& inp = e->inp;
+				if(inp && inp->is_attack_target) {
+					spr->tex.set_color(graphics::color(255,0,0));
+				}
 				if(eng.get_game_state().get_entities().front() == e) {
 					static int alpha_cycle = 64;
 					static bool cycle_fwd = true;
@@ -122,6 +126,7 @@ namespace process
 					spr->tex.blit(rect(pp.x - cam.x, pp.y - cam.y, ts.x, ts.y));
 				}
 				spr->tex.set_alpha(255);
+				spr->tex.set_color(graphics::color(255,255,255));
 			}
 		}
 

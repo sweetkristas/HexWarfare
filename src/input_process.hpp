@@ -28,11 +28,19 @@ namespace process
 		~input();
 		void update(engine& eng, double t, const entity_list& elist) override;
 	private:
+		enum class State {
+			IDLE,
+			SELECT_OPPONENTS,
+		} state_;
 		bool handle_event(const SDL_Event& evt);
+		void do_attack_message(engine& eng);
 		// XXX Not sure I like all these queues of events here.
 		// Need to work out if there is a better abstration to use.
 		std::queue<SDL_Scancode> keys_pressed_;
 		std::queue<SDL_MouseButtonEvent> mouse_button_events_;
 		std::queue<SDL_MouseMotionEvent> mouse_motion_events_;
+		int max_opponent_count_;
+		component_set_ptr aggressor_;
+		std::vector<component_set_ptr> targets_;
 	};
 }

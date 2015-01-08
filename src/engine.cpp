@@ -232,9 +232,24 @@ bool engine::update(double time)
 	return true;
 }
 
-// Does end of turn processing. Like incrementing to the next player.
 void engine::end_turn()
-{	
+{
+	static component_id input_mask = component::genmask(component::Component::INPUT);
+	for(auto& e : entity_list_) {
+		if((e->mask & input_mask) == input_mask) {
+			auto& inp = e->inp;
+			// clear out a bunch of stuff from the input component
+			// Should probably make this a function on the input component.
+			inp->selected = false;
+			inp->possible_moves.clear();
+			inp->graph.reset();
+			inp->arrow_path.clear();
+			inp->tile_path.clear();
+			inp->clear_selection = false;
+			inp->is_attack_target = false;
+		}
+	}
+
 	auto netclient = get_netclient().lock();
 	ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
 	game::Update* up = game_state_.end_turn();

@@ -19,6 +19,7 @@
 #include "SDL_image.h"
 
 #include "asserts.hpp"
+#include "color.hpp"
 #include "profile_timer.hpp"
 #include "texture.hpp"
 
@@ -153,6 +154,11 @@ namespace graphics
 	{
 		alpha = std::min(std::max(0, alpha), 255);
 		SDL_SetTextureAlphaMod(tex_.get(), static_cast<Uint8>(alpha));
+	}
+
+	void texture::set_color(const color& col)
+	{
+		SDL_SetTextureColorMod(tex_.get(), col.r(), col.g(), col.b());
 	}
 
 	void texture::blit(const rect& dest) const

@@ -57,8 +57,11 @@ namespace game
 		player_ptr get_player(const uuid::uuid& n);
 		player_ptr get_player_by_id(int id);
 
+		bool is_attackable(const component_set_ptr& aggressor, const component_set_ptr& e);
+
 		Update* unit_summon(component_set_ptr e);
 		Update* unit_move(component_set_ptr e, const std::vector<point>& path);
+		Update* unit_attack(const component_set_ptr& e, const std::vector<component_set_ptr>& targets);
 		Update* end_turn();
 
 		// Server-side function for validating the received update.
@@ -81,6 +84,10 @@ namespace game
 
 		component_set_ptr get_entity_by_uuid(const uuid::uuid& id);
 		void set_validation_fail_reason(const std::string& reason);
+
+		void combat(Update* up, component_set_ptr aggressor, component_set_ptr target);
+
+		void set_entity_stats(component_set_ptr e, const Update_UnitStats& stats);
 
 		bool validate_move(component_set_ptr e, const ::google::protobuf::RepeatedPtrField<Update_Location>& path);
 	};

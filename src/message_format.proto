@@ -19,6 +19,7 @@ message Update {
 		optional float move = 4;
 		optional float initiative = 5;
 		optional string name = 6;
+		optional int32 range = 7;
 	}
 
 	message AnimationHints {
@@ -31,7 +32,9 @@ message Update {
 			CANONICAL_STATE = 0;
 			SUMMON = 1;
 			MOVE = 2;
-			PASS = 3;
+			ATTACK = 3;
+			SPELL = 4;
+			PASS = 5;
 		}
 		required string uuid = 1;
 		optional MessageType type = 2 [default = CANONICAL_STATE];
@@ -40,9 +43,11 @@ message Update {
 		
 		optional UnitStats stats = 5;
 
-		repeated Location path = 6;
+		repeated string target_uuids = 6;
 
-		repeated AnimationHints animation_hints = 7;
+		repeated Location path = 7;
+
+		repeated AnimationHints animation_hints = 8;
 	}
 
 	message Player {

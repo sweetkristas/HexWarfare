@@ -173,6 +173,20 @@ namespace game
 		return u;
 	}
 
+	Update* state::unit_attack(const component_set_ptr& e, const std::vector<component_set_ptr>& targets)
+	{
+		Update* u = new Update();
+		u->set_id(++update_counter_);
+		Update_Unit *unit = u->add_units();
+		unit->set_uuid(uuid::write(e->entity_id));
+		unit->set_type(Update_Unit_MessageType::Update_Unit_MessageType_ATTACK);
+		for(auto& t : targets) {
+			std::string* str = unit->add_target_uuids();
+			*str = uuid::write(t->entity_id);
+		}
+		return u;
+	}
+
 	std::vector<Update*> state::validate_and_apply(Update* up)
 	{
 		std::vector<Update*> res;
@@ -221,6 +235,27 @@ namespace game
 						// XXX Re-send the complete game state.
 						LOG_WARN("Failed to validate move: " << up->fail_reason());
 					}
+					break;
+				}
+				case Update_Unit_MessageType_ATTACK: {
+					auto aggressor = get_entity_by_uuid(uuid::read(units.uuid()));
+					
+					++update_counter_;
+					auto nup = new Update();
+					nup->set_id(update_counter_);
+
+					for(auto& target_id : units.target_uuids()) {
+						auto t = get_entity_by_uuid(uuid::read(target_id));
+						if(is_attackable(aggressor, t)) {
+							combat(nup, aggressor, t);
+						} else {
+							std::cerr << "Unit(" << target_id << ") couldn't be attacked.\n";
+						}
+					}
+					res.emplace_back(nup);
+					break;
+				}
+				case Update_Unit_MessageType_SPELL: {
 					break;
 				}
 				case Update_Unit_MessageType_PASS:
@@ -320,6 +355,19 @@ namespace game
 		return false;
 	}
 
+	bool state::is_attackable(const component_set_ptr& aggressor, const component_set_ptr& e)
+	{
+		if(aggressor == e) {
+			return false;
+		}
+		int d = hex::logical::distance(aggressor->pos->pos, e->pos->gs_pos);
+		if(d > aggressor->stat->range) {
+			return false;
+		}
+		// XXX add other checks here based on terrain and if say the defender is invulnerable to attack.
+		return true;
+	}
+
 	void state::apply(engine& eng, Update* up)
 	{
 		// client side update
@@ -376,6 +424,22 @@ namespace game
 					}
 					break;
 				}
+				case Update_Unit_MessageType_ATTACK: {
+					// Attack message type means we need to look at the stat values and update
+					// If the unit has no health left it's considered dead.
+					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
+					ASSERT_LOG(units.has_stats(), "No stats block attached to attack");
+					set_entity_stats(e, units.stats());
+					if(units.stats().has_health() && units.stats().health() <= 0) {
+						// Unit has died schedule for removal.
+						// Play death animation.
+						eng.remove_entity(e);
+					}
+					break;
+				}
+				case Update_Unit_MessageType_SPELL: {
+					break;
+				}
 				case Update_Unit_MessageType_PASS:
 					break;
 				default: 
@@ -393,6 +457,58 @@ namespace game
 				std::make_shared<property::animate<double, glm::vec2>>([&eng, fp](double t, double d){ 
 									return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(eng.get_camera().x), static_cast<float>(eng.get_camera().y)), glm::vec2(static_cast<float>(fp.x-eng.get_camera().x), static_cast<float>(fp.y-eng.get_camera().y)), d); }, 
 									[&eng](const glm::vec2& v){eng.set_camera(static_cast<int>(std::round(v.x)), static_cast<int>(std::round(v.y))); LOG_DEBUG("cam = " << v.x << "," << v.y); }, 0.4));
+		}
+	}
+
+	void state::combat(Update* up, component_set_ptr aggressor, component_set_ptr target)
+	{
+		ASSERT_LOG(up != nullptr, "game logic bug Update is null.");
+		Update_Unit* new_unit = up->add_units();
+		auto& a_stat = aggressor->stat;
+		auto& t_stat = target->stat;
+		if(a_stat->attack > t_stat->armour) {
+			t_stat->health -= a_stat->attack - t_stat->armour;
+		}
+		Update_Unit* unit = up->add_units();
+		unit->set_uuid(uuid::write(target->entity_id));
+		Update_UnitStats* uus = new Update_UnitStats();
+		uus->set_health(t_stat->health);
+		unit->set_allocated_stats(uus);
+		unit->set_type(Update_Unit_MessageType_ATTACK);
+
+		// If we were doing a retalitory strike we could add code here.
+		// Might pay to pass in the aggressor Update_Unit* pointer.
+
+
+		// Remove either unit if health is below zero.
+		if(target->stat->health <= 0) {
+			remove_entity(target);
+		}
+	}
+
+	void state::set_entity_stats(component_set_ptr e, const Update_UnitStats& stats)
+	{
+		auto& stat = e->stat;
+		if(stats.has_armour()) {
+			stat->armour = stats.armour();
+		}
+		if(stats.has_attack()) {
+			stat->attack = stats.attack();
+		}
+		if(stats.has_health()) {
+			stat->health = stats.health();
+		}
+		if(stats.has_initiative()) {
+			stat->initiative = stats.initiative();
+		}
+		if(stats.has_move()) {
+			stat->move = stats.move();
+		}
+		if(stats.has_name()) {
+			stat->name = stats.name();
+		}
+		if(stats.has_range()) {
+			stat->range = stats.range();
 		}
 	}
 }

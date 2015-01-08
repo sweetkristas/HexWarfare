@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "color.hpp"
 #include "geometry.hpp"
 #include "surface.hpp"
 
@@ -86,6 +87,7 @@ namespace graphics
 		void set_blend(BlendMode bm);
 
 		void set_alpha(int alpha);
+		void set_color(const color& col);
 
 		SDL_Texture* get() { return tex_.get(); }
 

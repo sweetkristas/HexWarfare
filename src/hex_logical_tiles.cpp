@@ -14,6 +14,8 @@
 	limitations under the License.
 */
 
+#include <tuple>
+
 #include "asserts.hpp"
 #include "hex_logical_tiles.hpp"
 
@@ -206,6 +208,28 @@ namespace hex
 		map_ptr map::clone()
 		{
 			return map_ptr(new map(*this));
+		}
+
+		std::tuple<int,int,int> oddq_to_cube_coords(const point& p)
+		{
+			int x1 = p.x;
+			int z1 = p.y - (p.x - (p.x & 1)) / 2;
+			int y1 = -(x1 + z1);
+			return std::make_tuple(x1,y1,z1);
+		}
+
+		int distance(int x1, int y1, int z1, int x2, int y2, int z2)
+		{
+			return (abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)) / 2;
+		}
+
+		int distance(const point& p1, const point& p2)
+		{
+			int x1, y1, z1;
+			std::tie(x1,y1,z1) = oddq_to_cube_coords(p1);
+			int x2, y2, z2;
+			std::tie(x2,y2,z2) = oddq_to_cube_coords(p2);
+			return distance(x1, y1, z1, x2, y2, z2);
 		}
 	}
 }

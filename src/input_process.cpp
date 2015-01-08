@@ -23,7 +23,9 @@
 namespace process
 {
 	input::input()
-		: process(ProcessPriority::input)
+		: process(ProcessPriority::input),
+		  state_(State::IDLE),
+		  max_opponent_count_(0)
 	{
 	}
 
@@ -58,6 +60,25 @@ namespace process
 			keys_pressed_.pop();
 			if(key == SDL_SCANCODE_E) {
 				eng.end_turn();
+			} else if(key == SDL_SCANCODE_A) {
+				aggressor_ = eng.get_game_state().get_entities().front();
+				// XXX This assert may need to be a user error.
+				ASSERT_LOG(aggressor_ != nullptr, "No unit on list with which to attack with.");
+				// Scan through list of enemy entities and select ones which are in 
+				// range for being attacked.
+				bool opponent_in_range = false;
+				for(auto& e2 : elist) {
+					if((e2->mask & pos_mask) == pos_mask && (e2->mask & input_mask) == input_mask) {
+						if(eng.get_game_state().is_attackable(aggressor_, e2)) {
+							e2->inp->is_attack_target = true;
+							opponent_in_range = true;
+						}
+					}
+				}
+				if(opponent_in_range) {
+					state_ = State::SELECT_OPPONENTS;
+					max_opponent_count_ = 1; // XXX attacking_unit->stat->max_attack_opponents
+				}
 			}
 		}
 		if(!mouse_button_events_.empty()) {
@@ -80,9 +101,23 @@ namespace process
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
 					if(button.button == SDL_BUTTON_LEFT 
 						&& button.type == SDL_MOUSEBUTTONUP) {
+						bool mouse_in_area = geometry::pointInRect(point(button.x, button.y), inp->mouse_area + pp);
+						if(state_ == State::SELECT_OPPONENTS 
+							&& max_opponent_count_ != 0 
+							&& mouse_in_area 
+							&& inp->is_attack_target) {
+							if(--max_opponent_count_ == 0) {
+								do_attack_message(eng);
+								// XXX Start playing attack animation.
+								state_ = State::IDLE;
+								aggressor_ = nullptr;
+								targets_.clear();
+							}
+						}
+
 						std::cerr << "Adjust mouse click position: " << point(button.x, button.y) << "\n";
 						std::cerr << "Entity(" << e->stat->name << ") position: " << (inp->mouse_area + pp) << "\n";
-						if(geometry::pointInRect(point(button.x, button.y), inp->mouse_area + pp)) {
+						if(mouse_in_area) {
 							inp->selected = true;
 							// if it is current players turn and current_player owns the entity and
 							// the entity still has some movement allowance left.
@@ -182,5 +217,16 @@ namespace process
 				}
 			}
 		}
+	}
+
+	void input::do_attack_message(engine& eng)
+	{
+		// Generate an update move message.
+		auto up = eng.get_game_state().unit_attack(aggressor_, targets_);
+		// send message to server.
+		auto netclient = eng.get_netclient().lock();
+		ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
+		netclient->write_send_queue(up);
+
 	}
 }

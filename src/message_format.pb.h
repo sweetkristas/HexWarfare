@@ -45,7 +45,9 @@ enum Update_Unit_MessageType {
   Update_Unit_MessageType_CANONICAL_STATE = 0,
   Update_Unit_MessageType_SUMMON = 1,
   Update_Unit_MessageType_MOVE = 2,
-  Update_Unit_MessageType_PASS = 3
+  Update_Unit_MessageType_ATTACK = 3,
+  Update_Unit_MessageType_SPELL = 4,
+  Update_Unit_MessageType_PASS = 5
 };
 bool Update_Unit_MessageType_IsValid(int value);
 const Update_Unit_MessageType Update_Unit_MessageType_MessageType_MIN = Update_Unit_MessageType_CANONICAL_STATE;
@@ -274,6 +276,13 @@ class Update_UnitStats : public ::google::protobuf::Message {
   inline ::std::string* release_name();
   inline void set_allocated_name(::std::string* name);
 
+  // optional int32 range = 7;
+  inline bool has_range() const;
+  inline void clear_range();
+  static const int kRangeFieldNumber = 7;
+  inline ::google::protobuf::int32 range() const;
+  inline void set_range(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:game.Update.UnitStats)
  private:
   inline void set_has_health();
@@ -288,6 +297,8 @@ class Update_UnitStats : public ::google::protobuf::Message {
   inline void clear_has_initiative();
   inline void set_has_name();
   inline void clear_has_name();
+  inline void set_has_range();
+  inline void clear_has_range();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -299,6 +310,7 @@ class Update_UnitStats : public ::google::protobuf::Message {
   float move_;
   ::std::string* name_;
   float initiative_;
+  ::google::protobuf::int32 range_;
   friend void  protobuf_AddDesc_message_5fformat_2eproto();
   friend void protobuf_AssignDesc_message_5fformat_2eproto();
   friend void protobuf_ShutdownFile_message_5fformat_2eproto();
@@ -457,6 +469,8 @@ class Update_Unit : public ::google::protobuf::Message {
   static const MessageType CANONICAL_STATE = Update_Unit_MessageType_CANONICAL_STATE;
   static const MessageType SUMMON = Update_Unit_MessageType_SUMMON;
   static const MessageType MOVE = Update_Unit_MessageType_MOVE;
+  static const MessageType ATTACK = Update_Unit_MessageType_ATTACK;
+  static const MessageType SPELL = Update_Unit_MessageType_SPELL;
   static const MessageType PASS = Update_Unit_MessageType_PASS;
   static inline bool MessageType_IsValid(int value) {
     return Update_Unit_MessageType_IsValid(value);
@@ -533,10 +547,26 @@ class Update_Unit : public ::google::protobuf::Message {
   inline ::game::Update_UnitStats* release_stats();
   inline void set_allocated_stats(::game::Update_UnitStats* stats);
 
-  // repeated .game.Update.Location path = 6;
+  // repeated string target_uuids = 6;
+  inline int target_uuids_size() const;
+  inline void clear_target_uuids();
+  static const int kTargetUuidsFieldNumber = 6;
+  inline const ::std::string& target_uuids(int index) const;
+  inline ::std::string* mutable_target_uuids(int index);
+  inline void set_target_uuids(int index, const ::std::string& value);
+  inline void set_target_uuids(int index, const char* value);
+  inline void set_target_uuids(int index, const char* value, size_t size);
+  inline ::std::string* add_target_uuids();
+  inline void add_target_uuids(const ::std::string& value);
+  inline void add_target_uuids(const char* value);
+  inline void add_target_uuids(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& target_uuids() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_target_uuids();
+
+  // repeated .game.Update.Location path = 7;
   inline int path_size() const;
   inline void clear_path();
-  static const int kPathFieldNumber = 6;
+  static const int kPathFieldNumber = 7;
   inline const ::game::Update_Location& path(int index) const;
   inline ::game::Update_Location* mutable_path(int index);
   inline ::game::Update_Location* add_path();
@@ -545,10 +575,10 @@ class Update_Unit : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::game::Update_Location >*
       mutable_path();
 
-  // repeated .game.Update.AnimationHints animation_hints = 7;
+  // repeated .game.Update.AnimationHints animation_hints = 8;
   inline int animation_hints_size() const;
   inline void clear_animation_hints();
-  static const int kAnimationHintsFieldNumber = 7;
+  static const int kAnimationHintsFieldNumber = 8;
   inline const ::game::Update_AnimationHints& animation_hints(int index) const;
   inline ::game::Update_AnimationHints* mutable_animation_hints(int index);
   inline ::game::Update_AnimationHints* add_animation_hints();
@@ -578,6 +608,7 @@ class Update_Unit : public ::google::protobuf::Message {
   ::std::string* name_;
   ::std::string* owner_uuid_;
   ::game::Update_UnitStats* stats_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> target_uuids_;
   ::google::protobuf::RepeatedPtrField< ::game::Update_Location > path_;
   ::google::protobuf::RepeatedPtrField< ::game::Update_AnimationHints > animation_hints_;
   int type_;
@@ -1154,6 +1185,30 @@ inline void Update_UnitStats::set_allocated_name(::std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:game.Update.UnitStats.name)
 }
 
+// optional int32 range = 7;
+inline bool Update_UnitStats::has_range() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void Update_UnitStats::set_has_range() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void Update_UnitStats::clear_has_range() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void Update_UnitStats::clear_range() {
+  range_ = 0;
+  clear_has_range();
+}
+inline ::google::protobuf::int32 Update_UnitStats::range() const {
+  // @@protoc_insertion_point(field_get:game.Update.UnitStats.range)
+  return range_;
+}
+inline void Update_UnitStats::set_range(::google::protobuf::int32 value) {
+  set_has_range();
+  range_ = value;
+  // @@protoc_insertion_point(field_set:game.Update.UnitStats.range)
+}
+
 // -------------------------------------------------------------------
 
 // Update_AnimationHints
@@ -1556,7 +1611,61 @@ inline void Update_Unit::set_allocated_stats(::game::Update_UnitStats* stats) {
   // @@protoc_insertion_point(field_set_allocated:game.Update.Unit.stats)
 }
 
-// repeated .game.Update.Location path = 6;
+// repeated string target_uuids = 6;
+inline int Update_Unit::target_uuids_size() const {
+  return target_uuids_.size();
+}
+inline void Update_Unit::clear_target_uuids() {
+  target_uuids_.Clear();
+}
+inline const ::std::string& Update_Unit::target_uuids(int index) const {
+  // @@protoc_insertion_point(field_get:game.Update.Unit.target_uuids)
+  return target_uuids_.Get(index);
+}
+inline ::std::string* Update_Unit::mutable_target_uuids(int index) {
+  // @@protoc_insertion_point(field_mutable:game.Update.Unit.target_uuids)
+  return target_uuids_.Mutable(index);
+}
+inline void Update_Unit::set_target_uuids(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:game.Update.Unit.target_uuids)
+  target_uuids_.Mutable(index)->assign(value);
+}
+inline void Update_Unit::set_target_uuids(int index, const char* value) {
+  target_uuids_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:game.Update.Unit.target_uuids)
+}
+inline void Update_Unit::set_target_uuids(int index, const char* value, size_t size) {
+  target_uuids_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:game.Update.Unit.target_uuids)
+}
+inline ::std::string* Update_Unit::add_target_uuids() {
+  return target_uuids_.Add();
+}
+inline void Update_Unit::add_target_uuids(const ::std::string& value) {
+  target_uuids_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:game.Update.Unit.target_uuids)
+}
+inline void Update_Unit::add_target_uuids(const char* value) {
+  target_uuids_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:game.Update.Unit.target_uuids)
+}
+inline void Update_Unit::add_target_uuids(const char* value, size_t size) {
+  target_uuids_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:game.Update.Unit.target_uuids)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+Update_Unit::target_uuids() const {
+  // @@protoc_insertion_point(field_list:game.Update.Unit.target_uuids)
+  return target_uuids_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+Update_Unit::mutable_target_uuids() {
+  // @@protoc_insertion_point(field_mutable_list:game.Update.Unit.target_uuids)
+  return &target_uuids_;
+}
+
+// repeated .game.Update.Location path = 7;
 inline int Update_Unit::path_size() const {
   return path_.size();
 }
@@ -1586,7 +1695,7 @@ Update_Unit::mutable_path() {
   return &path_;
 }
 
-// repeated .game.Update.AnimationHints animation_hints = 7;
+// repeated .game.Update.AnimationHints animation_hints = 8;
 inline int Update_Unit::animation_hints_size() const {
   return animation_hints_.size();
 }

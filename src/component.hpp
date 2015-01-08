@@ -98,7 +98,7 @@ namespace component
 
 	struct stats : public component
 	{
-		stats() : component(Component::STATS), health(1), attack(0), armour(0), move(1.0f) {}
+		stats() : component(Component::STATS), health(1), attack(0), armour(0), move(1.0f), range(1) {}
 		CLONE(stats)
 		// N.B. If things are added or removed here, this needs to be reflected in the message_format.proto file.
 		// specifically game::Update::UnitStats
@@ -108,16 +108,18 @@ namespace component
 		float move;
 		float initiative;
 		std::string name;
+		int range;
 		creature::const_creature_ptr unit;
 	};
 
 	struct input : public component
 	{
-		input() : component(Component::INPUT), clear_selection(false), selected(false) {}
+		input() : component(Component::INPUT), clear_selection(false), selected(false), is_attack_target(false) {}
 		CLONE(input)
 		rect mouse_area;
 		bool clear_selection;
 		bool selected;
+		bool is_attack_target;
 		hex::result_list possible_moves;
 		hex::hex_graph_ptr graph;
 		std::vector<point> arrow_path;
