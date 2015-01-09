@@ -103,7 +103,22 @@ namespace component
 
 std::ostream& operator<<(std::ostream& os, const component_set_ptr& e)
 {
-	// XX fill this out more
-	os << e->entity_id;
+	using namespace component;
+	static component_id unit_mask = genmask(Component::STATS) | genmask(Component::POSITION);
+	if((e->mask & unit_mask) == unit_mask) {
+		auto& stat = e->stat;
+		auto& pos = e->pos->pos;
+		std::string uuid_short = uuid::write(e->entity_id).substr(0,5);
+		os << "Unit(\"" << stat->name << "\",\"" << uuid_short 
+			<< "\" H:" << stat->health
+			<< " A:" << stat->attack
+			<< " R:" << stat->range
+			<< " M:" << stat->move
+			<< " P:" << pos
+			<< ")";
+	} else {
+		// XX fill this out more
+		os << e->entity_id;
+	}
 	return os;
 }

@@ -27,7 +27,7 @@ namespace hex
 	// XXX Modify these to work with hex::logical::map
 	hex_graph_ptr create_graph(const game::state& gs, int x, int y, int w, int h)
 	{
-		profile::manager pman("create_graph");
+		//profile::manager pman("create_graph");
 		
 		using namespace component;
 
@@ -148,7 +148,7 @@ namespace hex
 
 	result_list find_available_moves(hex_graph_ptr graph, const point& src, float max_cost)
 	{
-		profile::manager pman("find_available_moves");
+		//profile::manager pman("find_available_moves");
 		
 		result_list res;
 
@@ -214,7 +214,7 @@ namespace hex
 
 	result_path find_path(hex_graph_ptr graph, const point& src, const point& dst)
 	{
-		profile::manager pman("find_path");
+		//profile::manager pman("find_path");
 
 		auto src_it = graph->reverse_map.find(src);
 		ASSERT_LOG(src_it != graph->reverse_map.end(), "source node not in graph.");

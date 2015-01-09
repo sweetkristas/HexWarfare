@@ -60,7 +60,7 @@ namespace process
 			keys_pressed_.pop();
 			if(key == SDL_SCANCODE_E) {
 				eng.end_turn();
-			} else if(key == SDL_SCANCODE_A) {
+			} else if(key == SDL_SCANCODE_1) {
 				aggressor_ = eng.get_game_state().get_entities().front();
 				// XXX This assert may need to be a user error.
 				ASSERT_LOG(aggressor_ != nullptr, "No unit on list with which to attack with.");
@@ -106,6 +106,7 @@ namespace process
 							&& max_opponent_count_ != 0 
 							&& mouse_in_area 
 							&& inp->is_attack_target) {
+							targets_.emplace_back(e);
 							if(--max_opponent_count_ == 0) {
 								do_attack_message(eng);
 								// XXX Start playing attack animation.
@@ -113,6 +114,7 @@ namespace process
 								aggressor_ = nullptr;
 								targets_.clear();
 							}
+							continue;
 						}
 
 						std::cerr << "Adjust mouse click position: " << point(button.x, button.y) << "\n";
@@ -139,7 +141,7 @@ namespace process
 								for(auto& t : inp->tile_path) {
 									auto tile = eng.get_map()->get_tile_at(t.x, t.y);
 									ASSERT_LOG(tile != nullptr, "No tile exists at point: " << pp);
-									LOG_DEBUG("tile" << t << ": " << tile->tile()->id() << " : " << tile->tile()->get_cost());
+									//LOG_DEBUG("tile" << t << ": " << tile->tile()->id() << " : " << tile->tile()->get_cost());
 								}
 								// Generate an update move message.
 								auto up = eng.get_game_state().unit_move(e, inp->tile_path);
@@ -151,7 +153,7 @@ namespace process
 								auto old_pos = e->pos->pos;
 								eng.add_animated_property("unit", std::make_shared<property::animate<double, glm::vec2>>([old_pos, tp](double t, double d){ 
 									return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(old_pos.x), static_cast<float>(old_pos.y)), glm::vec2(static_cast<float>(tp.x-old_pos.x), static_cast<float>(tp.y-old_pos.y)), d); }, 
-									[&e](const glm::vec2& v){ e->pos->pos.x = static_cast<int>(std::round(v.x)); e->pos->pos.y = static_cast<int>(std::round(v.y)); LOG_DEBUG("pos = " << v.x << "," << v.y); }, 0.4));
+									[&e](const glm::vec2& v){ e->pos->pos.x = static_cast<int>(std::round(v.x)); e->pos->pos.y = static_cast<int>(std::round(v.y)); /*LOG_DEBUG("pos = " << v.x << "," << v.y);*/ }, 0.4));
 								//pos.x = tp.x;
 								//pos.y = tp.y;
 
@@ -221,6 +223,19 @@ namespace process
 
 	void input::do_attack_message(engine& eng)
 	{
+		if(targets_.empty()) {
+			LOG_ERROR("No targets selected for attack!");
+			return;
+		}
+		std::stringstream ss;
+		bool first = true;
+		for(auto& t : targets_) {
+			ss << (first ? " " : "," ) << t->stat->name << "(" << t->entity_id << ")";
+			if(first) {
+				first = false;
+			}
+		}
+		LOG_INFO("Unit " << aggressor_->stat->name << "(" << aggressor_->entity_id << ") attacks units:" << ss.str());
 		// Generate an update move message.
 		auto up = eng.get_game_state().unit_attack(aggressor_, targets_);
 		// send message to server.

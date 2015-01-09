@@ -194,6 +194,7 @@ namespace game
 		if(up->id() < update_counter_) {
 			// XXX we should resend the complete state as this update seems old.
 			//res.emplace_back(generate_complete());
+			LOG_WARN("Got old update: " << up->id() << " : " << update_counter_);
 			return res;
 		}
 
@@ -249,7 +250,7 @@ namespace game
 						if(is_attackable(aggressor, t)) {
 							combat(nup, aggressor, t);
 						} else {
-							std::cerr << "Unit(" << target_id << ") couldn't be attacked.\n";
+							LOG_WARN("Unit(" << target_id << ") couldn't be attacked.");
 						}
 					}
 					res.emplace_back(nup);
@@ -358,10 +359,12 @@ namespace game
 	bool state::is_attackable(const component_set_ptr& aggressor, const component_set_ptr& e)
 	{
 		if(aggressor == e) {
+			LOG_WARN(aggressor << " could not attack target, same unit");
 			return false;
 		}
 		int d = hex::logical::distance(aggressor->pos->pos, e->pos->gs_pos);
 		if(d > aggressor->stat->range) {
+			LOG_WARN(aggressor << " could not attack target " << e << " distance too great: " << d);
 			return false;
 		}
 		// XXX add other checks here based on terrain and if say the defender is invulnerable to attack.
@@ -401,7 +404,7 @@ namespace game
 					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
 					auto p = units.path().rbegin();
 					auto start_p = point(units.path().begin()->x(), units.path().begin()->y());
-					LOG_INFO("moving unit " << units.uuid() << " to position " << point(p->x(), p->y()) << " from " << start_p);
+					LOG_INFO("moving " << e << " to position " << point(p->x(), p->y()) << " from " << start_p);
 					if(e->pos->gs_pos.x != p->x() || e->pos->gs_pos.y != p->y()) {
 						// Unit hasn't been moved yet, so play attached animation and move unit along path.
 						// move unit to final position
@@ -435,6 +438,12 @@ namespace game
 						// Play death animation.
 						eng.remove_entity(e);
 					}
+					// clear attack targets
+					for(auto& unit : entities_) {
+						if(unit->inp) {
+							unit->inp->is_attack_target = false;
+						}
+					}
 					break;
 				}
 				case Update_Unit_MessageType_SPELL: {
@@ -456,7 +465,7 @@ namespace game
 			eng.add_animated_property("camera", 
 				std::make_shared<property::animate<double, glm::vec2>>([&eng, fp](double t, double d){ 
 									return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(eng.get_camera().x), static_cast<float>(eng.get_camera().y)), glm::vec2(static_cast<float>(fp.x-eng.get_camera().x), static_cast<float>(fp.y-eng.get_camera().y)), d); }, 
-									[&eng](const glm::vec2& v){eng.set_camera(static_cast<int>(std::round(v.x)), static_cast<int>(std::round(v.y))); LOG_DEBUG("cam = " << v.x << "," << v.y); }, 0.4));
+									[&eng](const glm::vec2& v){eng.set_camera(static_cast<int>(std::round(v.x)), static_cast<int>(std::round(v.y))); /*LOG_DEBUG("cam = " << v.x << "," << v.y);*/ }, 0.4));
 		}
 	}
 
@@ -468,6 +477,9 @@ namespace game
 		auto& t_stat = target->stat;
 		if(a_stat->attack > t_stat->armour) {
 			t_stat->health -= a_stat->attack - t_stat->armour;
+			LOG_INFO(target << " takes " << (a_stat->attack - t_stat->armour) << " damage.");
+		} else {
+			LOG_INFO(target << " takes no damage due to high armour.");
 		}
 		Update_Unit* unit = up->add_units();
 		unit->set_uuid(uuid::write(target->entity_id));
