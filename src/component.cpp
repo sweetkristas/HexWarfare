@@ -107,7 +107,7 @@ std::ostream& operator<<(std::ostream& os, const component_set_ptr& e)
 	static component_id unit_mask = genmask(Component::STATS) | genmask(Component::POSITION);
 	if((e->mask & unit_mask) == unit_mask) {
 		auto& stat = e->stat;
-		auto& pos = e->pos->pos;
+		auto& pos = e->pos->gs_pos;
 		std::string uuid_short = uuid::write(e->entity_id).substr(0,5);
 		os << "Unit(\"" << stat->name << "\",\"" << uuid_short 
 			<< "\" H:" << stat->health
