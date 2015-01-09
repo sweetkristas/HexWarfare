@@ -54,7 +54,7 @@ namespace hex
 		//std::set<point> friendly_units;
 		std::map<point, component_set_ptr> enemy_units;
 		std::set<point> surrounding_positions;
-		auto cp = gs.get_current_player().lock();
+		auto cp = gs.get_entities().front()->owner.lock();
 		for(auto& e : gs.get_entities()) {
 			auto owner = e->owner.lock();
 			auto& pos = e->pos->pos;
@@ -95,7 +95,7 @@ namespace hex
 						if(n2.x >= x && n2.x < x+w 
 							&& n2.y >= y && n2.y < y+h
 							&& enemy_units.find(n2) == enemy_units.end()) {
-							if(!(in_zoc && surrounding_positions.find(n2) != surrounding_positions.end())) {
+							if(!(in_zoc || surrounding_positions.find(n2) != surrounding_positions.end())) {
 								edges.emplace_back(n1, n2);
 								weights.emplace_back(map->get_tile_at(n2)->get_cost());
 							}

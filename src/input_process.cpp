@@ -102,23 +102,34 @@ namespace process
 					if(button.button == SDL_BUTTON_LEFT 
 						&& button.type == SDL_MOUSEBUTTONUP) {
 						bool mouse_in_area = geometry::pointInRect(point(button.x, button.y), inp->mouse_area + pp);
-						if(state_ == State::SELECT_OPPONENTS 
-							&& max_opponent_count_ != 0 
-							&& mouse_in_area 
-							&& inp->is_attack_target) {
-							targets_.emplace_back(e);
-							if(--max_opponent_count_ == 0) {
-								do_attack_message(eng);
-								// XXX Start playing attack animation.
-								state_ = State::IDLE;
-								aggressor_ = nullptr;
-								targets_.clear();
+						if(state_ == State::SELECT_OPPONENTS) {
+							if(max_opponent_count_ != 0 
+								&& mouse_in_area 
+								&& inp->is_attack_target) {
+								targets_.emplace_back(e);
+								if(--max_opponent_count_ == 0) {
+									do_attack_message(eng);
+									// XXX Start playing attack animation.
+									state_ = State::IDLE;
+									aggressor_ = nullptr;
+									targets_.clear();
+									for(auto& en : elist) {
+										en->inp->is_attack_target = false;
+									}
+								}
+							} else {
+								//state_ = State::IDLE;
+								//aggressor_ = nullptr;
+								//targets_.clear();
+								//for(auto& en : elist) {
+								//	en->inp->is_attack_target = false;
+								//}
 							}
 							continue;
 						}
 
-						std::cerr << "Adjust mouse click position: " << point(button.x, button.y) << "\n";
-						std::cerr << "Entity(" << e->stat->name << ") position: " << (inp->mouse_area + pp) << "\n";
+						//std::cerr << "Adjust mouse click position: " << point(button.x, button.y) << "\n";
+						//std::cerr << e << " position: " << (inp->mouse_area + pp) << "\n";
 						if(mouse_in_area) {
 							inp->selected = true;
 							// if it is current players turn and current_player owns the entity and
@@ -141,7 +152,7 @@ namespace process
 								for(auto& t : inp->tile_path) {
 									auto tile = eng.get_map()->get_tile_at(t.x, t.y);
 									ASSERT_LOG(tile != nullptr, "No tile exists at point: " << pp);
-									//LOG_DEBUG("tile" << t << ": " << tile->tile()->id() << " : " << tile->tile()->get_cost());
+									LOG_DEBUG("tile" << t << ": " << tile->tile()->id() << " : " << tile->tile()->get_cost());
 								}
 								// Generate an update move message.
 								auto up = eng.get_game_state().unit_move(e, inp->tile_path);
