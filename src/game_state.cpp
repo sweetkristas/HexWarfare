@@ -234,7 +234,8 @@ namespace game
 					} else {
 						// The path provided has a cost which is more than the number of move left.
 						// XXX Re-send the complete game state.
-						LOG_WARN("Failed to validate move: " << up->fail_reason());
+						// nup->set_fail_reason(fail_reason_);
+						LOG_WARN("Failed to validate move: " << fail_reason_);
 					}
 					break;
 				}
@@ -299,6 +300,8 @@ namespace game
 			set_validation_fail_reason(formatter() << "entity(" << e->entity_id << ") wasn't the current unit with initiative(" << entities_.front()->entity_id << ").");
 			return false;
 		}
+
+		LOG_DEBUG("Validate move: " << e);
 
 		std::set<point> enemy_locations;
 		std::set<point> zoc_locations;
@@ -404,7 +407,7 @@ namespace game
 					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
 					auto p = units.path().rbegin();
 					auto start_p = point(units.path().begin()->x(), units.path().begin()->y());
-					LOG_INFO("moving " << e << " to position " << point(p->x(), p->y()) << " from " << start_p);
+					LOG_INFO("moving " << e << " from " << start_p << " to position " << point(p->x(), p->y()));
 					if(e->pos->gs_pos.x != p->x() || e->pos->gs_pos.y != p->y()) {
 						// Unit hasn't been moved yet, so play attached animation and move unit along path.
 						// move unit to final position
