@@ -27,7 +27,8 @@ namespace creature
 		: component_mask_(0), 
 			initiative_(5), 
 			movement_(5.0f), 
-			movement_type_(MovementType::NORMAL) 
+			movement_type_(MovementType::NORMAL) ,
+			range_(1.0f)
 	{
 		using namespace component;
 		component_mask_ = genmask(Component::CREATURE);
@@ -84,6 +85,10 @@ namespace creature
 					movement_type_ = MovementType::NORMAL;
 				} // XXX
 			}
+
+			if(stats.has_key("range")) {
+				range_ = stats["range"].as_float();
+			}
 		}
 
 		if(n.has_key("ai")) {
@@ -113,6 +118,7 @@ namespace creature
 			res->stat->attack = generator::get_uniform_int(attack_min_, attack_max_);
 			res->stat->armour = armour_;
 			res->stat->name = name_;
+			res->stat->range = static_cast<int>(range_);
 			res->stat->move = static_cast<float>(movement_);
 			res->stat->initiative = 100.0f/static_cast<float>(initiative_) + gs.get_initiative_counter();
 			res->stat->unit = shared_from_this();

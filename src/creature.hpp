@@ -49,6 +49,8 @@ namespace creature
 		int initiative_;
 		float movement_;
 		MovementType movement_type_;
+		// default attack range
+		float range_;
 		// attack type (magic, physical, type of magic, type of physical, etc)
 		// has ranged attack
 		// what items might be carried.
