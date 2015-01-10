@@ -366,6 +366,13 @@ namespace game
 			LOG_WARN(aggressor << " could not attack target, same unit");
 			return false;
 		}
+		if(aggressor->owner.lock()->team() == e->owner.lock()->team()) {
+			// Don't let us attack units on the same team
+			// XXX it may be a legitimate tactic to target units on your own team
+			// if this is the case then they should be distinguished from (say yellow) from
+			// enemy units (red).
+			return false;
+		}
 		int d = hex::logical::distance(aggressor->pos->pos, e->pos->gs_pos);
 		if(d > aggressor->stat->range) {
 			LOG_WARN(aggressor << " could not attack target " << e << " distance too great: " << d);
