@@ -63,6 +63,9 @@ endif
 LIBS := $(shell pkg-config --libs x11 gl ) \
 	$(shell pkg-config --libs sdl2 glew SDL2_image libpng zlib protobuf libenet) -lSDL2_ttf -lSDL2_mixer -lboost_system -lboost_thread -lboost_chrono
 
+PROTOS := $(wildcard src/*.proto)
+PROTO_OBJS := $(PROTOS:.proto=.pb.o)
+
 include Makefile.common
 
 src/%.o : src/%.cpp 
@@ -85,11 +88,14 @@ src/%.o : src/%.cc
 		sed -e 's/^ *//' -e 's/$$/:/' >> src/$*.d
 	@rm -f $*.d.tmp
 
+%.pb.cc: %.proto
+        protoc --cpp_out=src $<
+
 src/lua/%.o : src/lua/%.c
 	@echo "Building:" $<
 	@$(CCACHE) $(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -c -o $@ $<
 
-HexWarfare: $(objects) $(ogl_objects) $(sdl_objects) liblua.a
+HexWarfare: $(objects) $(PROTO_OBJS) $(ogl_objects) $(sdl_objects) liblua.a
 	@echo "Linking : HexWarfare"
 	@$(CCACHE) $(CXX) \
 		$(BASE_CXXFLAGS) $(LDFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) \
