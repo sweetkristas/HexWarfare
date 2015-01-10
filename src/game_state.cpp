@@ -326,6 +326,7 @@ namespace game
 		}
 		float cost(0);
 		auto p = path.begin();
+		bool last_tile_zoc = zoc_locations.find(point(p->x(), p->y())) != zoc_locations.end();
 		++p;
 		for(; p != path.end(); ++p) {
 			point pp(p->x(), p->y());

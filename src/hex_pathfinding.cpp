@@ -57,7 +57,7 @@ namespace hex
 		auto cp = gs.get_entities().front()->owner.lock();
 		for(auto& e : gs.get_entities()) {
 			auto owner = e->owner.lock();
-			auto& pos = e->pos->pos;
+			auto& pos = e->pos->gs_pos;
 			if(cp->team() != owner->team()) {
 				enemy_units[pos] = e;
 				auto surrounds = map->get_surrounding_positions(pos.x, pos.y);
@@ -69,11 +69,14 @@ namespace hex
 			}
 		}
 		// remove enemy entities from surrounding positions
+		auto team_current = gs.get_entities().front()->owner.lock()->team();
 		for(auto& e : gs.get_entities()) {
-			auto owner = e->owner.lock();
-			auto it = surrounding_positions.find(e->pos->pos);
-			if(it != surrounding_positions.end()) {
-				surrounding_positions.erase(it);
+			auto e_team = e->owner.lock()->team();
+			if(e_team != team_current) {
+				auto it = surrounding_positions.find(e->pos->gs_pos);
+				if(it != surrounding_positions.end()) {
+					surrounding_positions.erase(it);
+				}
 			}
 		}
 
@@ -87,7 +90,6 @@ namespace hex
 				auto surrounds = map->get_surrounding_positions(n1);
 				// scan through entities for units at t
 				auto it = enemy_units.find(n1);
-				const bool in_zoc = surrounding_positions.find(n1) != surrounding_positions.end();
 				if(it == enemy_units.end()) {
 					vertices.emplace_back(n1);
 					reverse_map[n1] = vertices.size()-1;
@@ -95,7 +97,10 @@ namespace hex
 						if(n2.x >= x && n2.x < x+w 
 							&& n2.y >= y && n2.y < y+h
 							&& enemy_units.find(n2) == enemy_units.end()) {
-							if(!(in_zoc || surrounding_positions.find(n2) != surrounding_positions.end())) {
+							const bool src_node_zoc = surrounding_positions.find(n1) != surrounding_positions.end();
+							const bool dst_node_zoc = surrounding_positions.find(n2) != surrounding_positions.end();
+							if(!src_node_zoc || !dst_node_zoc) {
+								//std::cerr << "Adding edge from " << n1 << " to " << n2 << "\n";
 								edges.emplace_back(n1, n2);
 								weights.emplace_back(map->get_tile_at(n2)->get_cost());
 							}
