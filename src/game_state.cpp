@@ -363,7 +363,7 @@ namespace game
 	bool state::is_attackable(const component_set_ptr& aggressor, const component_set_ptr& e)
 	{
 		if(aggressor == e) {
-			LOG_WARN(aggressor << " could not attack target, same unit");
+			LOG_INFO(aggressor << " could not attack target, same unit");
 			return false;
 		}
 		if(aggressor->owner.lock()->team() == e->owner.lock()->team()) {
@@ -375,9 +375,28 @@ namespace game
 		}
 		int d = hex::logical::distance(aggressor->pos->pos, e->pos->gs_pos);
 		if(d > aggressor->stat->range) {
-			LOG_WARN(aggressor << " could not attack target " << e << " distance too great: " << d);
+			LOG_INFO(aggressor << " could not attack target " << e << " distance too great: " << d);
 			return false;
 		}
+
+		if(d > 1 /*&& !aggressor->stat->unit->has_ability("strike-through")*/) {
+			// Find the direct line between the two units
+			// make sure that there are no other entities in the way, unless the unit has the
+			// "strike-through" ability.
+			auto line = hex::logical::line(aggressor->pos->pos, e->pos->gs_pos);
+			// remove first and last elements from the line.
+			line.pop_back();
+			line.erase(line.begin());
+			for(auto& p : line) {
+				for(auto& en : entities_) {
+					if(p == en->pos->gs_pos) {
+						LOG_INFO(aggressor << " could not attack target " << e << " unit in path " << en);
+						return false;
+					}
+				}
+			}
+		}
+
 		// XXX add other checks here based on terrain and if say the defender is invulnerable to attack.
 		return true;
 	}

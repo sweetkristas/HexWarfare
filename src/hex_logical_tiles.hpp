@@ -30,6 +30,7 @@ namespace hex
 		std::tuple<int,int,int> oddq_to_cube_coords(const point& p);
 		int distance(int x1, int y1, int z1, int x2, int y2, int z2);
 		int distance(const point& p1, const point& p2);
+		std::vector<point> line(const point& p1, const point& p2);
 
 		class tile
 		{

@@ -231,5 +231,49 @@ namespace hex
 			std::tie(x2,y2,z2) = oddq_to_cube_coords(p2);
 			return distance(x1, y1, z1, x2, y2, z2);
 		}
+
+		std::tuple<int,int,int> hex_round(float x, float y, float z) 
+		{
+			int rx = static_cast<int>(std::round(x));
+			int ry = static_cast<int>(std::round(y));
+			int rz = static_cast<int>(std::round(z));
+
+			float x_diff = std::abs(rx - x);
+			float y_diff = std::abs(ry - y);
+			float z_diff = std::abs(rz - z);
+
+			if(x_diff > y_diff && x_diff > z_diff) {
+				rx = -(ry+rz);
+			} else if(y_diff > z_diff) {
+				ry = -(rx+rz);
+			} else {
+				rz = -(rx+ry);
+			}
+			return std::make_tuple(rx, ry, rz);
+		}
+
+		point cube_to_oddq_coords(const std::tuple<int,int,int>& xyz)
+		{
+			return point(std::get<0>(xyz), std::get<2>(xyz) + (std::get<0>(xyz) - (std::get<0>(xyz) & 1)) / 2);
+		}
+
+		std::vector<point> line(const point& p1, const point& p2)
+		{
+			std::vector<point> res;
+			int n = distance(p1, p2);
+			int x1, y1, z1;
+			std::tie(x1,y1,z1) = oddq_to_cube_coords(p1);
+			int x2, y2, z2;
+			std::tie(x2,y2,z2) = oddq_to_cube_coords(p2);
+			for(int i = 0; i <= n; ++i) {
+				const float i_over_n  = static_cast<float>(i)/n;
+				const float xt = x1 * (1.0f - i_over_n) + x2 * i_over_n + 1e-6;
+				const float yt = y1 * (1.0f - i_over_n) + y2 * i_over_n + 1e-6;
+				const float zt = z1 * (1.0f - i_over_n) + z2 * i_over_n - 2e-6;
+				res.emplace_back(cube_to_oddq_coords(hex_round(xt, yt, zt)));
+			}
+
+			return res;
+		}
 	}
 }
