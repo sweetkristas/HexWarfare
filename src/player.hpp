@@ -32,6 +32,12 @@ class player;
 typedef std::shared_ptr<player> player_ptr;
 typedef std::weak_ptr<player> player_weak_ptr;
 
+namespace game
+{
+	class state;
+	class Update;
+}
+
 class team
 {
 public:
@@ -66,6 +72,7 @@ class player
 {
 public:
 	explicit player(team_ptr team, PlayerType pt, const std::string& name, uuid::uuid u=uuid::generate());
+	virtual ~player();
 	const std::string& name() const { return name_; }
 	PlayerType player_type() const { return player_type_; }
 	bool is_human() const { return player_type_ == PlayerType::NORMAL; }
@@ -77,7 +84,9 @@ public:
 	int id() const { return id_; }
 	void set_id(int id) { id_ = id; }
 
-	player_ptr clone();
+	virtual game::Update* process(const game::state& gs, double time) { return nullptr; }
+
+	virtual player_ptr clone();
 private:
 	PlayerType player_type_;
 	std::string name_;

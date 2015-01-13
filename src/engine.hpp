@@ -96,6 +96,8 @@ public:
 
 	void add_animated_property(const std::string& name, property::animate_ptr a);
 
+	void process_update(game::Update* up);
+
 private:
 	game::state& game_state_;
 	EngineState state_;
@@ -116,6 +118,8 @@ private:
 	void process_events();
 
 	void clip_camera_to_extents();
+
+	void entity_health_check();
 
 	engine() = delete;
 	engine(const engine&) = delete;

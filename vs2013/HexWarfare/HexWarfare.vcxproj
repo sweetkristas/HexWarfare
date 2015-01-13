@@ -87,6 +87,7 @@
     <ClCompile Include="..\..\src\action_process.cpp" />
     <ClCompile Include="..\..\src\ai_process.cpp" />
     <ClCompile Include="..\..\src\bar_widget.cpp" />
+    <ClCompile Include="..\..\src\bot.cpp" />
     <ClCompile Include="..\..\src\button.cpp" />
     <ClCompile Include="..\..\src\castles.cpp" />
     <ClCompile Include="..\..\src\collision_process.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="..\..\src\ai_process.hpp" />
     <ClInclude Include="..\..\src\bar_widget.hpp" />
     <ClInclude Include="..\..\src\basic_dir_monitor.hpp" />
+    <ClInclude Include="..\..\src\bot.hpp" />
     <ClInclude Include="..\..\src\button.hpp" />
     <ClInclude Include="..\..\src\castles.hpp" />
     <ClInclude Include="..\..\src\collision_process.hpp" />

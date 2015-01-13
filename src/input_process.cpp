@@ -155,7 +155,8 @@ namespace process
 									LOG_DEBUG("tile" << t << ": " << tile->tile()->id() << " : " << tile->tile()->get_cost());
 								}
 								// Generate an update move message.
-								auto up = eng.get_game_state().unit_move(e, inp->tile_path);
+								auto up = eng.get_game_state().create_update();
+								eng.get_game_state().unit_move(up, e, inp->tile_path);
 								// send message to server.
 								auto netclient = eng.get_netclient().lock();
 								ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
@@ -248,7 +249,8 @@ namespace process
 		}
 		LOG_INFO("Unit " << aggressor_->stat->name << "(" << aggressor_->entity_id << ") attacks units:" << ss.str());
 		// Generate an update move message.
-		auto up = eng.get_game_state().unit_attack(aggressor_, targets_);
+		auto up = eng.get_game_state().create_update();
+		eng.get_game_state().unit_attack(up, aggressor_, targets_);
 		// send message to server.
 		auto netclient = eng.get_netclient().lock();
 		ASSERT_LOG(netclient != nullptr, "Network client has gone away.");

@@ -19,6 +19,7 @@
 #include "asserts.hpp"
 #include "component.hpp"
 #include "creature.hpp"
+#include "easing.hpp"
 #include "engine.hpp"
 #include "node_utils.hpp"
 #include "profile_timer.hpp"
@@ -211,6 +212,22 @@ void engine::process_events()
 	}
 }
 
+void engine::entity_health_check()
+{
+	static component_id stat_mask 
+		= component::genmask(component::Component::STATS) 
+		| component::genmask(component::Component::POSITION);
+	entity_list_.erase(std::remove_if(entity_list_.begin(), entity_list_.end(), [&](component_set_ptr e) {
+		if((e->mask & stat_mask) == stat_mask) {
+			if(e->stat->health <= 0) {
+				game_state_.remove_entity(e);
+				return true;
+			}
+		}
+		return false;
+	}), entity_list_.end());
+}
+
 bool engine::update(double time)
 {
 	process_events();
@@ -229,7 +246,24 @@ bool engine::update(double time)
 
 	particles_.update(static_cast<float>(time));
 	particles_.draw();
+
+	// Scan through entity list, remove any with 0 health
+	entity_health_check();
 	return true;
+}
+
+// Handle the engine side of game::state updates
+void engine::process_update(game::Update* up)
+{
+	if(up->has_end_turn() && up->end_turn()) {
+		auto& ep = game_state_.get_entities().front()->pos->gs_pos;
+		auto fp = get_map()->get_pixel_pos_from_tile_pos(ep.x, ep.y);
+		fp += point(get_tile_size().x/2 - get_window().width()/2, get_tile_size().y/2 - get_window().height()/2);			
+		add_animated_property("camera", 
+			std::make_shared<property::animate<double, glm::vec2>>([&, fp](double t, double d){ 
+								return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(camera_.x), static_cast<float>(camera_.y)), glm::vec2(static_cast<float>(fp.x-camera_.x), static_cast<float>(fp.y-camera_.y)), d); }, 
+								[&](const glm::vec2& v){ camera_.x = static_cast<int>(std::round(v.x)); camera_.y = static_cast<int>(std::round(v.y)); }, 0.4));
+	}
 }
 
 void engine::end_turn()
@@ -252,7 +286,8 @@ void engine::end_turn()
 
 	auto netclient = get_netclient().lock();
 	ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
-	game::Update* up = game_state_.end_turn();
+	game::Update* up = game_state_.create_update();
+	game_state_.end_turn(up);
 	netclient->write_send_queue(up);
 }
 

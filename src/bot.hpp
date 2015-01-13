@@ -16,25 +16,19 @@
 
 #pragma once
 
-#include <bitset>
-#include <memory>
-#include <vector>
+#include "network_server.hpp"
+#include "player.hpp"
 
-class engine;
-
-namespace game
+namespace ai
 {
-	class state;
-	class Update;
-};
+	void local_bot_code(player_ptr bot, game::state gs, network::client_ptr client);
 
-namespace component
-{
-	struct component_set;
+	class bot : public player
+	{
+	public:
+		explicit bot(team_ptr team, const std::string& name, uuid::uuid u=uuid::generate());
+		game::Update* process(const game::state& gs, double time) override;
+		player_ptr clone() override;
+	private:
+	};
 }
-typedef std::shared_ptr<component::component_set> component_set_ptr;
-typedef std::weak_ptr<component::component_set> component_set_weak_ptr;
-
-typedef std::bitset<64> component_id;
-
-typedef std::vector<component_set_ptr> entity_list;
