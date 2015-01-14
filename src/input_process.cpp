@@ -97,6 +97,11 @@ namespace process
 						inp->tile_path.clear();
 						inp->clear_selection = false;
 					}
+					if(inp->gen_moves) {
+						inp->gen_moves = false;	
+						inp->graph = hex::create_cost_graph(eng.get_game_state(), pos.x, pos.y, stats->move);
+						inp->possible_moves = hex::find_available_moves(inp->graph, pos, stats->move);
+					}
 
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
 					if(button.button == SDL_BUTTON_LEFT 
@@ -209,7 +214,7 @@ namespace process
 					auto& pos = e->pos->gs_pos;
 					auto& inp = e->inp;
 					auto& stats = e->stat;
-					if(inp->selected && !inp->possible_moves.empty() && inp->graph != nullptr) {
+					if(!inp->possible_moves.empty() && inp->graph != nullptr) {
 						int x = motion.x;
 						int y = motion.y;
 						auto destination_pt = eng.get_map()->get_tile_pos_from_pixel_pos(x, y);

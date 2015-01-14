@@ -268,6 +268,15 @@ void engine::process_update(game::Update* up)
 {
 	using namespace game;
 
+	if(up->has_game_start() && up->game_start()) {
+		auto& fe = game_state_.get_entities().front();
+		if(fe->owner.lock() == active_player_ 
+			&& (fe->mask & component::genmask(component::Component::INPUT)) == component::genmask(component::Component::INPUT)) {
+			fe->inp->gen_moves = true;
+			fe->inp->selected = true;
+		}
+	}
+
 	for(auto& players : up->player()) {
 		// XXX deal with stuff
 		switch(players.action())
@@ -314,13 +323,20 @@ void engine::process_update(game::Update* up)
 	}
 
 	if(up->has_end_turn() && up->end_turn()) {
-		auto& ep = game_state_.get_entities().front()->pos->gs_pos;
+		auto& fe = game_state_.get_entities().front();
+		auto& ep = fe->pos->gs_pos;
 		auto fp = get_map()->get_pixel_pos_from_tile_pos(ep.x, ep.y);
 		fp += point(get_tile_size().x/2 - get_window().width()/2, get_tile_size().y/2 - get_window().height()/2);			
 		add_animated_property("camera", 
 			std::make_shared<property::animate<double, glm::vec2>>([&, fp](double t, double d){ 
 								return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(camera_.x), static_cast<float>(camera_.y)), glm::vec2(static_cast<float>(fp.x-camera_.x), static_cast<float>(fp.y-camera_.y)), d); }, 
 								[&](const glm::vec2& v){ camera_.x = static_cast<int>(std::round(v.x)); camera_.y = static_cast<int>(std::round(v.y)); }, 0.4));
+		// schedule front entity to have moves enumerated -- if it belongs to active player
+		if(fe->owner.lock() == active_player_ 
+			&& (fe->mask & component::genmask(component::Component::INPUT)) == component::genmask(component::Component::INPUT)) {
+			fe->inp->gen_moves = true;
+			fe->inp->selected = true;
+		}
 	}
 
 	// Check for a game won/drawn/lost

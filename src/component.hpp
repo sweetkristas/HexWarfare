@@ -114,10 +114,11 @@ namespace component
 
 	struct input : public component
 	{
-		input() : component(Component::INPUT), clear_selection(false), selected(false), is_attack_target(false) {}
+		input() : component(Component::INPUT), clear_selection(false), gen_moves(false), selected(false), is_attack_target(false) {}
 		CLONE(input)
 		rect mouse_area;
 		bool clear_selection;
+		bool gen_moves;
 		bool selected;
 		bool is_attack_target;
 		hex::result_list possible_moves;

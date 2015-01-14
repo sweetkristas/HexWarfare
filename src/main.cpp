@@ -153,6 +153,13 @@ void local_server_code(game::state gs, network::server_ptr server)
 {
 	game::Update* up;
 	bool running = true;
+
+	// create and send a start game packet.
+	up = gs.create_update();
+	up->set_game_start(true);
+	server->write_send_queue(up);
+	server->process();
+
 	while(running) {
 		if((up = server->read_recv_queue()) != nullptr) {
 			std::cerr << "local_server_code: Got message: " << up->id() << "\n";
