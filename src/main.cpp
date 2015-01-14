@@ -33,6 +33,7 @@
 #include "action_process.hpp"
 #include "ai_process.hpp"
 #include "asserts.hpp"
+#include "bot.hpp"
 #include "button.hpp"
 #include "castles.hpp"
 #include "collision_process.hpp"
@@ -143,7 +144,7 @@ void load_scenario(engine& eng, const std::string& name)
 			eng.add_entity(creature::spawn(gs, gs.get_player_by_id(player_id), c["name"].as_string(), node_to_point(c["location"])));
 		}
 	} catch(json::parse_error& pe) {
-		ASSERT_LOG(false, "Error parsing data/castles.cfg: " << pe.what());
+		ASSERT_LOG(false, "Error parsing " << name << ": " << pe.what());
 	}
 	gs.set_map(eng.get_map()->get_logical_map());
 }
@@ -156,17 +157,20 @@ void local_server_code(game::state gs, network::server_ptr server)
 		if((up = server->read_recv_queue()) != nullptr) {
 			std::cerr << "local_server_code: Got message: " << up->id() << "\n";
 			// XXX do more processing here.
-			auto msgs = gs.validate_and_apply(up);
-			for(auto& msg : msgs) {
-				server->write_send_queue(msg);
+			game::Update* nup = gs.validate_and_apply(up);
+			if(nup) {
+				server->write_send_queue(nup);
 			}
-			if(up->has_quit() && up->quit()) {
+			if(up->has_quit() && up->quit() && up->id() == -1) {
 				running = false;
 			}
 			delete up;
+
+			server->process();
 		}
 	}
 }
+
 
 COMMAND_LINE_UTILITY(server)
 {
@@ -182,6 +186,8 @@ int main(int argc, char* argv[])
 	for(int i = 0; i < argc; ++i) {
 		args.push_back(argv[i]);
 	}
+
+	std::string scenario_file("data/scenario/scenario1.cfg");
 
 	bool local_server = true;
 	std::string server_name = "localhost";
@@ -207,6 +213,10 @@ int main(int argc, char* argv[])
 			}
 			utility_name = arg_value;
 			utility_args = std::vector<std::string>(it+1, args.end());
+		} else if(arg_name == "--scenario") {
+			// XXX A proper implementation searches for the file matching scenario_file, and checks
+			// for whether .cfg is already specified.
+			scenario_file = "data/scenario/" + arg_value + ".cfg";
 		}
 	}
 	
@@ -277,35 +287,43 @@ int main(int argc, char* argv[])
 		e.set_tile_size(point(72,72));
 
 		// Create some teams for the players
-		team_ptr t1 = std::make_shared<team>(1, "Good guys");
-		team_ptr t2 = std::make_shared<team>(2, "Bad guys");
+		team_ptr t1 = gs.create_team_instance("Good guys");
+		team_ptr t2 = gs.create_team_instance("Bad guys");
 
 		auto p1 = std::make_shared<player>(t1, PlayerType::NORMAL, "Player 1");
 		p1->set_id(0);
 		gs.add_player(p1);
-		auto b1 = std::make_shared<player>(t2, PlayerType::AI, "Evil Bot");
+		auto b1 = std::make_shared<ai::bot>(t2, "Evil Bot");
 		b1->set_id(1);
 		gs.add_player(b1);
 
-		load_scenario(e, "data/scenario/scenario1.cfg");
+		load_scenario(e, scenario_file);
 
 		create_gui(e);
 
 		std::unique_ptr<std::thread> local_server_thread;
+		std::unique_ptr<std::thread> local_bot_thread;
 
 		network::server_ptr nserver;
 		network::client_ptr nclient;
+		network::client_ptr nbotclient;
 		if(local_server) {
 			nserver = std::make_shared<network::internal::server>();
 			nclient = std::make_shared<network::internal::client>();
 			nserver->add_peer(nclient);
 			nclient->add_peer(nserver);
+			
+			nbotclient = std::make_shared<network::internal::client>();
+			nserver->add_peer(nbotclient);
+			nbotclient->add_peer(nserver);	
 
 			local_server_thread.reset(new std::thread(local_server_code, gs, nserver));
+			local_bot_thread.reset(new std::thread(ai::local_bot_code, b1, gs, nbotclient));
 		} else {
 			//nclient = std::make_shared<network::enet::client>(server_name, server_port);
 		}
 		e.set_netclient(nclient);
+		e.set_active_player(p1);
 
  		e.add_process(std::make_shared<process::input>());
 		e.add_process(std::make_shared<process::render>());
@@ -335,12 +353,10 @@ int main(int argc, char* argv[])
 				game::Update* up;
 				while((up = nclient->read_recv_queue()) != nullptr) {
 					std::cerr << "client: Got message: " << up->id() << "\n";
-					gs.apply(e, up);
+					gs.apply(up);
+					e.process_update(up);
 					delete up;
 				}
-			}
-			if(nserver) {
-				nserver->process();
 			}
 
 			SDL_RenderClear(wm.get_renderer());
@@ -363,14 +379,19 @@ int main(int argc, char* argv[])
 			}
 		}
 
-
+		// This is mostly a local server thing to kill the server and bot threads
+		// Basically we construct a message saying quit, then the server
+		// sends that to the clients.
+		if(nserver) {
+			game::Update* up = new game::Update();
+			up->set_id(-1);
+			up->set_quit(true);
+			nserver->write_recv_queue(up);
+		}
+		if(local_bot_thread && local_bot_thread->joinable()) {
+			local_bot_thread->join();
+		}
 		if(local_server_thread && local_server_thread->joinable()) {
-			if(nserver) {
-				game::Update* up = new game::Update();
-				up->set_id(-1);
-				up->set_quit(true);
-				nserver->write_recv_queue(up);
-			}
 			local_server_thread->join();
 		}
 	} catch(std::exception& ex) {

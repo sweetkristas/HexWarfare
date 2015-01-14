@@ -162,12 +162,14 @@ namespace component
 		uuid::uuid entity_id;
 		component_id mask;
 		int zorder;
+		// XXX Since pos is frequently accessed, it'd be better if it was just point pos; in the declaration.
 		std::shared_ptr<position> pos;
 		std::shared_ptr<sprite> spr;
 		std::shared_ptr<stats> stat;
 		std::shared_ptr<input> inp;
 		std::shared_ptr<gui_component> gui;
 		player_weak_ptr owner;
+		// XXX add direct access to team uuid and maybe owner uuid
 		component_set(const component_set&) = delete;
 		void operator=(const component_set&) = delete;
 	};

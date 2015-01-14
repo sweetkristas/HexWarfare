@@ -61,4 +61,9 @@ namespace profile
 			return (t2 - t1) * 1000000.0 / frequency;
 		}
 	};
+
+	inline void sleep(double t) 
+	{
+		SDL_Delay(static_cast<Uint32>(t * 1000.0));
+	}
 }

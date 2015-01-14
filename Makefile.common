@@ -8,6 +8,7 @@ objects = \
 	src/action_process.o \
 	src/ai_process.o \
 	src/bar_widget.o \
+    src/bot.o \
 	src/button.o \
 	src/castles.o \
 	src/collision_process.o \

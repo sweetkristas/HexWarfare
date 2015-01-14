@@ -32,6 +32,7 @@
 enum class EngineState {
 	PLAY,
 	PAUSE,
+	GAME_OVER,
 	QUIT,
 };
 
@@ -96,6 +97,12 @@ public:
 
 	void add_animated_property(const std::string& name, property::animate_ptr a);
 
+	void process_update(game::Update* up);
+
+	component_set_ptr get_entity_by_uuid(const uuid::uuid& id);
+
+	void set_active_player(player_ptr p) { active_player_ = p; }
+
 private:
 	game::state& game_state_;
 	EngineState state_;
@@ -111,11 +118,14 @@ private:
 	std::vector<gui::widget_ptr> widgets_;
 	network::client_weak_ptr client_;
 	property::manager property_manager_;
+	player_ptr active_player_;
 
 	void translate_mouse_coords(SDL_Event* evt);
 	void process_events();
 
 	void clip_camera_to_extents();
+
+	void entity_health_check();
 
 	engine() = delete;
 	engine(const engine&) = delete;

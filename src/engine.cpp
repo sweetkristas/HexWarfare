@@ -19,6 +19,7 @@
 #include "asserts.hpp"
 #include "component.hpp"
 #include "creature.hpp"
+#include "easing.hpp"
 #include "engine.hpp"
 #include "node_utils.hpp"
 #include "profile_timer.hpp"
@@ -211,6 +212,22 @@ void engine::process_events()
 	}
 }
 
+void engine::entity_health_check()
+{
+	static component_id stat_mask 
+		= component::genmask(component::Component::STATS) 
+		| component::genmask(component::Component::POSITION);
+	entity_list_.erase(std::remove_if(entity_list_.begin(), entity_list_.end(), [&](component_set_ptr e) {
+		if((e->mask & stat_mask) == stat_mask) {
+			if(e->stat->health <= 0) {
+				game_state_.remove_entity(e);
+				return true;
+			}
+		}
+		return false;
+	}), entity_list_.end());
+}
+
 bool engine::update(double time)
 {
 	process_events();
@@ -229,7 +246,103 @@ bool engine::update(double time)
 
 	particles_.update(static_cast<float>(time));
 	particles_.draw();
+
+	// Scan through entity list, remove any with 0 health
+	entity_health_check();
 	return true;
+}
+
+component_set_ptr engine::get_entity_by_uuid(const uuid::uuid& id)
+{
+	for(auto& e : entity_list_) {
+		if(e->entity_id == id) {
+			return e;
+		}
+	}
+	ASSERT_LOG(false, "Couldn't find entity with uuid: " << id);
+	return nullptr;
+}
+
+// Handle the engine side of game::state updates
+void engine::process_update(game::Update* up)
+{
+	using namespace game;
+
+	for(auto& players : up->player()) {
+		// XXX deal with stuff
+		switch(players.action())
+		{
+			case Update_Player_Action_CANONICAL_STATE:
+			case Update_Player_Action_JOIN:
+			case Update_Player_Action_QUIT:
+			case Update_Player_Action_CONCEDE:
+				break;
+			default: 
+				ASSERT_LOG(false, "Unrecognised player.action() value: " << players.action());
+		}
+	}
+
+	for(auto& units : up->units()) {
+		switch(units.type()) {
+			case Update_Unit_MessageType_CANONICAL_STATE:
+				break;
+			case Update_Unit_MessageType_SUMMON:
+				break;
+			case Update_Unit_MessageType_MOVE: {
+				auto e = get_entity_by_uuid(uuid::read(units.uuid()));
+				if(e->pos->gs_pos != e->pos->pos) {
+					// XXX schedule a movement animation, which we fake for now.
+					e->pos->pos = e->pos->gs_pos;
+				}
+				/// XXX clear any pathing related stuff, or at least signal engine to do it in the input process.
+				if(e->inp) {
+					e->inp->clear_selection = true;
+				}
+				break;
+			}
+			case Update_Unit_MessageType_ATTACK: {
+				break;
+			}
+			case Update_Unit_MessageType_SPELL: {
+				break;
+			}
+			case Update_Unit_MessageType_PASS:
+				break;
+			default: 
+				ASSERT_LOG(false, "Unrecognised units.type() value: " << units.type());
+		}
+	}
+
+	if(up->has_end_turn() && up->end_turn()) {
+		auto& ep = game_state_.get_entities().front()->pos->gs_pos;
+		auto fp = get_map()->get_pixel_pos_from_tile_pos(ep.x, ep.y);
+		fp += point(get_tile_size().x/2 - get_window().width()/2, get_tile_size().y/2 - get_window().height()/2);			
+		add_animated_property("camera", 
+			std::make_shared<property::animate<double, glm::vec2>>([&, fp](double t, double d){ 
+								return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(camera_.x), static_cast<float>(camera_.y)), glm::vec2(static_cast<float>(fp.x-camera_.x), static_cast<float>(fp.y-camera_.y)), d); }, 
+								[&](const glm::vec2& v){ camera_.x = static_cast<int>(std::round(v.x)); camera_.y = static_cast<int>(std::round(v.y)); }, 0.4));
+	}
+
+	// Check for a game won/drawn/lost
+	if(up->has_game_win_state() && up->game_win_state() != Update_GameWinState_IN_PROGRESS) {
+		if(up->game_win_state() == Update_GameWinState_DRAW) {
+			// XXX Draw some large graphic splash
+			LOG_INFO("Game Over -- draw");
+		} else {
+			ASSERT_LOG(up->has_winning_team_uuid(), "Gane marked as won, but no winning team uuid.");
+			// XXX Draw some large graphic splash
+			auto winning_uuid = uuid::read(up->winning_team_uuid());
+			auto winning_team = game_state_.get_team_from_id(winning_uuid);
+			LOG_INFO("Game Over -- Team '" << winning_team->get_team_name() << "' wins");
+			if(active_player_->team() == winning_team) {
+				LOG_INFO("You win.");
+			} else {
+				LOG_INFO("You lost.");
+			}
+		}
+
+		state_ = EngineState::GAME_OVER;
+	}
 }
 
 void engine::end_turn()
@@ -252,7 +365,8 @@ void engine::end_turn()
 
 	auto netclient = get_netclient().lock();
 	ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
-	game::Update* up = game_state_.end_turn();
+	game::Update* up = game_state_.create_update();
+	game_state_.end_turn(up);
 	netclient->write_send_queue(up);
 }
 

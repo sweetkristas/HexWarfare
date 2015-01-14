@@ -57,30 +57,35 @@ namespace game
 		player_ptr get_player(const uuid::uuid& n);
 		player_ptr get_player_by_id(int id);
 
-		bool is_attackable(const component_set_ptr& aggressor, const component_set_ptr& e);
+		bool is_attackable(const component_set_ptr& aggressor, const component_set_ptr& e) const;
 
-		Update* unit_summon(component_set_ptr e);
-		Update* unit_move(component_set_ptr e, const std::vector<point>& path);
-		Update* unit_attack(const component_set_ptr& e, const std::vector<component_set_ptr>& targets);
-		Update* end_turn();
+		Update* create_update() const;
+		const state& unit_summon(Update* up, component_set_ptr e) const;
+		const state& unit_move(Update* up, component_set_ptr e, const std::vector<point>& path) const;
+		const state& unit_attack(Update* up, const component_set_ptr& e, const std::vector<component_set_ptr>& targets) const;
+		const state& end_turn(Update* up) const;
 
 		// Server-side function for validating the received update.
-		std::vector<Update*> validate_and_apply(Update* up);
+		Update* validate_and_apply(Update* up);
 		// Client-side function for processing recived update, checking the reply
 		// And making client side stuff happen. (i.e. animated moving -- if we haven't done so already)
 		// validating that the update counter is correct. 
 		// Adjusting everything if it's a re-sync update.
-		void apply(engine& eng, Update* up);
+		void apply(Update* up);
+
+		team_ptr create_team_instance(const std::string& name);
+		team_ptr get_team_from_id(const uuid::uuid& id);
 
 	private:
 		float initiative_counter_;
-		int update_counter_;
+		mutable int update_counter_;
 		hex::logical::map_ptr map_;
 		// List of game entities with stats tag. Sorted by intiative.
 		entity_list entities_;
 		std::map<uuid::uuid, player_ptr> players_;
 		// Used to synchronise state with the server.
 		std::string fail_reason_;
+		std::map<uuid::uuid, team_ptr> teams_;
 
 		component_set_ptr get_entity_by_uuid(const uuid::uuid& id);
 		void set_validation_fail_reason(const std::string& reason);

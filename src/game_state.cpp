@@ -16,7 +16,6 @@
 
 #include "asserts.hpp"
 #include "component.hpp"
-#include "easing.hpp"
 #include "formatter.hpp"
 #include "game_state.hpp"
 #include "profile_timer.hpp"
@@ -80,11 +79,10 @@ namespace game
 			initiative_counter_ = entities_.front()->stat->initiative;
 		}
 
-		std::cerr << "Initative list:";
-		for(auto& e : entities_) {
-			std::cerr << "\t" << e->stat->name << ":" << e->stat->initiative << " : move(" << e->stat->move << ")\n";
-		}
-		//std::cerr << "\n";
+		//std::cerr << "Initative list:";
+		//for(auto& e : entities_) {
+		//	std::cerr << "\t" << e->stat->name << ":" << e->stat->initiative << " : move(" << e->stat->move << ")\n";
+		//}
 	}
 
 	void state::add_player(player_ptr p)
@@ -142,26 +140,29 @@ namespace game
 		return nullptr;
 	}
 
-	Update* state::unit_summon(component_set_ptr e)
+	Update* state::create_update() const
 	{
-		// Generate a message to be sent to the server
-		return nullptr;
+		Update* up = new Update();
+		up->set_id(++update_counter_);
+		return up;
 	}
 
-	Update* state::end_turn()
+	const state& state::end_turn(Update* up) const 
 	{
-		Update* u = new Update();
-		u->set_id(++update_counter_);
-		u->set_end_turn(true);
-		return u;
+		up->set_end_turn(true);
+		return *this;
 	}
 
-	Update* state::unit_move(component_set_ptr e, const std::vector<point>& path)
+	const state& state::unit_summon(Update* up, component_set_ptr e) const
 	{
 		// Generate a message to be sent to the server
-		Update* u = new Update();
-		u->set_id(++update_counter_);
-		Update_Unit *unit = u->add_units();
+		return *this;
+	}
+
+	const state& state::unit_move(Update* up, component_set_ptr e, const std::vector<point>& path) const 
+	{
+		// Generate a message to be sent to the server
+		Update_Unit *unit = up->add_units();
 		unit->set_uuid(uuid::write(e->entity_id));
 		unit->set_type(Update_Unit_MessageType::Update_Unit_MessageType_MOVE);
 		for(auto& p : path) {
@@ -169,34 +170,39 @@ namespace game
 			loc->set_x(p.x);
 			loc->set_y(p.y);
 		}
-		// XXX Set any animation hints as required here.
-		return u;
+		return *this;
 	}
 
-	Update* state::unit_attack(const component_set_ptr& e, const std::vector<component_set_ptr>& targets)
+	const state& state::unit_attack(Update* up, const component_set_ptr& e, const std::vector<component_set_ptr>& targets) const 
 	{
-		Update* u = new Update();
-		u->set_id(++update_counter_);
-		Update_Unit *unit = u->add_units();
+		Update_Unit *unit = up->add_units();
 		unit->set_uuid(uuid::write(e->entity_id));
 		unit->set_type(Update_Unit_MessageType::Update_Unit_MessageType_ATTACK);
 		for(auto& t : targets) {
 			std::string* str = unit->add_target_uuids();
 			*str = uuid::write(t->entity_id);
 		}
-		return u;
+		return *this;
 	}
 
-	std::vector<Update*> state::validate_and_apply(Update* up)
+	Update* state::validate_and_apply(Update* up)
 	{
-		std::vector<Update*> res;
+		if(up->has_quit() && up->quit() && up->id() == -1) {
+			Update* nup = new Update();
+			nup->set_id(-1);
+			nup->set_quit(true);
+			return nup;
+		}
 
 		if(up->id() < update_counter_) {
 			// XXX we should resend the complete state as this update seems old.
 			//res.emplace_back(generate_complete());
 			LOG_WARN("Got old update: " << up->id() << " : " << update_counter_);
-			return res;
+			return nullptr;
 		}
+
+		// Create a new update to be sent
+		auto nup = create_update();
 
 		for(auto& players : up->player()) {
 			// XXX deal with stuff
@@ -213,6 +219,11 @@ namespace game
 		}
 
 		for(auto& units : up->units()) {
+			// Create a new unit based on this current one.
+			Update_Unit* uu = nup->add_units();
+			uu->set_uuid(units.uuid());
+			uu->set_type(Update_Unit_MessageType_PASS);
+
 			switch(units.type())
 			{
 				case Update_Unit_MessageType_CANONICAL_STATE:
@@ -225,12 +236,14 @@ namespace game
 					// Validate that the unit has enough move to afford going along the given path.
 					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
 					if(validate_move(e, units.path())) {
-					//	res.
-						++update_counter_;
-						// XXX send the path update to all the clients here.
-						auto nup = new Update(*up);
-						nup->set_id(update_counter_);
-						res.emplace_back(nup);
+						// send path to clients
+						uu->set_type(Update_Unit_MessageType::Update_Unit_MessageType_MOVE);
+						// XXX see if there is a better way of moving the path using protobufs
+						for(auto& p : units.path()) {
+							Update_Location* loc = uu->add_path();
+							loc->set_x(p.x());
+							loc->set_y(p.y());
+						}
 					} else {
 						// The path provided has a cost which is more than the number of move left.
 						// XXX Re-send the complete game state.
@@ -241,20 +254,14 @@ namespace game
 				}
 				case Update_Unit_MessageType_ATTACK: {
 					auto aggressor = get_entity_by_uuid(uuid::read(units.uuid()));
-					
-					++update_counter_;
-					auto nup = new Update();
-					nup->set_id(update_counter_);
-
 					for(auto& target_id : units.target_uuids()) {
 						auto t = get_entity_by_uuid(uuid::read(target_id));
 						if(is_attackable(aggressor, t)) {
 							combat(nup, aggressor, t);
 						} else {
-							LOG_WARN("Unit(" << target_id << ") couldn't be attacked.");
+							LOG_WARN(t << " couldn't be attacked.");
 						}
 					}
-					res.emplace_back(nup);
 					break;
 				}
 				case Update_Unit_MessageType_SPELL: {
@@ -268,14 +275,34 @@ namespace game
 		}
 
 		if(up->has_end_turn() && up->end_turn()) {
-			this->end_unit_turn();
-			++update_counter_;
-			// XXX send the path update to all the clients here.
-			auto nup = new Update(*up);
-			nup->set_id(update_counter_);
-			res.emplace_back(nup);
+			end_unit_turn();
+			nup->set_end_turn(true);
 		}
-		return res;
+
+		// Check for victory condition -- assumes it is one side losing all their units.
+		if(entities_.size() == 0) {
+			// all units killed during this turn -- calling it a draw.
+			nup->set_game_win_state(Update_GameWinState_DRAW);
+		} else {
+			// check to see if all entities on one side are dead.
+			// XXX this feels like a horrble over-kill hacky way of doing it.
+			std::map<uuid::uuid,int> score;
+			for(auto& e : entities_) { 
+				const uuid::uuid& id = e->owner.lock()->team()->id();
+				auto it = score.find(id);
+				if(it == score.end()) {
+					score[id] = 1;
+				} else {
+					(it->second)++;
+				}
+			}
+			team_ptr winning_team = entities_.front()->owner.lock()->team();
+			if(score.size() == 1) {
+				nup->set_winning_team_uuid(uuid::write(winning_team->id()));
+				nup->set_game_win_state(Update_GameWinState_WON);
+			}
+		}
+		return nup;
 	}
 
 	component_set_ptr state::get_entity_by_uuid(const uuid::uuid& id)
@@ -297,7 +324,7 @@ namespace game
 		profile::manager pman("state::validate_move");
 		// check that it is the turn of e to move/action.
 		if(entities_.front() != e) {
-			set_validation_fail_reason(formatter() << "entity(" << e->entity_id << ") wasn't the current unit with initiative(" << entities_.front()->entity_id << ").");
+			set_validation_fail_reason(formatter() << e << " wasn't the current unit with initiative " << entities_.front() << " was.");
 			return false;
 		}
 
@@ -333,7 +360,7 @@ namespace game
 			auto tile = map_->get_tile_at(p->x(), p->y());
 			ASSERT_LOG(tile != nullptr, "No tile exists at point: " << pp);
 			cost += tile->get_cost();
-			LOG_DEBUG("tile" << pp << ": " << tile->name() << " : " << tile->get_cost());
+			//LOG_DEBUG("tile" << pp << ": " << tile->name() << " : " << tile->get_cost());
 
 			auto it = enemy_locations.find(pp);
 			if(it != enemy_locations.end()) {
@@ -352,15 +379,15 @@ namespace game
 			if(e->stat->move < FLT_EPSILON) {
 				e->stat->move = 0;
 			}
-			e->pos->pos.x = path.rbegin()->x();
-			e->pos->pos.y = path.rbegin()->y();
+			e->pos->gs_pos.x = path.rbegin()->x();
+			e->pos->gs_pos.y = path.rbegin()->y();
 			return true;
 		}
 		set_validation_fail_reason(formatter() << "Unit didn't have enough movement left. " << e->stat->move << cost);
 		return false;
 	}
 
-	bool state::is_attackable(const component_set_ptr& aggressor, const component_set_ptr& e)
+	bool state::is_attackable(const component_set_ptr& aggressor, const component_set_ptr& e) const
 	{
 		if(aggressor == e) {
 			LOG_INFO(aggressor << " could not attack target, same unit");
@@ -373,7 +400,7 @@ namespace game
 			// enemy units (red).
 			return false;
 		}
-		int d = hex::logical::distance(aggressor->pos->pos, e->pos->gs_pos);
+		int d = hex::logical::distance(aggressor->pos->gs_pos, e->pos->gs_pos);
 		if(d > aggressor->stat->range) {
 			LOG_INFO(aggressor << " could not attack target " << e << " distance too great: " << d);
 			return false;
@@ -383,7 +410,7 @@ namespace game
 			// Find the direct line between the two units
 			// make sure that there are no other entities in the way, unless the unit has the
 			// "strike-through" ability.
-			auto line = hex::logical::line(aggressor->pos->pos, e->pos->gs_pos);
+			auto line = hex::logical::line(aggressor->pos->gs_pos, e->pos->gs_pos);
 			// remove first and last elements from the line.
 			line.pop_back();
 			line.erase(line.begin());
@@ -403,7 +430,7 @@ namespace game
 		return true;
 	}
 
-	void state::apply(engine& eng, Update* up)
+	void state::apply(Update* up)
 	{
 		// client side update
 		update_counter_ = up->id();
@@ -434,29 +461,11 @@ namespace game
 					break;
 				case Update_Unit_MessageType_MOVE: {
 					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
-					auto p = units.path().rbegin();
+					auto p = units.path().end() - 1;
 					auto start_p = point(units.path().begin()->x(), units.path().begin()->y());
 					LOG_INFO("moving " << e << " from " << start_p << " to position " << point(p->x(), p->y()));
-					if(e->pos->gs_pos.x != p->x() || e->pos->gs_pos.y != p->y()) {
-						// Unit hasn't been moved yet, so play attached animation and move unit along path.
-						// move unit to final position
-						e->pos->gs_pos.x = p->x();
-						e->pos->gs_pos.y = p->y();
-					}
-					if(e->pos->pos.x != p->x() || e->pos->pos.y != p->y()) {
-						/// XXX todo
-						//for(auto& t : units.path()) {
-							//auto p = hex::hex_map::get_pixel_pos_from_tile_pos(t.x(), t.y()) + point(eng.get_tile_size().x/2, eng.get_tile_size().y/2);
-							//inp->move_path.emplace_back(p);
-						//}
-						e->pos->pos.x = p->x();
-						e->pos->pos.y = p->y();
-					}
-					/// XXX clear any pathing related stuff, or at least signal engine to do it in the input process.
-					auto& inp = e->inp;
-					if(inp) {
-						inp->clear_selection = true;
-					}
+					e->pos->gs_pos.x = p->x();
+					e->pos->gs_pos.y = p->y();
 					break;
 				}
 				case Update_Unit_MessageType_ATTACK: {
@@ -465,11 +474,6 @@ namespace game
 					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
 					ASSERT_LOG(units.has_stats(), "No stats block attached to attack");
 					set_entity_stats(e, units.stats());
-					if(units.stats().has_health() && units.stats().health() <= 0) {
-						// Unit has died schedule for removal.
-						// Play death animation.
-						eng.remove_entity(e);
-					}
 					// clear attack targets
 					for(auto& unit : entities_) {
 						if(unit->inp) {
@@ -491,28 +495,24 @@ namespace game
 		if(up->has_end_turn() && up->end_turn()) {
 			// do client side end turn.
 			end_unit_turn();
-			auto& ep = entities_.front()->pos->gs_pos;
-			auto fp = eng.get_map()->get_pixel_pos_from_tile_pos(ep.x, ep.y);
-			fp += point(eng.get_tile_size().x/2 - eng.get_window().width()/2, eng.get_tile_size().y/2 - eng.get_window().height()/2);			
-			eng.add_animated_property("camera", 
-				std::make_shared<property::animate<double, glm::vec2>>([&eng, fp](double t, double d){ 
-									return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(eng.get_camera().x), static_cast<float>(eng.get_camera().y)), glm::vec2(static_cast<float>(fp.x-eng.get_camera().x), static_cast<float>(fp.y-eng.get_camera().y)), d); }, 
-									[&eng](const glm::vec2& v){eng.set_camera(static_cast<int>(std::round(v.x)), static_cast<int>(std::round(v.y))); /*LOG_DEBUG("cam = " << v.x << "," << v.y);*/ }, 0.4));
 		}
 	}
 
 	void state::combat(Update* up, component_set_ptr aggressor, component_set_ptr target)
 	{
 		ASSERT_LOG(up != nullptr, "game logic bug Update is null.");
-		Update_Unit* new_unit = up->add_units();
 		auto& a_stat = aggressor->stat;
 		auto& t_stat = target->stat;
 		if(a_stat->attack > t_stat->armour) {
 			t_stat->health -= a_stat->attack - t_stat->armour;
 			LOG_INFO(target << " takes " << (a_stat->attack - t_stat->armour) << " damage.");
+			if(t_stat->health < 0) {
+				LOG_INFO(target << " dies due to a fatal wound.");
+			}
 		} else {
 			LOG_INFO(target << " takes no damage due to high armour.");
 		}
+
 		Update_Unit* unit = up->add_units();
 		unit->set_uuid(uuid::write(target->entity_id));
 		Update_UnitStats* uus = new Update_UnitStats();
@@ -520,7 +520,7 @@ namespace game
 		unit->set_allocated_stats(uus);
 		unit->set_type(Update_Unit_MessageType_ATTACK);
 
-		// If we were doing a retalitory strike we could add code here.
+		// XXX If we were doing a retalitory strike we could add code here.
 		// Might pay to pass in the aggressor Update_Unit* pointer.
 
 
@@ -554,5 +554,19 @@ namespace game
 		if(stats.has_range()) {
 			stat->range = stats.range();
 		}
+	}
+
+	team_ptr state::create_team_instance(const std::string& name)
+	{
+		auto t = std::make_shared<team>(name);
+		teams_[t->id()] = t;
+		return t;
+	}
+
+	team_ptr state::get_team_from_id(const uuid::uuid& id)
+	{
+		auto it = teams_.find(id);
+		ASSERT_LOG(it != teams_.end(), "Couldn't find team for id: " << id);
+		return it->second;
 	}
 }

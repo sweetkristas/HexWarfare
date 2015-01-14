@@ -38,6 +38,8 @@ namespace creature
 
 		int get_initiative() const { return initiative_; }
 		float get_movement() const { return movement_; }
+
+		int get_max_units_attackable() const { return max_units_attackable_; }
 	private:
 		// Displayable name
 		std::string name_;
@@ -55,6 +57,8 @@ namespace creature
 		// has ranged attack
 		// what items might be carried.
 		// lights
+		//! Number of units that can be attacked at once using the default attack
+		int max_units_attackable_;
 		std::string ai_name_;
 		std::string sprite_name_;
 		rect sprite_area_;

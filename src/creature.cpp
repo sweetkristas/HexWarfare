@@ -28,7 +28,8 @@ namespace creature
 			initiative_(5), 
 			movement_(5.0f), 
 			movement_type_(MovementType::NORMAL) ,
-			range_(1.0f)
+			range_(1.0f),
+			max_units_attackable_(n["max_units_attackable"].as_int32(1))
 	{
 		using namespace component;
 		component_mask_ = genmask(Component::CREATURE);
