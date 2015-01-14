@@ -259,7 +259,7 @@ namespace game
 						if(is_attackable(aggressor, t)) {
 							combat(nup, aggressor, t);
 						} else {
-							LOG_WARN("Unit(" << target_id << ") couldn't be attacked.");
+							LOG_WARN(t << " couldn't be attacked.");
 						}
 					}
 					break;
@@ -277,6 +277,30 @@ namespace game
 		if(up->has_end_turn() && up->end_turn()) {
 			end_unit_turn();
 			nup->set_end_turn(true);
+		}
+
+		// Check for victory condition -- assumes it is one side losing all their units.
+		if(entities_.size() == 0) {
+			// all units killed during this turn -- calling it a draw.
+			nup->set_game_win_state(Update_GameWinState_DRAW);
+		} else {
+			// check to see if all entities on one side are dead.
+			// XXX this feels like a horrble over-kill hacky way of doing it.
+			std::map<uuid::uuid,int> score;
+			for(auto& e : entities_) { 
+				const uuid::uuid& id = e->owner.lock()->team()->id();
+				auto it = score.find(id);
+				if(it == score.end()) {
+					score[id] = 1;
+				} else {
+					(it->second)++;
+				}
+			}
+			team_ptr winning_team = entities_.front()->owner.lock()->team();
+			if(score.size() == 1) {
+				nup->set_winning_team_uuid(uuid::write(winning_team->id()));
+				nup->set_game_win_state(Update_GameWinState_WON);
+			}
 		}
 		return nup;
 	}
@@ -300,7 +324,7 @@ namespace game
 		profile::manager pman("state::validate_move");
 		// check that it is the turn of e to move/action.
 		if(entities_.front() != e) {
-			set_validation_fail_reason(formatter() << "entity(" << e->entity_id << ") wasn't the current unit with initiative(" << entities_.front()->entity_id << ").");
+			set_validation_fail_reason(formatter() << e << " wasn't the current unit with initiative " << entities_.front() << " was.");
 			return false;
 		}
 
@@ -355,8 +379,8 @@ namespace game
 			if(e->stat->move < FLT_EPSILON) {
 				e->stat->move = 0;
 			}
-			e->pos->pos.x = path.rbegin()->x();
-			e->pos->pos.y = path.rbegin()->y();
+			e->pos->gs_pos.x = path.rbegin()->x();
+			e->pos->gs_pos.y = path.rbegin()->y();
 			return true;
 		}
 		set_validation_fail_reason(formatter() << "Unit didn't have enough movement left. " << e->stat->move << cost);
@@ -376,7 +400,7 @@ namespace game
 			// enemy units (red).
 			return false;
 		}
-		int d = hex::logical::distance(aggressor->pos->pos, e->pos->gs_pos);
+		int d = hex::logical::distance(aggressor->pos->gs_pos, e->pos->gs_pos);
 		if(d > aggressor->stat->range) {
 			LOG_INFO(aggressor << " could not attack target " << e << " distance too great: " << d);
 			return false;
@@ -386,7 +410,7 @@ namespace game
 			// Find the direct line between the two units
 			// make sure that there are no other entities in the way, unless the unit has the
 			// "strike-through" ability.
-			auto line = hex::logical::line(aggressor->pos->pos, e->pos->gs_pos);
+			auto line = hex::logical::line(aggressor->pos->gs_pos, e->pos->gs_pos);
 			// remove first and last elements from the line.
 			line.pop_back();
 			line.erase(line.begin());
@@ -435,28 +459,11 @@ namespace game
 					break;
 				case Update_Unit_MessageType_MOVE: {
 					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
-					auto p = units.path().rbegin();
+					auto p = units.path().end() - 1;
 					auto start_p = point(units.path().begin()->x(), units.path().begin()->y());
 					LOG_INFO("moving " << e << " from " << start_p << " to position " << point(p->x(), p->y()));
-					if(e->pos->gs_pos.x != p->x() || e->pos->gs_pos.y != p->y()) {
-						// Unit hasn't been moved yet, so play attached animation and move unit along path.
-						// move unit to final position
-						e->pos->gs_pos.x = p->x();
-						e->pos->gs_pos.y = p->y();
-					}
-					if(e->pos->pos.x != p->x() || e->pos->pos.y != p->y()) {
-						/// XXX todo
-						//for(auto& t : units.path()) {
-							//auto p = hex::hex_map::get_pixel_pos_from_tile_pos(t.x(), t.y()) + point(eng.get_tile_size().x/2, eng.get_tile_size().y/2);
-							//inp->move_path.emplace_back(p);
-						//}
-						e->pos->pos.x = p->x();
-						e->pos->pos.y = p->y();
-					}
-					/// XXX clear any pathing related stuff, or at least signal engine to do it in the input process.
-					if(e->inp) {
-						e->inp->clear_selection = true;
-					}
+					e->pos->gs_pos.x = p->x();
+					e->pos->gs_pos.y = p->y();
 					break;
 				}
 				case Update_Unit_MessageType_ATTACK: {
@@ -545,5 +552,19 @@ namespace game
 		if(stats.has_range()) {
 			stat->range = stats.range();
 		}
+	}
+
+	team_ptr state::create_team_instance(const std::string& name)
+	{
+		auto t = std::make_shared<team>(name);
+		teams_[t->id()] = t;
+		return t;
+	}
+
+	team_ptr state::get_team_from_id(const uuid::uuid& id)
+	{
+		auto it = teams_.find(id);
+		ASSERT_LOG(it != teams_.end(), "Couldn't find team for id: " << id);
+		return it->second;
 	}
 }

@@ -106,7 +106,7 @@ namespace ai
 		point dest;
 		bool got_location = false;
 		hex::result_path rp;
-		if(closest_enemy) {
+		if(closest_enemy && closest_distance > e->stat->range) {
 			auto surrounds = gs.get_map()->get_surrounding_positions(closest_enemy->pos->gs_pos);
 			for(auto& p : possible_moves) {
 				for(auto& sp : surrounds) {
@@ -134,10 +134,11 @@ namespace ai
 					}
 				}
 				rp = hex::find_path(g, e->pos->gs_pos, closest_pos);
+				got_location = true;
 			}
 		}
 
-		ASSERT_LOG(got_location, "Programmer error: No location for destination.");
+		ASSERT_LOG(got_location || closest_distance <= e->stat->range, "Programmer error: No location for destination.");
 
 		// Choose random destination
 		//int x = generator::get_uniform_int<int>(0, static_cast<int>(possible_moves.size()));
@@ -145,7 +146,11 @@ namespace ai
 
 		// Random move unit.
 		game::Update* up = gs.create_update();
-		gs.unit_move(up, e, rp);
+		// No need to move if there is a unit next to us.
+		if(closest_distance > e->stat->range) {
+			gs.unit_move(up, e, rp);
+			e->pos->gs_pos = point(rp.rbegin()->x, rp.rbegin()->y);
+		}
 		
 		// See if there is anything in attack range.
 		std::vector<component_set_ptr> attackable;

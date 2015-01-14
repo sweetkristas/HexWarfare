@@ -41,16 +41,16 @@ namespace game
 class team
 {
 public:
-	team(unsigned value, const std::string& name) : team_(value), team_name_(name) {
+	team(const std::string& name, const uuid::uuid& id=uuid::generate()) : team_name_(name), team_(id) {
 	}
-	unsigned id() const { return team_; }
+	const uuid::uuid& id() const { return team_; }
 	const std::string& get_team_name() const { return team_name_; }
 	void set_team_name(const std::string& name) { team_name_ = name; }
 private:
 	// Name of the team that the player is on.
 	std::string team_name_;
 	// players with the same team value are on the same team.
-	unsigned team_;
+	uuid::uuid team_;
 };
 
 typedef std::shared_ptr<team> team_ptr;

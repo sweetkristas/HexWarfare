@@ -4,8 +4,17 @@ message Update {
 	required int32 id = 1;
 	optional bool quit = 2;
 	optional bool end_turn = 3;
+
+	enum GameWinState {
+		IN_PROGRESS = 0;
+		WON = 1;
+		DRAW = 2;
+	}
+
+	optional GameWinState game_win_state = 4 [default = IN_PROGRESS];
+	optional string winning_team_uuid = 5;
 	
-	optional string fail_reason = 4;
+	optional string fail_reason = 6;
 
 	message Location {
 		required int32 x = 1;
@@ -66,7 +75,7 @@ message Update {
 		optional string team_name = 5;
 	}
 
-	repeated Unit units = 5;
+	repeated Unit units = 7;
 
-	repeated Player player = 6;
+	repeated Player player = 8;
 }

@@ -73,6 +73,9 @@ namespace game
 		// Adjusting everything if it's a re-sync update.
 		void apply(Update* up);
 
+		team_ptr create_team_instance(const std::string& name);
+		team_ptr get_team_from_id(const uuid::uuid& id);
+
 	private:
 		float initiative_counter_;
 		mutable int update_counter_;
@@ -82,6 +85,7 @@ namespace game
 		std::map<uuid::uuid, player_ptr> players_;
 		// Used to synchronise state with the server.
 		std::string fail_reason_;
+		std::map<uuid::uuid, team_ptr> teams_;
 
 		component_set_ptr get_entity_by_uuid(const uuid::uuid& id);
 		void set_validation_fail_reason(const std::string& reason);

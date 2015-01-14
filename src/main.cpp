@@ -287,8 +287,8 @@ int main(int argc, char* argv[])
 		e.set_tile_size(point(72,72));
 
 		// Create some teams for the players
-		team_ptr t1 = std::make_shared<team>(1, "Good guys");
-		team_ptr t2 = std::make_shared<team>(2, "Bad guys");
+		team_ptr t1 = gs.create_team_instance("Good guys");
+		team_ptr t2 = gs.create_team_instance("Bad guys");
 
 		auto p1 = std::make_shared<player>(t1, PlayerType::NORMAL, "Player 1");
 		p1->set_id(0);
@@ -323,6 +323,7 @@ int main(int argc, char* argv[])
 			//nclient = std::make_shared<network::enet::client>(server_name, server_port);
 		}
 		e.set_netclient(nclient);
+		e.set_active_player(p1);
 
  		e.add_process(std::make_shared<process::input>());
 		e.add_process(std::make_shared<process::render>());
