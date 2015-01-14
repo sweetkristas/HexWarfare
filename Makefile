@@ -53,7 +53,7 @@ BASE_CXXFLAGS += -std=c++11 -g -rdynamic -fno-inline-functions \
 	-fthreadsafe-statics -Werror -Wall -Wno-reorder -Wno-unused-variable
 
 # Compiler include options, used after CXXFLAGS and CPPFLAGS.
-INC := -Isrc -Iinclude -Isrc/lua -ILuaBridge/Source/LuaBridge $(shell pkg-config --cflags x11 sdl2 glew SDL2_image SDL2_ttf libpng zlib libenet protobuf)
+INC := -Isrc -Iinclude -Isrc/lua -ILuaBridge/Source/LuaBridge $(shell pkg-config --cflags x11 sdl2 SDL2_image SDL2_ttf libpng zlib libenet protobuf)
 
 ifdef STEAM_RUNTIME_ROOT
 	INC += -I$(STEAM_RUNTIME_ROOT)/include
@@ -61,7 +61,7 @@ endif
 
 # Linker library options.
 LIBS := $(shell pkg-config --libs x11 gl ) \
-	$(shell pkg-config --libs sdl2 glew SDL2_image libpng zlib protobuf libenet) -lSDL2_ttf -lSDL2_mixer -lboost_system -lboost_thread -lboost_chrono
+	$(shell pkg-config --libs sdl2 SDL2_image libpng zlib protobuf libenet) -lSDL2_ttf -lSDL2_mixer -lboost_system -lboost_thread -lboost_chrono
 
 PROTOS := $(wildcard src/*.proto)
 PROTO_OBJS := $(PROTOS:.proto=.pb.o)
