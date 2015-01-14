@@ -268,12 +268,11 @@ void engine::process_update(game::Update* up)
 {
 	using namespace game;
 
+	auto& fe = game_state_.get_entities().front();
 	if(up->has_game_start() && up->game_start()) {
-		auto& fe = game_state_.get_entities().front();
 		if(fe->owner.lock() == active_player_ 
 			&& (fe->mask & component::genmask(component::Component::INPUT)) == component::genmask(component::Component::INPUT)) {
 			fe->inp->gen_moves = true;
-			fe->inp->selected = true;
 		}
 	}
 
@@ -304,12 +303,25 @@ void engine::process_update(game::Update* up)
 					e->pos->pos = e->pos->gs_pos;
 				}
 				/// XXX clear any pathing related stuff, or at least signal engine to do it in the input process.
+				//if(e->inp) {
+				//	e->inp->clear_selection = true;
+				//}
 				if(e->inp) {
-					e->inp->clear_selection = true;
+					if(e == fe && e->owner.lock() == active_player_) {
+						e->inp->gen_moves = true;
+					} else {
+						e->inp->clear_selection = true;
+					}
 				}
 				break;
 			}
 			case Update_Unit_MessageType_ATTACK: {
+				// clear attack targets
+				for(auto& e : game_state_.get_entities()) {
+					if(e->inp) {
+						e->inp->is_attack_target = false;
+					}
+				}
 				break;
 			}
 			case Update_Unit_MessageType_SPELL: {
@@ -335,7 +347,6 @@ void engine::process_update(game::Update* up)
 		if(fe->owner.lock() == active_player_ 
 			&& (fe->mask & component::genmask(component::Component::INPUT)) == component::genmask(component::Component::INPUT)) {
 			fe->inp->gen_moves = true;
-			fe->inp->selected = true;
 		}
 	}
 

@@ -59,6 +59,7 @@ namespace ai
 				}
 			}
 
+			// Do network message processing.
 			client->process();
 
 			profile::sleep(0.01);

@@ -54,7 +54,29 @@ namespace process
 	{
 		static component_id input_mask = component::genmask(component::Component::INPUT);
 		static component_id pos_mask = component::genmask(component::Component::POSITION) | component::genmask(component::Component::STATS);
-		// Clear the input queue of keystrokes for now.
+
+		for(auto& e : elist) {
+			if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
+				auto& pos = e->pos->gs_pos;
+				auto& inp = e->inp;
+
+				if(inp->clear_selection) {
+					inp->selected = false;
+					inp->possible_moves.clear();
+					inp->graph.reset();
+					inp->arrow_path.clear();
+					inp->tile_path.clear();
+					inp->clear_selection = false;
+				}
+				if(inp->gen_moves) {
+					inp->gen_moves = false;	
+					inp->graph = hex::create_cost_graph(eng.get_game_state(), pos.x, pos.y, e->stat->move);
+					inp->possible_moves = hex::find_available_moves(inp->graph, pos, e->stat->move);
+				}
+			}
+		}
+
+		// Process keystrokes
 		while(!keys_pressed_.empty()) {
 			auto key = keys_pressed_.front();
 			keys_pressed_.pop();
@@ -89,20 +111,6 @@ namespace process
 					auto& inp = e->inp;
 					auto& stats = e->stat;
 
-					if(inp->clear_selection) {
-						inp->selected = false;
-						inp->possible_moves.clear();
-						inp->graph.reset();
-						inp->arrow_path.clear();
-						inp->tile_path.clear();
-						inp->clear_selection = false;
-					}
-					if(inp->gen_moves) {
-						inp->gen_moves = false;	
-						inp->graph = hex::create_cost_graph(eng.get_game_state(), pos.x, pos.y, stats->move);
-						inp->possible_moves = hex::find_available_moves(inp->graph, pos, stats->move);
-					}
-
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
 					if(button.button == SDL_BUTTON_LEFT 
 						&& button.type == SDL_MOUSEBUTTONUP) {
@@ -133,16 +141,14 @@ namespace process
 							continue;
 						}
 
-						//std::cerr << "Adjust mouse click position: " << point(button.x, button.y) << "\n";
-						//std::cerr << e << " position: " << (inp->mouse_area + pp) << "\n";
 						if(mouse_in_area) {
-							inp->selected = true;
-							// if it is current players turn and current_player owns the entity and
-							// the entity still has some movement allowance left.
-							if(eng.get_game_state().get_entities().front() == e && stats->move > FLT_EPSILON) {
-								inp->graph = hex::create_cost_graph(eng.get_game_state(), pos.x, pos.y, stats->move);
-								inp->possible_moves = hex::find_available_moves(inp->graph, pos, stats->move);
+							// Clear old selections.
+							for(auto& e : eng.get_entities()) {
+								if(e->inp) {
+									e->inp->selected = false;
+								}
 							}
+							inp->selected = true;
 						} else {
 							// Test whether point is in inp->possible_moves(...) and is players turn, then we animate moving the entity to
 							// that position, clear the moves and decrement the units movement allowance.
@@ -152,7 +158,7 @@ namespace process
 								return tp == mc.loc;
 							});
 							bool clear_entity = false;
-							if(eng.get_game_state().get_entities().front() == e && stats->move > FLT_EPSILON && it != inp->possible_moves.end()) {
+							if(eng.get_active_player() == owner && eng.get_game_state().get_entities().front() == e && stats->move > FLT_EPSILON && it != inp->possible_moves.end()) {
 								ASSERT_LOG(!inp->tile_path.empty(), "tile path was empty.");
 								for(auto& t : inp->tile_path) {
 									auto tile = eng.get_map()->get_tile_at(t.x, t.y);
@@ -181,17 +187,12 @@ namespace process
 								stats->move -= it->path_cost;
 								if(stats->move < FLT_EPSILON) {
 									stats->move = 0.0f;
-									clear_entity = true;
+									//clear_entity = true;
 								} else {
-									inp->graph = hex::create_cost_graph(eng.get_game_state(), pos.x, pos.y, stats->move);
-									inp->possible_moves = hex::find_available_moves(inp->graph, pos, stats->move);
-									if(inp->possible_moves.empty() || (inp->possible_moves.size() == 1 && inp->possible_moves[0].loc == pos)) {
-										stats->move = 0.0f;
-										clear_entity = true;
-									}
+									inp->gen_moves = true;
 								}
 							} else {
-								clear_entity = true;
+								//clear_entity = true;
 							}
 
 							if(clear_entity) {

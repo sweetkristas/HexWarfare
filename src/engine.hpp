@@ -102,6 +102,7 @@ public:
 	component_set_ptr get_entity_by_uuid(const uuid::uuid& id);
 
 	void set_active_player(player_ptr p) { active_player_ = p; }
+	const player_ptr& get_active_player() const { return active_player_; }
 
 private:
 	game::state& game_state_;

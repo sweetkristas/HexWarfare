@@ -67,16 +67,18 @@ namespace process
 		}
 
 		for(auto& e : elist) {
-			if((e->mask & sprite_mask) == sprite_mask && (e->mask & inp_mask) == inp_mask && e->inp->selected) {
+			if((e->mask & sprite_mask) == sprite_mask && (e->mask & inp_mask) == inp_mask) {
 				auto& pos = e->pos;
 				auto& inp = e->inp;
-				static auto ellipse = graphics::texture("images/misc/ellipse-1.png", graphics::TextureFlags::NONE);
-				auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
-				const int x = pp.x - cam.x + (ts.x - ellipse.width())/2;
-				const int y = pp.y - cam.y + ts.y - ellipse.height();
-				ellipse.blit(rect(x, y, ellipse.width(), ellipse.height()));
+				if(e->inp->selected) {
+					static auto ellipse = graphics::texture("images/misc/ellipse-1.png", graphics::TextureFlags::NONE);
+					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
+					const int x = pp.x - cam.x + (ts.x - ellipse.width())/2;
+					const int y = pp.y - cam.y + ts.y - ellipse.height();
+					ellipse.blit(rect(x, y, ellipse.width(), ellipse.height()));
+				}
 
-				if(inp->selected && !inp->possible_moves.empty()) {
+				if(!inp->possible_moves.empty()) {
 					SDL_SetRenderDrawColor(eng.get_renderer(), 0, 255, 0, 127);
 					for(auto& r : inp->possible_moves) {
 						point p(hex::hex_map::get_pixel_pos_from_tile_pos(r.loc.x, r.loc.y));

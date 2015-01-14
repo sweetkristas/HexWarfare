@@ -244,6 +244,10 @@ namespace game
 							loc->set_x(p.x());
 							loc->set_y(p.y());
 						}
+						// Make sure we set the units actual movement.
+						Update_UnitStats* uus = new Update_UnitStats();
+						uus->set_move(e->stat->move);
+						uu->set_allocated_stats(uus);
 					} else {
 						// The path provided has a cost which is more than the number of move left.
 						// XXX Re-send the complete game state.
@@ -453,6 +457,11 @@ namespace game
 		}
 
 		for(auto& units : up->units()) {
+			auto e = get_entity_by_uuid(uuid::read(units.uuid()));
+			if(units.has_stats()) {
+				set_entity_stats(e, units.stats());
+			}
+
 			switch(units.type())
 			{
 				case Update_Unit_MessageType_CANONICAL_STATE:
@@ -460,7 +469,6 @@ namespace game
 				case Update_Unit_MessageType_SUMMON:
 					break;
 				case Update_Unit_MessageType_MOVE: {
-					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
 					auto p = units.path().end() - 1;
 					auto start_p = point(units.path().begin()->x(), units.path().begin()->y());
 					LOG_INFO("moving " << e << " from " << start_p << " to position " << point(p->x(), p->y()));
@@ -471,15 +479,7 @@ namespace game
 				case Update_Unit_MessageType_ATTACK: {
 					// Attack message type means we need to look at the stat values and update
 					// If the unit has no health left it's considered dead.
-					auto e = get_entity_by_uuid(uuid::read(units.uuid()));
 					ASSERT_LOG(units.has_stats(), "No stats block attached to attack");
-					set_entity_stats(e, units.stats());
-					// clear attack targets
-					for(auto& unit : entities_) {
-						if(unit->inp) {
-							unit->inp->is_attack_target = false;
-						}
-					}
 					break;
 				}
 				case Update_Unit_MessageType_SPELL: {
@@ -489,6 +489,10 @@ namespace game
 					break;
 				default: 
 					ASSERT_LOG(false, "Unrecognised units.type() value: " << units.type());
+			}
+
+			if(e->stat->health <= 0) {
+				remove_entity(e);
 			}
 		}
 
