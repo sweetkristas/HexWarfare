@@ -389,7 +389,9 @@ namespace game
 			line.erase(line.begin());
 			for(auto& p : line) {
 				for(auto& en : entities_) {
-					if(p == en->pos->gs_pos) {
+					// XXX The commented out code allows you to attack through your own team members.
+					// It may be annoying to not allow this, in practice.
+					if(p == en->pos->gs_pos /*&& en->owner.lock()->team() != aggressor->owner.lock()->team()*/) {
 						LOG_INFO(aggressor << " could not attack target " << e << " unit in path " << en);
 						return false;
 					}
