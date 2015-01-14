@@ -72,6 +72,18 @@ namespace process
 					inp->gen_moves = false;	
 					inp->graph = hex::create_cost_graph(eng.get_game_state(), pos.x, pos.y, e->stat->move);
 					inp->possible_moves = hex::find_available_moves(inp->graph, pos, e->stat->move);
+					// remove tiles that have friendly entities on them, from the results.
+					// XXX this needs to be incorporated into hex::find_available_moves somehow.
+					inp->possible_moves.erase(std::remove_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&elist](const hex::move_cost& mc) {
+						for(auto& e : elist) {
+							if(e->pos && e->pos->gs_pos == mc.loc) {
+								return true;
+							}
+						}
+						return false;
+					}), inp->possible_moves.end());
+
+					inp->arrow_path.clear();
 				}
 			}
 		}
@@ -157,7 +169,6 @@ namespace process
 							auto it = std::find_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&tp](hex::move_cost const& mc){
 								return tp == mc.loc;
 							});
-							bool clear_entity = false;
 							if(eng.get_active_player() == owner && eng.get_game_state().get_entities().front() == e && stats->move > FLT_EPSILON && it != inp->possible_moves.end()) {
 								ASSERT_LOG(!inp->tile_path.empty(), "tile path was empty.");
 								for(auto& t : inp->tile_path) {
@@ -187,20 +198,9 @@ namespace process
 								stats->move -= it->path_cost;
 								if(stats->move < FLT_EPSILON) {
 									stats->move = 0.0f;
-									//clear_entity = true;
 								} else {
 									inp->gen_moves = true;
 								}
-							} else {
-								//clear_entity = true;
-							}
-
-							if(clear_entity) {
-								inp->selected = false;
-								inp->possible_moves.clear();
-								inp->graph.reset();
-								inp->arrow_path.clear();
-								inp->tile_path.clear();
 							}
 						}
 					}

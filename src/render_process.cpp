@@ -79,19 +79,53 @@ namespace process
 				}
 
 				if(!inp->possible_moves.empty()) {
-					SDL_SetRenderDrawColor(eng.get_renderer(), 0, 255, 0, 127);
+					static auto hilight = graphics::texture("images/misc/overlay-2.png", graphics::TextureFlags::NONE);
+					hilight.set_blend(graphics::BlendMode::BLEND);
+					// alpha cycle the texture color.
+					static int cycle_value = 64;
+					const static int cycle_value_max = 255;
+					const static int cycle_value_min = 64;
+					const static int cycle_increment = 2;
+					static bool cycle_fwd = true;
+					hilight.set_color(graphics::color(cycle_value, cycle_value, 255));
+					cycle_value += cycle_fwd ? cycle_increment : -cycle_increment;
+					if(cycle_value > cycle_value_max) {
+						cycle_value = cycle_value_max;
+						cycle_fwd = false;
+					} else if(cycle_value < cycle_value_min) {
+						cycle_value = cycle_value_min;
+						cycle_fwd = true;
+					}
+
 					for(auto& r : inp->possible_moves) {
 						point p(hex::hex_map::get_pixel_pos_from_tile_pos(r.loc.x, r.loc.y));
-						SDL_Rect dest = {p.x+ts.x/4-cam.x, p.y+ts.x/4-cam.y, ts.x/2, ts.y/2};
-						SDL_RenderFillRect(eng.get_renderer(), &dest);
+						const int x = p.x - cam.x;
+						const int y = p.y - cam.y;
+						hilight.blit(rect(x, y, hilight.height(), hilight.width()));
 					}
-					SDL_SetRenderDrawColor(eng.get_renderer(), 0, 0, 0, 255);
 				}
 
 				if(!inp->arrow_path.empty()) {
 					// XXX this should probably be directly in the input component.
-					graphics::ArrowPrimitive ap(inp->arrow_path);
-					ap.draw(eng, cam);
+					//graphics::ArrowPrimitive ap(inp->arrow_path);
+					//ap.draw(eng, cam);
+					point last_p = inp->arrow_path.front();
+					point second_last_p;
+					auto it = inp->arrow_path.begin() + 1;
+					SDL_SetRenderDrawColor(eng.get_renderer(), 255, 0, 0, 0);
+					for(; it != inp->arrow_path.end(); ++it) {
+						SDL_RenderDrawLine(eng.get_renderer(), last_p.x - cam.x, last_p.y - cam.y, it->x - cam.x, it->y - cam.y);
+						second_last_p = last_p;
+						last_p = *it;
+					}
+					// Draw an arrow.
+					const float arrow_angle = 40.0f;
+					float rotation = static_cast<float>(90.0 - std::atan2(static_cast<double>(second_last_p.y - last_p.y), static_cast<double>(second_last_p.x - last_p.x)) * 180.0 / M_PI);
+					const point p1(static_cast<int>(eng.get_tile_size().x/3.0f * std::sin((rotation + arrow_angle) * M_PI/180.0f)), static_cast<int>(eng.get_tile_size().x/3.0f * std::cos((rotation + arrow_angle) * M_PI/180.0f)));
+					SDL_RenderDrawLine(eng.get_renderer(), last_p.x - cam.x, last_p.y - cam.y, last_p.x + p1.x - cam.x, last_p.y + p1.y - cam.y);
+					const point p2(static_cast<int>(eng.get_tile_size().x/3.0f * std::sin((rotation - arrow_angle) * M_PI/180.0f)), static_cast<int>(eng.get_tile_size().x/3.0f * std::cos((rotation - arrow_angle) * M_PI/180.0f)));
+					SDL_RenderDrawLine(eng.get_renderer(), last_p.x - cam.x, last_p.y - cam.y, last_p.x + p2.x - cam.x, last_p.y + p2.y - cam.y);
+					SDL_SetRenderDrawColor(eng.get_renderer(), 0, 0, 0, 255);
 				}
 			}
 
