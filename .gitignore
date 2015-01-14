@@ -46,3 +46,5 @@ vs2012/HexWarfare/Release
 # exclude any temporary files.
 images/temp/*.png
 data/temp
+*.pb.cc
+*.pb.h
