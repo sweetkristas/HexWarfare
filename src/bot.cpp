@@ -44,9 +44,14 @@ namespace ai
 				if(up->has_end_turn()) {
 					end_of_turn_message = up->end_turn();
 				}
+				if(up->has_game_win_state() && up->game_win_state() != game::Update_GameWinState_IN_PROGRESS) {
+					// Bot is dispassionate and exits out after the game is over.
+					running = false;
+					/// XXX should we send a player quits message here?
+				}
 				delete up;
 
-				if(end_of_turn_message) {
+				if(end_of_turn_message && running) {
 					up = bot->process(gs, time.get_time());
 					if(up) {
 						client->write_send_queue(up);
@@ -58,6 +63,7 @@ namespace ai
 
 			profile::sleep(0.01);
 		}
+		LOG_INFO("bot exits -- player " << bot->name());
 	}
 
 	bot::bot(team_ptr team, const std::string& name, uuid::uuid u)
