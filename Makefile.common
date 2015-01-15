@@ -8,7 +8,7 @@ objects = \
 	src/action_process.o \
 	src/ai_process.o \
 	src/bar_widget.o \
-    src/bot.o \
+	src/bot.o \
 	src/button.o \
 	src/castles.o \
 	src/collision_process.o \
@@ -38,8 +38,6 @@ objects = \
 	src/json.o \
 	src/label.o \
 	src/main.o \
-	src/message_format.pb.o \
-	src/mongoose.o \
 	src/network_server.o \
 	src/node.o \
 	src/node_utils.o \

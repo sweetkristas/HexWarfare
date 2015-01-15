@@ -47,6 +47,9 @@ ifneq ($(USE_SDL2),yes)
 $(error SDL2 not found, SDL-1.2 is not supported)
 endif
 
+PROTOC ?= protoc
+PROTOC_FLAGS = --cpp_out=src --proto_path=src
+
 # Initial compiler options, used before CXXFLAGS and CPPFLAGS.
 # -Wno-reorder -Wno-unused-variable added to make noiseutils.cpp build
 BASE_CXXFLAGS += -std=c++11 -g -rdynamic -fno-inline-functions \
@@ -61,12 +64,27 @@ endif
 
 # Linker library options.
 LIBS := $(shell pkg-config --libs x11 gl ) \
-	$(shell pkg-config --libs sdl2 SDL2_image libpng zlib protobuf libenet) -lSDL2_ttf -lSDL2_mixer -lboost_system -lboost_thread -lboost_chrono
+	$(shell pkg-config --libs sdl2 SDL2_image libpng zlib protobuf libenet) \
+	-lSDL2_ttf -lSDL2_mixer -lboost_system -lboost_regex -lboost_filesystem -lboost_chrono -lboost_thread -lnoise
 
-PROTOS := $(wildcard src/*.proto)
-PROTO_OBJS := $(PROTOS:.proto=.pb.o)
+PBSRCS := $(wildcard src/*.proto)
+PBOBJS := $(PBSRCS:.proto=.pb.o)
+PBGENS := $(PBSRCS:.proto=.pb.cc)
 
 include Makefile.common
+
+src/%.pb.cc: src/%.proto
+	$(PROTOC) $(PROTOC_FLAGS) $<
+
+src/%.pb.o : src/%.pb.cc
+	@echo "Building:" $<
+	@$(CCACHE) $(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -c -o $@ $<
+	@$(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -MM $< > $*.d
+	@mv -f $*.d $*.d.tmp
+	@sed -e 's|.*:|src/$*.o:|' < $*.d.tmp > src/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> src/$*.d
+	@rm -f $*.d.tmp
 
 src/%.o : src/%.cpp 
 	@echo "Building:" $<
@@ -78,29 +96,16 @@ src/%.o : src/%.cpp
 		sed -e 's/^ *//' -e 's/$$/:/' >> src/$*.d
 	@rm -f $*.d.tmp
 
-src/%.o : src/%.cc
-	@echo "Building:" $<
-	@$(CCACHE) $(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -c -o $@ $<
-	@$(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -MM $< > $*.d
-	@mv -f $*.d $*.d.tmp
-	@sed -e 's|.*:|src/$*.o:|' < $*.d.tmp > src/$*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
-		sed -e 's/^ *//' -e 's/$$/:/' >> src/$*.d
-	@rm -f $*.d.tmp
-
-%.pb.cc: %.proto
-        protoc --cpp_out=src $<
-
 src/lua/%.o : src/lua/%.c
 	@echo "Building:" $<
 	@$(CCACHE) $(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -c -o $@ $<
 
-HexWarfare: $(objects) $(PROTO_OBJS) $(ogl_objects) $(sdl_objects) liblua.a
+HexWarfare: $(PBOBJS) $(objects) $(ogl_objects) $(sdl_objects) liblua.a
 	@echo "Linking : HexWarfare"
 	@$(CCACHE) $(CXX) \
 		$(BASE_CXXFLAGS) $(LDFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) \
-		$(objects) $(ogl_objects) $(sdl_objects) $(ogl_fixed_objects) -o HexWarfare \
-		$(LIBS) -lboost_regex -lboost_system -lboost_filesystem -lboost_thread -lnoise -fthreadsafe-statics
+		$(objects) $(PBOBJS) $(ogl_objects) $(sdl_objects) $(ogl_fixed_objects) -o HexWarfare \
+		$(LIBS) -fthreadsafe-statics
 
 liblua.a: $(lua_objects)
 	@echo "Creating local copy of lua library" 
@@ -112,4 +117,4 @@ liblua.a: $(lua_objects)
 all: HexWarfare
 
 clean:
-	rm -f src/*.o src/*.d *.o *.d HexWarfare
+	rm -f src/*.o src/*.d *.o *.d HexWarfare $(PBOBJS) $(PBGENS)
