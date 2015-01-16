@@ -90,9 +90,14 @@ namespace gui
 
 		void enable_background_rect(bool en=true) { background_rect_enabled_ = en; }
 		void set_background_rect_color(const graphics::color& c) { background_rect_color_ = c; }
+
+		int w() const { return is_fixed_dimension_ ? fixed_area_.w() : 0; } 
+		int h() const { return is_fixed_dimension_ ? fixed_area_.h() : 0; } 
 	protected:
 		bool in_widget(const pointf& p);
 		void set_dim_internal(int w, int h);
+		void set_dim_fixed(int w, int h);
+		void set_loc_fixed(int x, int y);
 		void set_loc_internal(const pointf& loc);
 		float get_parent_absolute_width();
 		float get_parent_absolute_height();
@@ -117,6 +122,9 @@ namespace gui
 		bool enabled_;
 		bool background_rect_enabled_;
 		graphics::color background_rect_color_;
+		rect fixed_area_;
+		bool is_fixed_location_;
+		bool is_fixed_dimension_;
 
 		widget() = default;
 		widget(const widget&) = delete;

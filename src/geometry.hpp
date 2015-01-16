@@ -37,6 +37,10 @@ namespace geometry
 			x += p.x;
 			y += p.y;
 		}
+		void operator -=(const Point& p) {
+			x -= p.x;
+			y -= p.y;
+		}
 		union {
 			struct { T x, y; };
 			T buf[2];
@@ -126,6 +130,9 @@ namespace geometry
 
 		T mid_x() const { return (x1() + x2())/static_cast<T>(2); }
 		T mid_y() const { return (y1() + y2())/static_cast<T>(2); }
+
+		void set_w(const T& new_w) { bottom_right_.x = top_left_.x + new_w; }
+		void set_h(const T& new_h) { bottom_right_.y = top_left_.y + new_h; }
 
 		Point<T> mid() const { return Point<T>((x1() + x2())/static_cast<T>(2), (y1() + y2())/static_cast<T>(2)); }
 

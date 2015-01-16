@@ -267,13 +267,32 @@ namespace hex
 			std::tie(x2,y2,z2) = oddq_to_cube_coords(p2);
 			for(int i = 0; i <= n; ++i) {
 				const float i_over_n  = static_cast<float>(i)/n;
-				const float xt = x1 * (1.0f - i_over_n) + x2 * i_over_n + 1e-6;
-				const float yt = y1 * (1.0f - i_over_n) + y2 * i_over_n + 1e-6;
-				const float zt = z1 * (1.0f - i_over_n) + z2 * i_over_n - 2e-6;
+				const float xt = x1 * (1.0f - i_over_n) + x2 * i_over_n + 1e-6f;
+				const float yt = y1 * (1.0f - i_over_n) + y2 * i_over_n + 1e-6f;
+				const float zt = z1 * (1.0f - i_over_n) + z2 * i_over_n - 2e-6f;
 				res.emplace_back(cube_to_oddq_coords(hex_round(xt, yt, zt)));
 			}
 
 			return res;
+		}
+
+		float rotation_between(const point& p1, const point& p2)
+		{
+			// hack it somewhat to just work for p1 and p2 being adjacent.
+			const int dx = p2.x - p1.x;
+			const int dy = p2.y - p1.y;
+			ASSERT_LOG(dx <= 1 && dx >= -1 && dy >= -1 && dy <= 1, "hex::logical::rotation_between only works for adjacent tiles.");
+			if(dx == 0 && dy == 0) {
+				return 0.0f;
+			}
+			if(dy == 0) {
+				return dx > 0 ? 60.0f : 300.0f;
+			} else if(dy > 0) {
+				return dx == 0 ? 180.0f : dx > 0 ? 120.0f : dx == 240.0f;
+			} else {
+				// dy < 0
+				return 0.0f;
+			}
 		}
 	}
 }

@@ -178,6 +178,11 @@ namespace hex
 		return get_tile_at(p.x, p.y);
 	}
 
+	point hex_map::get_pixel_pos_from_tile_pos(const point& p)
+	{
+		return get_pixel_pos_from_tile_pos(p.x, p.y);
+	}
+
 	point hex_map::get_pixel_pos_from_tile_pos(int x, int y)
 	{
 		const int HexTileSizeHalf = HexTileSize/2;

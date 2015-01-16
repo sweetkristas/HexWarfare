@@ -20,7 +20,8 @@ player::player(team_ptr team, PlayerType pt, const std::string& name, uuid::uuid
 	: player_type_(pt),
 	  name_(name),
 	  team_(team),
-	  uuid_(u)
+	  uuid_(u),
+	  gold_(0)
 
 {
 }

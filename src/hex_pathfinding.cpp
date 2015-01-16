@@ -57,7 +57,7 @@ namespace hex
 		auto cp = gs.get_entities().front()->owner.lock();
 		for(auto& e : gs.get_entities()) {
 			auto owner = e->owner.lock();
-			auto& pos = e->pos->gs_pos;
+			auto& pos = e->pos.gs_pos;
 			if(cp->team() != owner->team()) {
 				enemy_units[pos] = e;
 				auto surrounds = map->get_surrounding_positions(pos.x, pos.y);
@@ -73,7 +73,7 @@ namespace hex
 		for(auto& e : gs.get_entities()) {
 			auto e_team = e->owner.lock()->team();
 			if(e_team != team_current) {
-				auto it = surrounding_positions.find(e->pos->gs_pos);
+				auto it = surrounding_positions.find(e->pos.gs_pos);
 				if(it != surrounding_positions.end()) {
 					surrounding_positions.erase(it);
 				}

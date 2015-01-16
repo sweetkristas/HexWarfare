@@ -28,7 +28,10 @@ namespace gui
 		  parent_(),
 		  enabled_(true),
 		  background_rect_enabled_(false),
-		  background_rect_color_(255,255,255)
+		  background_rect_color_(255,255,255),
+		  fixed_area_(),
+		  is_fixed_location_(false),
+		  is_fixed_dimension_(false)
 	{
 		if(r.empty()) {
 			set_loc_internal(r.top_left());
@@ -56,6 +59,11 @@ namespace gui
 			static_cast<int>(r.w() * real_area_.w()),
 			static_cast<int>(r.h() * real_area_.h()));
 		
+		if(is_fixed_dimension_) {
+			adjust.set_w(fixed_area_.w());
+			adjust.set_h(fixed_area_.h());
+		}
+
 		if(background_rect_enabled_) {
 			auto& wm = graphics::window_manager::get_main_window();
 			SDL_Rect fr = { adjust.x(), adjust.y(), adjust.w(), adjust.h() };
@@ -78,6 +86,10 @@ namespace gui
 			static_cast<int>(r.w() * real_area_.w()),
 			static_cast<int>(r.h() * real_area_.h()));
 		// XXX should apply rotate and scale here.
+		if(is_fixed_dimension_) {
+			adjust.set_w(fixed_area_.w());
+			adjust.set_h(fixed_area_.h());
+		}
 		return adjust;
 	}
 
@@ -163,5 +175,17 @@ namespace gui
 			return static_cast<float>(wm.height());
 		}
 		return owner->get_parent_absolute_height();
+	}
+
+	void widget::set_dim_fixed(int w, int h)
+	{
+		fixed_area_ = rect(fixed_area_.x(), fixed_area_.y(), w, h);
+		is_fixed_dimension_ = true;
+	}
+
+	void widget::set_loc_fixed(int x, int y)
+	{
+		fixed_area_ = rect(x, y, fixed_area_.w(), fixed_area_.h());
+		is_fixed_location_ = true;
 	}
 }

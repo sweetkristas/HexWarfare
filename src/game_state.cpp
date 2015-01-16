@@ -19,6 +19,7 @@
 #include "formatter.hpp"
 #include "game_state.hpp"
 #include "profile_timer.hpp"
+#include "random.hpp"
 
 namespace game
 {
@@ -73,6 +74,10 @@ namespace game
 			auto e = entities_.front();
 			// reset the movement for the unit at the front of the list.
 			e->stat->move = e->stat->unit->get_movement();
+			// reset the attacks per turn
+			e->stat->attacks_this_turn = e->stat->unit->get_attacks_per_turn();
+			// reset attacks per turn
+			e->stat->attacks_this_turn = e->stat->unit->get_attacks_per_turn();
 			// update the unit at the front of the list initiative.
 			e->stat->initiative += 100.0f/e->stat->unit->get_initiative();
 			std::stable_sort(entities_.begin(), entities_.end(), component::initiative_compare);
@@ -129,6 +134,15 @@ namespace game
 		return entities_.front()->owner;
 	}
 
+	std::vector<player_ptr> state::get_players()
+	{
+		std::vector<player_ptr> res;
+		for(auto& p : players_) {
+			res.emplace_back(p.second);
+		}
+		return res;
+	}
+
 	player_ptr state::get_player_by_id(int id)
 	{
 		/// XXX don't really like this.
@@ -170,6 +184,8 @@ namespace game
 			loc->set_x(p.x);
 			loc->set_y(p.y);
 		}
+		// Set the game state position.
+		e->pos.gs_pos = path.back();
 		return *this;
 	}
 
@@ -182,6 +198,9 @@ namespace game
 			std::string* str = unit->add_target_uuids();
 			*str = uuid::write(t->entity_id);
 		}
+		// N.B. adjusting the game state stuff in the engine is slightly hackish. But when the
+		// server responds with an actual update this should be corrected.
+		e->stat->attacks_this_turn -= 1;
 		return *this;
 	}
 
@@ -212,6 +231,12 @@ namespace game
 				case Update_Player_Action_JOIN:
 				case Update_Player_Action_QUIT:
 				case Update_Player_Action_CONCEDE:
+					break;
+				case Update_Player_Action_ELIMINATED:
+					LOG_ERROR("The server should never receive a player eliminated message from the clients");
+					break;
+				case Update_Player_Action_UPDATE:
+					LOG_ERROR("The server should never receive a player update message from the clients");
 					break;
 				default: 
 					ASSERT_LOG(false, "Unrecognised player.action() value: " << players.action());
@@ -261,7 +286,7 @@ namespace game
 					for(auto& target_id : units.target_uuids()) {
 						auto t = get_entity_by_uuid(uuid::read(target_id));
 						if(is_attackable(aggressor, t)) {
-							combat(nup, aggressor, t);
+							combat(nup, uu, aggressor, t);
 						} else {
 							LOG_WARN(t << " couldn't be attacked.");
 						}
@@ -339,7 +364,7 @@ namespace game
 		// Create sets of enemy locations and tiles under zoc
 		auto e1_owner = e->owner.lock();
 		for(auto entity : entities_) {
-			auto pos = entity->pos->gs_pos;
+			auto pos = entity->pos.gs_pos;
 			auto e2_owner = entity->owner.lock();
 			if(e1_owner->team() != e2_owner->team()) {
 				enemy_locations.emplace(pos);
@@ -383,8 +408,8 @@ namespace game
 			if(e->stat->move < FLT_EPSILON) {
 				e->stat->move = 0;
 			}
-			e->pos->gs_pos.x = path.rbegin()->x();
-			e->pos->gs_pos.y = path.rbegin()->y();
+			e->pos.gs_pos.x = path.rbegin()->x();
+			e->pos.gs_pos.y = path.rbegin()->y();
 			return true;
 		}
 		set_validation_fail_reason(formatter() << "Unit didn't have enough movement left. " << e->stat->move << cost);
@@ -404,7 +429,7 @@ namespace game
 			// enemy units (red).
 			return false;
 		}
-		int d = hex::logical::distance(aggressor->pos->gs_pos, e->pos->gs_pos);
+		int d = hex::logical::distance(aggressor->pos.gs_pos, e->pos.gs_pos);
 		if(d > aggressor->stat->range) {
 			LOG_INFO(aggressor << " could not attack target " << e << " distance too great: " << d);
 			return false;
@@ -414,7 +439,7 @@ namespace game
 			// Find the direct line between the two units
 			// make sure that there are no other entities in the way, unless the unit has the
 			// "strike-through" ability.
-			auto line = hex::logical::line(aggressor->pos->gs_pos, e->pos->gs_pos);
+			auto line = hex::logical::line(aggressor->pos.gs_pos, e->pos.gs_pos);
 			// remove first and last elements from the line.
 			line.pop_back();
 			line.erase(line.begin());
@@ -422,7 +447,7 @@ namespace game
 				for(auto& en : entities_) {
 					// XXX The commented out code allows you to attack through your own team members.
 					// It may be annoying to not allow this, in practice.
-					if(p == en->pos->gs_pos /*&& en->owner.lock()->team() != aggressor->owner.lock()->team()*/) {
+					if(p == en->pos.gs_pos /*&& en->owner.lock()->team() != aggressor->owner.lock()->team()*/) {
 						LOG_INFO(aggressor << " could not attack target " << e << " unit in path " << en);
 						return false;
 					}
@@ -444,13 +469,23 @@ namespace game
 
 		for(auto& players : up->player()) {
 			// XXX deal with stuff
+			auto& p = get_player_by_uuid(uuid::read(players.uuid()));
 			switch(players.action())
 			{
 				case Update_Player_Action_CANONICAL_STATE:
 				case Update_Player_Action_JOIN:
 				case Update_Player_Action_QUIT:
 				case Update_Player_Action_CONCEDE:
+				case Update_Player_Action_ELIMINATED:
 					break;
+				case Update_Player_Action_UPDATE: {
+					ASSERT_LOG(players.has_player_info(), "Client received player update message with no attached player_info");
+					const Update_PlayerInfo& pi = players.player_info();
+					if(pi.has_gold()) {
+						p->set_gold(pi.gold());
+					}
+					break;
+				}
 				default: 
 					ASSERT_LOG(false, "Unrecognised player.action() value: " << players.action());
 			}
@@ -472,8 +507,8 @@ namespace game
 					auto p = units.path().end() - 1;
 					auto start_p = point(units.path().begin()->x(), units.path().begin()->y());
 					LOG_INFO("moving " << e << " from " << start_p << " to position " << point(p->x(), p->y()));
-					e->pos->gs_pos.x = p->x();
-					e->pos->gs_pos.y = p->y();
+					e->pos.gs_pos.x = p->x();
+					e->pos.gs_pos.y = p->y();
 					break;
 				}
 				case Update_Unit_MessageType_ATTACK: {
@@ -502,17 +537,28 @@ namespace game
 		}
 	}
 
-	void state::combat(Update* up, component_set_ptr aggressor, component_set_ptr target)
+	void state::combat(Update* up, Update_Unit* agg_uu, component_set_ptr aggressor, component_set_ptr target)
 	{
 		ASSERT_LOG(up != nullptr, "game logic bug Update is null.");
 		auto& a_stat = aggressor->stat;
 		auto& t_stat = target->stat;
+		if(a_stat->attacks_this_turn <= 0) {
+			LOG_WARN(aggressor << " has no attacks left this turn " << a_stat->attacks_this_turn);
+			return;
+		}
+		Update_AttackInfo* uai = nullptr;
 		if(a_stat->attack > t_stat->armour) {
-			t_stat->health -= a_stat->attack - t_stat->armour;
-			LOG_INFO(target << " takes " << (a_stat->attack - t_stat->armour) << " damage.");
+			const bool was_critical = generator::get_uniform_real<float>(0.0f,1.0f) < a_stat->critical_strike;
+			// XXX We need to note that a critical strike occurred with an animation of some sort.
+			const int damage = (a_stat->attack - t_stat->armour) * (was_critical ? 2 : 1);
+			t_stat->health -= damage;
+			LOG_INFO(target << " takes " << damage << (was_critical ? " critical" : "") << " damage. ");
 			if(t_stat->health < 0) {
 				LOG_INFO(target << " dies due to a fatal wound.");
 			}
+			uai = new Update_AttackInfo();
+			uai->set_was_critical(was_critical);
+			uai->set_damage(damage);
 		} else {
 			LOG_INFO(target << " takes no damage due to high armour.");
 		}
@@ -522,11 +568,24 @@ namespace game
 		Update_UnitStats* uus = new Update_UnitStats();
 		uus->set_health(t_stat->health);
 		unit->set_allocated_stats(uus);
+		if(uai) {
+			unit->set_allocated_attack_info(uai);
+		}
 		unit->set_type(Update_Unit_MessageType_ATTACK);
 
 		// XXX If we were doing a retalitory strike we could add code here.
 		// Might pay to pass in the aggressor Update_Unit* pointer.
 
+		a_stat->attacks_this_turn -= 1;
+		agg_uu->set_uuid(uuid::write(target->entity_id));
+		Update_UnitStats* agg_uus = nullptr;
+		if(agg_uu->has_stats()) {
+			agg_uus = agg_uu->mutable_stats();
+		} else {
+			agg_uus = new Update_UnitStats();
+			agg_uu->set_allocated_stats(agg_uus);
+		}
+		agg_uus->set_attacks_this_turn(a_stat->attacks_this_turn);
 
 		// Remove either unit if health is below zero.
 		if(target->stat->health <= 0) {
@@ -558,6 +617,12 @@ namespace game
 		if(stats.has_range()) {
 			stat->range = stats.range();
 		}
+		if(stats.has_critical_strike()) {
+			stat->critical_strike = stats.critical_strike();
+		}
+		if(stats.has_attacks_this_turn()) {
+			stat->attacks_this_turn = stats.attacks_this_turn();
+		}
 	}
 
 	team_ptr state::create_team_instance(const std::string& name)
@@ -571,6 +636,13 @@ namespace game
 	{
 		auto it = teams_.find(id);
 		ASSERT_LOG(it != teams_.end(), "Couldn't find team for id: " << id);
+		return it->second;
+	}
+
+	player_ptr state::get_player_by_uuid(const uuid::uuid& id)
+	{
+		auto it = players_.find(id);
+		ASSERT_LOG(it != players_.end(), "Couldn't find player with id: " << id);
 		return it->second;
 	}
 }

@@ -404,6 +404,9 @@
     <ClInclude Include="..\..\src\bot.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\easing_between_points.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\geometry.inl">

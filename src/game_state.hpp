@@ -56,6 +56,7 @@ namespace game
 		int get_player_count() const { return players_.size(); }
 		player_ptr get_player(const uuid::uuid& n);
 		player_ptr get_player_by_id(int id);
+		std::vector<player_ptr> get_players();
 
 		bool is_attackable(const component_set_ptr& aggressor, const component_set_ptr& e) const;
 
@@ -76,6 +77,8 @@ namespace game
 		team_ptr create_team_instance(const std::string& name);
 		team_ptr get_team_from_id(const uuid::uuid& id);
 
+		player_ptr get_player_by_uuid(const uuid::uuid& id);
+
 	private:
 		float initiative_counter_;
 		mutable int update_counter_;
@@ -90,7 +93,7 @@ namespace game
 		component_set_ptr get_entity_by_uuid(const uuid::uuid& id);
 		void set_validation_fail_reason(const std::string& reason);
 
-		void combat(Update* up, component_set_ptr aggressor, component_set_ptr target);
+		void combat(Update* up, Update_Unit* agg_uu, component_set_ptr aggressor, component_set_ptr target);
 
 		void set_entity_stats(component_set_ptr e, const Update_UnitStats& stats);
 

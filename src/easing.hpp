@@ -29,7 +29,7 @@ namespace easing
 	template<typename T, typename D=double>
 	T linear_tween(D t, T b, T c, D d)
 	{
-		return c * t / d + b;
+		return c * (t / d) + b;
 	}
 
 	template<typename T, typename D=double>

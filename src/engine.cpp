@@ -19,8 +19,9 @@
 #include "asserts.hpp"
 #include "component.hpp"
 #include "creature.hpp"
-#include "easing.hpp"
+#include "easing_between_points.hpp"
 #include "engine.hpp"
+#include "font.hpp"
 #include "node_utils.hpp"
 #include "profile_timer.hpp"
 
@@ -50,8 +51,8 @@ engine::~engine()
 component_set_ptr engine::add_entity(component_set_ptr e)
 {
 	static component_id stat_mask 
-		= component::genmask(component::Component::STATS) 
-		| component::genmask(component::Component::POSITION);
+		= genmask(Component::STATS) 
+		| genmask(Component::POSITION);
 	entity_list_.emplace_back(e);
 	std::stable_sort(entity_list_.begin(), entity_list_.end());
 	if((e->mask & stat_mask) == stat_mask) {
@@ -63,8 +64,8 @@ component_set_ptr engine::add_entity(component_set_ptr e)
 void engine::remove_entity(component_set_ptr e1)
 {
 	static component_id stat_mask 
-		= component::genmask(component::Component::STATS) 
-		| component::genmask(component::Component::POSITION);
+		= genmask(Component::STATS) 
+		| genmask(Component::POSITION);
 	entity_list_.erase(std::remove_if(entity_list_.begin(), entity_list_.end(), [&e1](component_set_ptr e2) {
 		return e1 == e2; 
 	}), entity_list_.end());
@@ -195,7 +196,7 @@ void engine::process_events()
 		}
 		if(!claimed) {
 			for(auto& e : entity_list_) {
-				static component_id gui_mask = component::genmask(component::Component::GUI);
+				static component_id gui_mask = genmask(Component::GUI);
 				if((e->mask & gui_mask) == gui_mask) {
 					auto& g = e->gui;
 					for(auto& w : g->widgets) {
@@ -215,8 +216,8 @@ void engine::process_events()
 void engine::entity_health_check()
 {
 	static component_id stat_mask 
-		= component::genmask(component::Component::STATS) 
-		| component::genmask(component::Component::POSITION);
+		= genmask(Component::STATS) 
+		| genmask(Component::POSITION);
 	entity_list_.erase(std::remove_if(entity_list_.begin(), entity_list_.end(), [&](component_set_ptr e) {
 		if((e->mask & stat_mask) == stat_mask) {
 			if(e->stat->health <= 0) {
@@ -249,6 +250,19 @@ bool engine::update(double time)
 
 	// Scan through entity list, remove any with 0 health
 	entity_health_check();
+
+	// Entity lifetime check
+	entity_list_.erase(std::remove_if(entity_list_.begin(), entity_list_.end(), [&](component_set_ptr e) {
+		if(e->lifetime > DBL_EPSILON) {
+			e->lifetime -= time;
+			if(e->lifetime < DBL_EPSILON) {
+				game_state_.remove_entity(e);
+				return true;
+			}
+		}
+		return false;
+	}), entity_list_.end());
+
 	return true;
 }
 
@@ -271,12 +285,13 @@ void engine::process_update(game::Update* up)
 	auto& fe = game_state_.get_entities().front();
 	if(up->has_game_start() && up->game_start()) {
 		if(fe->owner.lock() == active_player_ 
-			&& (fe->mask & component::genmask(component::Component::INPUT)) == component::genmask(component::Component::INPUT)) {
+			&& (fe->mask & genmask(Component::INPUT)) == genmask(Component::INPUT)) {
 			fe->inp->gen_moves = true;
 		}
 	}
 
 	for(auto& players : up->player()) {
+		auto& p = game_state_.get_player_by_uuid(uuid::read(players.uuid()));
 		// XXX deal with stuff
 		switch(players.action())
 		{
@@ -284,23 +299,41 @@ void engine::process_update(game::Update* up)
 			case Update_Player_Action_JOIN:
 			case Update_Player_Action_QUIT:
 			case Update_Player_Action_CONCEDE:
+			case Update_Player_Action_ELIMINATED:
 				break;
+			case Update_Player_Action_UPDATE: {
+				if(p == active_player_) {
+					const Update_PlayerInfo& pi = players.player_info();
+					if(pi.has_gold()) {
+						const int difference = pi.gold() - p->get_gold();
+						if(difference > 0) {
+							LOG_INFO("Player receives " << difference << " gold.");
+						} else if(difference < 0) {
+							LOG_INFO("Player loses " << difference << " gold.");
+						} else {
+							LOG_INFO("Player has " << pi.gold() << " gold.");
+						}
+					}
+				}
+				break;
+			}
 			default: 
 				ASSERT_LOG(false, "Unrecognised player.action() value: " << players.action());
 		}
 	}
 
 	for(auto& units : up->units()) {
+		auto e = get_entity_by_uuid(uuid::read(units.uuid()));
+
 		switch(units.type()) {
 			case Update_Unit_MessageType_CANONICAL_STATE:
 				break;
 			case Update_Unit_MessageType_SUMMON:
 				break;
 			case Update_Unit_MessageType_MOVE: {
-				auto e = get_entity_by_uuid(uuid::read(units.uuid()));
-				if(e->pos->gs_pos != e->pos->pos) {
+				if(e->pos.gs_pos != e->pos.pos) {
 					// XXX schedule a movement animation, which we fake for now.
-					e->pos->pos = e->pos->gs_pos;
+					e->pos.pos = e->pos.gs_pos;
 				}
 				/// XXX clear any pathing related stuff, or at least signal engine to do it in the input process.
 				//if(e->inp) {
@@ -317,11 +350,53 @@ void engine::process_update(game::Update* up)
 			}
 			case Update_Unit_MessageType_ATTACK: {
 				// clear attack targets
-				for(auto& e : game_state_.get_entities()) {
-					if(e->inp) {
-						e->inp->is_attack_target = false;
+				for(auto& ge : game_state_.get_entities()) {
+					if(ge->inp) {
+						ge->inp->is_attack_target = false;
 					}
 				}
+
+				std::stringstream ss;
+				bool was_critical = false;
+				if(units.has_attack_info()) {
+					// XXX Add entity to display damage rising slowly from the unit
+					auto& uai = units.attack_info();
+					if(uai.has_damage()) {
+						// Draw damage.
+						ss << uai.damage();					
+					} else {
+						// Draw 0
+						ss << "0";
+					}
+					// If was critial add entity to display "Critical" rising slowly from the unit
+					was_critical = uai.has_was_critical() && uai.was_critical();
+				} else {
+					// Draw missed.
+					ss << "Missed";
+				}
+				auto msg = create_entity_from_string(ss.str());
+				msg->pos.pos = hex::hex_map::get_pixel_pos_from_tile_pos(e->pos.gs_pos.x, e->pos.gs_pos.y);
+				msg->pos.pos += point((get_tile_size().x - msg->spr->tex.width())/2, 0);
+				msg->lifetime = 3.5;
+				auto start_point = msg->pos.pos;
+				auto end_point   = msg->pos.pos - point(0,40);
+				add_animated_property("damage", 
+					std::make_shared<property::animate<double, point>>([start_point, end_point](double t, double d){ 
+						return easing::between::ease_out_quad(t, start_point, end_point, d); 
+					}, [msg](const point& v){ msg->pos.pos = v; }, 2.0));
+
+				if(was_critical) {
+					auto msg = create_entity_from_string("Critical");
+					msg->pos.pos = hex::hex_map::get_pixel_pos_from_tile_pos(e->pos.gs_pos.x, e->pos.gs_pos.y);
+					msg->pos.pos += point((get_tile_size().x - msg->spr->tex.width())/2, 25);
+					msg->lifetime = 3.5;
+					auto start_point = msg->pos.pos;
+					auto end_point   = msg->pos.pos - point(0,40);
+					add_animated_property("critical", 
+						std::make_shared<property::animate<double, point>>([start_point, end_point](double t, double d){ 
+							return easing::between::ease_out_quad(t, start_point, end_point, d); 
+						}, [msg](const point& v){ msg->pos.pos = v; }, 2.5));
+					}
 				break;
 			}
 			case Update_Unit_MessageType_SPELL: {
@@ -336,16 +411,17 @@ void engine::process_update(game::Update* up)
 
 	if(up->has_end_turn() && up->end_turn()) {
 		auto& fe = game_state_.get_entities().front();
-		auto& ep = fe->pos->gs_pos;
+		auto& ep = fe->pos.gs_pos;
 		auto fp = get_map()->get_pixel_pos_from_tile_pos(ep.x, ep.y);
-		fp += point(get_tile_size().x/2 - get_window().width()/2, get_tile_size().y/2 - get_window().height()/2);			
+		fp += point(get_tile_size().x/2 - get_window().width()/2, get_tile_size().y/2 - get_window().height()/2);
+		point sp = camera_;
 		add_animated_property("camera", 
-			std::make_shared<property::animate<double, glm::vec2>>([&, fp](double t, double d){ 
-								return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(camera_.x), static_cast<float>(camera_.y)), glm::vec2(static_cast<float>(fp.x-camera_.x), static_cast<float>(fp.y-camera_.y)), d); }, 
-								[&](const glm::vec2& v){ camera_.x = static_cast<int>(std::round(v.x)); camera_.y = static_cast<int>(std::round(v.y)); }, 0.4));
+			std::make_shared<property::animate<double, point>>(
+				[sp, fp](double t, double d){ return easing::between::ease_out_quad(t, sp, fp, d); }, 
+				[&](const point&p){ set_camera(p); }, 1.5));
 		// schedule front entity to have moves enumerated -- if it belongs to active player
 		if(fe->owner.lock() == active_player_ 
-			&& (fe->mask & component::genmask(component::Component::INPUT)) == component::genmask(component::Component::INPUT)) {
+			&& (fe->mask & genmask(Component::INPUT)) == genmask(Component::INPUT)) {
 			fe->inp->gen_moves = true;
 		}
 	}
@@ -372,9 +448,23 @@ void engine::process_update(game::Update* up)
 	}
 }
 
+component_set_ptr engine::create_entity_from_string(const std::string& s)
+{
+	// XXX we need some settings somewhere to define the in-game fonts to
+	// use for what.
+	font::font_ptr fnt = font::get_font("Bangers.ttf", 16);
+
+	component_set_ptr msg = std::make_shared<component::component_set>(100);
+	auto surf = font::render(s, fnt, graphics::color(1.0f, 0.1f, 0.1f));
+	msg->spr = std::make_shared<component::sprite>(graphics::surface::create(surf));
+	msg->mask = genmask(Component::SPRITE) | genmask(Component::POSITION);
+	add_entity(msg);
+	return msg;
+}
+
 void engine::end_turn()
 {
-	static component_id input_mask = component::genmask(component::Component::INPUT);
+	static component_id input_mask = genmask(Component::INPUT);
 	for(auto& e : entity_list_) {
 		if((e->mask & input_mask) == input_mask) {
 			auto& inp = e->inp;

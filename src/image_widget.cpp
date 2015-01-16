@@ -28,6 +28,8 @@ namespace gui
 	{
 		if(!is_area_set()) {
 			set_dim_internal(tex_.width(), tex_.height());
+		} else {
+			set_dim_fixed(tex_.width(), tex_.height());
 		}
 	}
 
@@ -35,6 +37,8 @@ namespace gui
 	{
 		if(!is_area_set()) {
 			set_dim_internal(tex_.width(), tex_.height());
+		} else {
+			set_dim_fixed(tex_.width(), tex_.height());
 		}
 	}
 

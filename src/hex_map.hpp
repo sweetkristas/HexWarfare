@@ -53,6 +53,7 @@ namespace hex
 		const hex_object* get_tile_from_pixel_pos(int x, int y) const;
 		static point get_tile_pos_from_pixel_pos(int x, int y);
 		static point get_pixel_pos_from_tile_pos(int x, int y);
+		static point get_pixel_pos_from_tile_pos(const point& p);
 
 		static point loc_in_dir(int x, int y, direction d);
 		static point loc_in_dir(int x, int y, const std::string& s);

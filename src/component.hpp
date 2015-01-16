@@ -35,34 +35,34 @@
 
 #define CLONE(cname) std::shared_ptr<cname> clone() { return std::shared_ptr<cname>(new cname(*this)); }
 
+// XXX Todo think of a cleaner way of doing this with bitsets.
+enum class Component
+{
+	POSITION,
+	SPRITE,
+	STATS,
+	INPUT,
+	LIGHTS,
+	GUI,
+	// tag only values must go at end.
+	CREATURE,
+	COLLISION,
+	MAX_COMPONENTS,
+};
+static_assert(static_cast<int>(Component::MAX_COMPONENTS) <= 64, "Maximum number of components must be less than 64. If you need more consider a vector<bool> solution.");
+
+inline component_id operator<<(int value, const Component& rhs) 
+{
+	return component_id(value << static_cast<unsigned long long>(rhs));
+}
+inline component_id genmask(const Component& lhs)
+{
+	return 1 << lhs;
+}
+
 namespace component
 {
-	// XXX Todo thing of a cleaner way of doing this with bitsets.
-	enum class Component
-	{
-		POSITION,
-		SPRITE,
-		STATS,
-		INPUT,
-		LIGHTS,
-		GUI,
-		// tag only values must go at end.
-		CREATURE,
-		COLLISION,
-		MAX_COMPONENTS,
-	};
-	static_assert(static_cast<int>(Component::MAX_COMPONENTS) <= 64, "Maximum number of components must be less than 64. If you need more consider a vector<bool> solution.");
-
 	Component get_component_from_string(const std::string& s);
-
-	inline component_id operator<<(int value, const Component& rhs) 
-	{
-		return component_id(value << static_cast<unsigned long long>(rhs));
-	}
-	inline component_id genmask(const Component& lhs)
-	{
-		return 1 << lhs;
-	}
 
 	class component
 	{
@@ -80,7 +80,6 @@ namespace component
 	{
 		position() : component(Component::POSITION) {}
 		position(const point& p) : component(Component::POSITION), pos(p), gs_pos(p) {}
-		CLONE(position)
 		point pos;
 		point gs_pos;
 	};
@@ -98,10 +97,11 @@ namespace component
 
 	struct stats : public component
 	{
-		stats() : component(Component::STATS), health(1), attack(0), armour(0), move(1.0f), range(1) {}
+		stats();
 		CLONE(stats)
 		// N.B. If things are added or removed here, this needs to be reflected in the message_format.proto file.
 		// specifically game::Update::UnitStats
+		// Also the game_state.cpp needs to be updated. Mostly the state::set_entity_stats() function.
 		int health;
 		int attack;
 		int armour;
@@ -109,6 +109,8 @@ namespace component
 		float initiative;
 		std::string name;
 		int range;
+		float critical_strike;
+		int attacks_this_turn;
 		creature::const_creature_ptr unit;
 	};
 
@@ -163,13 +165,14 @@ namespace component
 		uuid::uuid entity_id;
 		component_id mask;
 		int zorder;
-		// XXX Since pos is frequently accessed, it'd be better if it was just point pos; in the declaration.
-		std::shared_ptr<position> pos;
+		// Since pos is frequently accessed, it's better for pos to be a member declaration.
+		position pos;
 		std::shared_ptr<sprite> spr;
 		std::shared_ptr<stats> stat;
 		std::shared_ptr<input> inp;
 		std::shared_ptr<gui_component> gui;
 		player_weak_ptr owner;
+		double lifetime;
 		// XXX add direct access to team uuid and maybe owner uuid
 		component_set(const component_set&) = delete;
 		void operator=(const component_set&) = delete;

@@ -39,6 +39,29 @@ namespace gui
 
 	void grid::recalc_dimensions()
 	{
+		if(!is_area_set()) {
+			float ow = 0, oh = 0;
+			if(children_.empty()) {
+				set_dim_internal(1,1);
+				return;
+			}
+			for(auto& r : children_) {
+				float lw = 0;
+				float lh = 0;
+				for(auto& c : r) {
+					lw += c->get_area().w();
+					if(c->get_area().h() > lh) {
+						lh = c->get_area().h();
+					}
+				}
+				if(lw > ow) {
+					ow = lw;
+				}
+				oh += lh;
+			}
+#error fixme
+			set_dim_internal();
+		}
 	}
 
 	void grid::handle_init()

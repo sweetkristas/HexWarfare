@@ -104,6 +104,8 @@ public:
 	void set_active_player(player_ptr p) { active_player_ = p; }
 	const player_ptr& get_active_player() const { return active_player_; }
 
+	// Convenience funtion to create a spite/position entity and add it, from a string
+	component_set_ptr create_entity_from_string(const std::string& s);
 private:
 	game::state& game_state_;
 	EngineState state_;

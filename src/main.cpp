@@ -159,6 +159,16 @@ void local_server_code(game::state gs, network::server_ptr server)
 	// create and send a start game packet.
 	up = gs.create_update();
 	up->set_game_start(true);
+	// Set starting gold for all players, with player update messages.
+	for(auto& p : gs.get_players()) {
+		game::Update_Player* upp = up->add_player();
+		upp->set_uuid(uuid::write(p->get_uuid()));
+		upp->set_action(game::Update_Player_Action_UPDATE);
+		game::Update_PlayerInfo* pi = new game::Update_PlayerInfo();
+		// XXX starting gold per player -- should load from scenario.
+		pi->set_gold(50);
+		upp->set_allocated_player_info(pi);
+	}
 	server->write_send_queue(up);
 	server->process();
 
@@ -352,7 +362,7 @@ int main(int argc, char* argv[])
 		auto status_bar = gui::dialog::create(rectf(0.0f, 0.0f, 0.8f, 0.05f), gui::Justify::LEFT | gui::Justify::TOP);
 		e.add_widget(status_bar);
 
-		/*auto selection_bar = gui::grid::create(rectf(), gui::Justify::H_CENTER | gui::Justify::BOTTOM, 3);
+		auto selection_bar = gui::grid::create(rectf(), gui::Justify::H_CENTER | gui::Justify::BOTTOM, 3);
 		selection_bar->add_item(gui::button::create(rectf(), gui::Justify::LEFT | gui::Justify::TOP, 
 			[](){ LOG_INFO("Button 1 pressed."); },
 			gui::image::create(rectf(), gui::Justify::H_CENTER | gui::Justify::BOTTOM, 
@@ -365,7 +375,7 @@ int main(int argc, char* argv[])
 			[](){ LOG_INFO("Button 3 pressed."); },
 			gui::image::create(rectf(), gui::Justify::H_CENTER | gui::Justify::BOTTOM, 
 			graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE))));
-		e.add_widget(selection_bar);*/
+		e.add_widget(selection_bar);
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {

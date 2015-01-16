@@ -30,11 +30,14 @@ message Update {
 		optional float initiative = 5;
 		optional string name = 6;
 		optional int32 range = 7;
+		optional float critical_strike = 8;
+		optional int32 attacks_this_turn = 9;
 	}
 
-	message AnimationHints {
-		optional string hint = 1;
-		optional int32 timing = 2;
+	message AttackInfo {
+		optional int32 damage = 1;
+		optional bool was_critical = 2;
+		// optional status effects
 	}
 
 	message Unit {
@@ -57,7 +60,11 @@ message Update {
 
 		repeated Location path = 7;
 
-		repeated AnimationHints animation_hints = 8;
+		optional AttackInfo attack_info = 8;
+	}
+
+	message PlayerInfo {
+		optional int32 gold = 1;
 	}
 
 	message Player {
@@ -66,6 +73,8 @@ message Update {
 			JOIN = 1;
 			QUIT = 2;
 			CONCEDE = 3;
+			ELIMINATED = 4;
+			UPDATE = 5;
 		}
 
 		required string uuid = 1;
@@ -74,6 +83,8 @@ message Update {
 		
 		optional string team_uuid = 4;
 		optional string team_name = 5;
+
+		optional PlayerInfo player_info = 6;
 	}
 
 	repeated Unit units = 8;

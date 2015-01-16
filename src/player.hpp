@@ -84,6 +84,11 @@ public:
 	int id() const { return id_; }
 	void set_id(int id) { id_ = id; }
 
+	int get_gold() const { return gold_; }
+	void add_gold(int amount) { gold_ += amount; }
+	void remove_gold(int amount) { gold_ -= amount; }
+	void set_gold(int amount) { gold_ = amount; }
+
 	virtual game::Update* process(const game::state& gs, double time) { return nullptr; }
 
 	virtual player_ptr clone();
@@ -94,6 +99,7 @@ private:
 	// Color 
 	graphics::color color_;
 	uuid::uuid uuid_;
+	int gold_;
 
 	// simple id, still debating this.
 	int id_;

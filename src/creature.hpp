@@ -40,6 +40,7 @@ namespace creature
 		float get_movement() const { return movement_; }
 
 		int get_max_units_attackable() const { return max_units_attackable_; }
+		int get_attacks_per_turn() const { return attacks_per_turn_; }
 	private:
 		// Displayable name
 		std::string name_;
@@ -53,13 +54,15 @@ namespace creature
 		MovementType movement_type_;
 		// default attack range
 		float range_;
+		// Percentage chance of the attack being a critical strike.
+		float critical_strike_;
 		// attack type (magic, physical, type of magic, type of physical, etc)
 		// has ranged attack
 		// what items might be carried.
-		// lights
 		//! Number of units that can be attacked at once using the default attack
 		int max_units_attackable_;
-		std::string ai_name_;
+		//! Numer of attacks per turn for default attack
+		int attacks_per_turn_;
 		std::string sprite_name_;
 		rect sprite_area_;
 		component_id component_mask_;

@@ -72,7 +72,7 @@ namespace process
 				auto& inp = e->inp;
 				if(e->inp->selected) {
 					static auto ellipse = graphics::texture("images/misc/ellipse-1.png", graphics::TextureFlags::NONE);
-					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
+					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.pos.x, pos.pos.y);
 					const int x = pp.x - cam.x + (ts.x - ellipse.width())/2;
 					const int y = pp.y - cam.y + ts.y - ellipse.height();
 					ellipse.blit(rect(x, y, ellipse.width(), ellipse.height()));
@@ -158,8 +158,14 @@ namespace process
 					}
 				}
 				if(spr->tex.is_valid()) {
-					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos->pos.x, pos->pos.y);
-					spr->tex.blit(rect(pp.x - cam.x, pp.y - cam.y, ts.x, ts.y));
+					// XXX This is an ugly hack.  The code below assumes stuff is aligned to tiles -- which doesn't work for entities we want
+					// absolutely pixel positioned.
+					if((e->mask & genmask(Component::INPUT)) == genmask(Component::INPUT)) {
+						auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.pos.x, pos.pos.y);
+						spr->tex.blit(rect(pp.x - cam.x, pp.y - cam.y, ts.x, ts.y));
+					} else {
+						spr->tex.blit(rect(pos.pos.x - cam.x, pos.pos.y - cam.y));
+					}
 				}
 				spr->tex.set_alpha(255);
 				spr->tex.set_color(graphics::color(255,255,255));

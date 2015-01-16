@@ -29,7 +29,10 @@ namespace creature
 			movement_(5.0f), 
 			movement_type_(MovementType::NORMAL) ,
 			range_(1.0f),
-			max_units_attackable_(n["max_units_attackable"].as_int32(1))
+			// default critical strike chance is 5%
+			critical_strike_(0.05f),
+			max_units_attackable_(1),
+			attacks_per_turn_(1)
 	{
 		using namespace component;
 		component_mask_ = genmask(Component::CREATURE);
@@ -90,10 +93,10 @@ namespace creature
 			if(stats.has_key("range")) {
 				range_ = stats["range"].as_float();
 			}
-		}
 
-		if(n.has_key("ai")) {
-			ai_name_ = n["ai"].as_string();
+			max_units_attackable_ = std::min(10, std::max(0, stats["max_units_attackable"].as_int32(1)));
+			attacks_per_turn_ = std::min(10, std::max(0, stats["attacks_per_turn"].as_int32(1)));
+			critical_strike_ = std::min(1.0f, std::max(0.0f, stats["critical_strike"].as_float(0.05f)));
 		}
 
 		if((component_mask_ & genmask(Component::SPRITE)) == genmask(Component::SPRITE)) {
@@ -121,11 +124,14 @@ namespace creature
 			res->stat->name = name_;
 			res->stat->range = static_cast<int>(range_);
 			res->stat->move = static_cast<float>(movement_);
+			res->stat->critical_strike = critical_strike_;
+			res->stat->attacks_this_turn = attacks_per_turn_;
 			res->stat->initiative = 100.0f/static_cast<float>(initiative_) + gs.get_initiative_counter();
 			res->stat->unit = shared_from_this();
 		}
 		if((component_mask_ & genmask(Component::POSITION)) == genmask(Component::POSITION)) {
-			res->pos = std::make_shared<position>(pos);
+			res->pos.pos = pos;
+			res->pos.gs_pos = pos;
 		}
 		if((component_mask_ & genmask(Component::SPRITE)) == genmask(Component::SPRITE)) {
 			// The whole sprite mess needs fixed, since it doesn't take an area.

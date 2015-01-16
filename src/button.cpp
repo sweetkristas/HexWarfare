@@ -117,7 +117,9 @@ namespace gui
 	void button::recalc_dimensions()
 	{
 		if(!is_area_set()) {
-			if(is_pressed_) {
+			if(child_) {
+				set_dim_internal(child_->w(), child_->h());
+			} else if(is_pressed_) {
 				set_dim_internal(pressed_tex_.width(), pressed_tex_.height());
 			} else {
 				set_dim_internal(normal_tex_.width(), normal_tex_.height());

@@ -17,7 +17,7 @@
 #include "SDL.h"
 
 #include "component.hpp"
-#include "easing.hpp"
+#include "easing_between_points.hpp"
 #include "input_process.hpp"
 
 namespace process
@@ -52,12 +52,12 @@ namespace process
 
 	void input::update(engine& eng, double t, const entity_list& elist)
 	{
-		static component_id input_mask = component::genmask(component::Component::INPUT);
-		static component_id pos_mask = component::genmask(component::Component::POSITION) | component::genmask(component::Component::STATS);
+		static component_id input_mask = genmask(Component::INPUT);
+		static component_id pos_mask = genmask(Component::POSITION) | genmask(Component::STATS);
 
 		for(auto& e : elist) {
 			if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
-				auto& pos = e->pos->gs_pos;
+				auto& pos = e->pos.gs_pos;
 				auto& inp = e->inp;
 
 				if(inp->clear_selection) {
@@ -76,7 +76,7 @@ namespace process
 					// XXX this needs to be incorporated into hex::find_available_moves somehow.
 					inp->possible_moves.erase(std::remove_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&elist](const hex::move_cost& mc) {
 						for(auto& e : elist) {
-							if(e->pos && e->pos->gs_pos == mc.loc) {
+							if(e->pos.gs_pos == mc.loc) {
 								return true;
 							}
 						}
@@ -98,35 +98,43 @@ namespace process
 				aggressor_ = eng.get_game_state().get_entities().front();
 				// XXX This assert may need to be a user error.
 				ASSERT_LOG(aggressor_ != nullptr, "No unit on list with which to attack with.");
-				// Scan through list of enemy entities and select ones which are in 
-				// range for being attacked.
-				bool opponent_in_range = false;
-				for(auto& e2 : elist) {
-					if((e2->mask & pos_mask) == pos_mask && (e2->mask & input_mask) == input_mask) {
-						if(eng.get_game_state().is_attackable(aggressor_, e2)) {
-							e2->inp->is_attack_target = true;
-							opponent_in_range = true;
+				if(aggressor_->stat->attacks_this_turn > 0) {
+					// Scan through list of enemy entities and select ones which are in 
+					// range for being attacked.
+					bool opponent_in_range = false;
+					for(auto& e2 : elist) {
+						if((e2->mask & pos_mask) == pos_mask && (e2->mask & input_mask) == input_mask) {
+							if(eng.get_game_state().is_attackable(aggressor_, e2)) {
+								e2->inp->is_attack_target = true;
+								opponent_in_range = true;
+							}
 						}
 					}
-				}
-				if(opponent_in_range) {
-					state_ = State::SELECT_OPPONENTS;
-					max_opponent_count_ = 1; // XXX attacking_unit->stat->max_attack_opponents
+					if(opponent_in_range) {
+						state_ = State::SELECT_OPPONENTS;
+						max_opponent_count_ = 1; // XXX attacking_unit->stat->max_attack_opponents
+					}
 				}
 			}
 		}
 		if(!mouse_button_events_.empty()) {
 			auto button = mouse_button_events_.front(); mouse_button_events_.pop();
+
+			bool mouse_in_entity = false;
+			bool mouse_up_event = false;
+
 			for(auto& e : elist) {
 				if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
-					auto& pos = e->pos->gs_pos;
+					auto& pos = e->pos.gs_pos;
 					auto& inp = e->inp;
 					auto& stats = e->stat;
 
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
 					if(button.button == SDL_BUTTON_LEFT 
 						&& button.type == SDL_MOUSEBUTTONUP) {
+						mouse_up_event = true;
 						bool mouse_in_area = geometry::pointInRect(point(button.x, button.y), inp->mouse_area + pp);
+						mouse_in_entity = mouse_in_area || mouse_in_entity;
 						if(state_ == State::SELECT_OPPONENTS) {
 							if(max_opponent_count_ != 0 
 								&& mouse_in_area 
@@ -139,16 +147,11 @@ namespace process
 									aggressor_ = nullptr;
 									targets_.clear();
 									for(auto& en : elist) {
-										en->inp->is_attack_target = false;
+										if((en->mask & genmask(Component::INPUT)) == genmask(Component::INPUT)) {
+											en->inp->is_attack_target = false;
+										}
 									}
 								}
-							} else {
-								//state_ = State::IDLE;
-								//aggressor_ = nullptr;
-								//targets_.clear();
-								//for(auto& en : elist) {
-								//	en->inp->is_attack_target = false;
-								//}
 							}
 							continue;
 						}
@@ -156,7 +159,7 @@ namespace process
 						if(mouse_in_area) {
 							// Clear old selections.
 							for(auto& e : eng.get_entities()) {
-								if(e->inp) {
+								if((e->mask & genmask(Component::INPUT)) == genmask(Component::INPUT)) {
 									e->inp->selected = false;
 								}
 							}
@@ -184,15 +187,12 @@ namespace process
 								ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
 								netclient->write_send_queue(up);
 
-								auto old_pos = e->pos->pos;
-								eng.add_animated_property("unit", std::make_shared<property::animate<double, glm::vec2>>([old_pos, tp](double t, double d){ 
-									return easing::ease_out_quad<glm::vec2, float>(t, glm::vec2(static_cast<float>(old_pos.x), static_cast<float>(old_pos.y)), glm::vec2(static_cast<float>(tp.x-old_pos.x), static_cast<float>(tp.y-old_pos.y)), d); }, 
-									[&e](const glm::vec2& v){ e->pos->pos.x = static_cast<int>(std::round(v.x)); e->pos->pos.y = static_cast<int>(std::round(v.y)); /*LOG_DEBUG("pos = " << v.x << "," << v.y);*/ }, 0.4));
+								auto old_pos = e->pos.pos;
+								eng.add_animated_property("unit", std::make_shared<property::animate<double, point>>(
+									[old_pos, tp](double t, double d){ return easing::between::linear_tween(t, old_pos, tp, d); }, 
+									[e](const point& v){ e->pos.pos = v; }, 2.5));
 								//pos.x = tp.x;
 								//pos.y = tp.y;
-
-								// update game state position
-								e->pos->gs_pos = tp;
 
 								// decrement movement.
 								stats->move -= it->path_cost;
@@ -206,13 +206,25 @@ namespace process
 					}
 				}
 			}
+
+			// This handles clearing the current target(s) if we click on somewhere else on-screen
+			if(!mouse_in_entity && state_ == State::SELECT_OPPONENTS && mouse_up_event) {
+				state_ = State::IDLE;
+				aggressor_ = nullptr;
+				targets_.clear();
+				for(auto& en : elist) {
+					if((en->mask & genmask(Component::INPUT)) == genmask(Component::INPUT)) {
+						en->inp->is_attack_target = false;
+					}
+				}
+			}
 		}
 
 		if(!mouse_motion_events_.empty()) {
 			auto motion = mouse_motion_events_.front(); mouse_motion_events_.pop();
 			for(auto& e : elist) {
 				if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
-					auto& pos = e->pos->gs_pos;
+					auto& pos = e->pos.gs_pos;
 					auto& inp = e->inp;
 					auto& stats = e->stat;
 					if(!inp->possible_moves.empty() && inp->graph != nullptr) {
@@ -261,6 +273,5 @@ namespace process
 		auto netclient = eng.get_netclient().lock();
 		ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
 		netclient->write_send_queue(up);
-
 	}
 }
