@@ -469,7 +469,7 @@ namespace game
 
 		for(auto& players : up->player()) {
 			// XXX deal with stuff
-			auto& p = get_player_by_uuid(uuid::read(players.uuid()));
+			auto p = get_player_by_uuid(uuid::read(players.uuid()));
 			switch(players.action())
 			{
 				case Update_Player_Action_CANONICAL_STATE:
@@ -639,7 +639,7 @@ namespace game
 		return it->second;
 	}
 
-	player_ptr state::get_player_by_uuid(const uuid::uuid& id)
+	const player_ptr& state::get_player_by_uuid(const uuid::uuid& id) const
 	{
 		auto it = players_.find(id);
 		ASSERT_LOG(it != players_.end(), "Couldn't find player with id: " << id);

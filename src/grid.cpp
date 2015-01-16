@@ -59,8 +59,8 @@ namespace gui
 				}
 				oh += lh;
 			}
-#error fixme
-			set_dim_internal();
+//#error fixme
+			//set_dim_internal();
 		}
 	}
 

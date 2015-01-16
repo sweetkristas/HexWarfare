@@ -77,7 +77,7 @@ namespace game
 		team_ptr create_team_instance(const std::string& name);
 		team_ptr get_team_from_id(const uuid::uuid& id);
 
-		player_ptr get_player_by_uuid(const uuid::uuid& id);
+		const player_ptr& get_player_by_uuid(const uuid::uuid& id) const;
 
 	private:
 		float initiative_counter_;
