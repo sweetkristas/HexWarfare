@@ -160,6 +160,7 @@ void load_scenario(engine& eng, const std::string& name)
 				auto& ai = u->get_type()->get_animation_info("idle");
 				cs->spr = std::make_shared<component::sprite>(ai.image_, ai.area_);
 				cs->inp = std::make_shared<component::input>();
+				cs->inp->mouse_area = ai.area_;
 				eng.add_entity(cs);
 			}
 			++it;

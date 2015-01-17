@@ -163,19 +163,22 @@ namespace game
 		return *this;
 	}
 
-	const state& state::unit_move(Update* up, unit_ptr e, const std::vector<point>& path) const 
+	const state& state::unit_move(Update* up, unit_ptr u, const std::vector<point>& path) const 
 	{
 		// Generate a message to be sent to the server
 		Update_Unit *unit = up->add_units();
-		unit->set_uuid(uuid::write(e->get_uuid()));
+		unit->set_uuid(uuid::write(u->get_uuid()));
 		unit->set_type(Update_Unit_MessageType::Update_Unit_MessageType_MOVE);
+		float cost(0);
 		for(auto& p : path) {
 			Update_Location* loc = unit->add_path();
 			loc->set_x(p.x);
 			loc->set_y(p.y);
+			cost -= map_->get_tile_at(p)->get_cost();
 		}
 		// Set the game state position.
-		e->set_position(path.back());
+		u->set_position(path.back());
+		u->set_move(u->get_move() - cost);
 		return *this;
 	}
 

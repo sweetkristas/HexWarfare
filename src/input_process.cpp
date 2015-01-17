@@ -73,7 +73,7 @@ namespace process
 					// XXX this needs to be incorporated into hex::find_available_moves somehow.
 					inp->possible_moves.erase(std::remove_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&elist](const hex::move_cost& mc) {
 						for(auto& e : elist) {
-							if(e->stat->get_position() == mc.loc) {
+							if(e->stat && e->stat->get_position() == mc.loc) {
 								return true;
 							}
 						}
@@ -100,7 +100,7 @@ namespace process
 					// range for being attacked.
 					bool opponent_in_range = false;
 					for(auto& e2 : elist) {
-						if((e2->mask & pos_mask) == pos_mask && (e2->mask & input_mask) == input_mask) {
+						if((e2->mask & (pos_mask | input_mask)) == (pos_mask | input_mask)) {
 							if(eng.get_game_state().is_attackable(aggressor_, e2->stat)) {
 								e2->inp->is_attack_target = true;
 								opponent_in_range = true;
@@ -184,13 +184,14 @@ namespace process
 								ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
 								netclient->write_send_queue(up);
 
-								auto old_pos = e->pos;
+								/*auto old_pos = e->pos;
 								eng.add_animated_property("unit", std::make_shared<property::animate<double, point>>(
 									[old_pos, tp](double t, double d){ return easing::between::linear_tween(t, old_pos, tp, d); }, 
-									[e](const point& v){ e->pos = v; }, 2.5));
+									[e](const point& v){ e->pos = v; }, 2.5));*/
+								e->pos = stats->get_position();
 
 								// re-generate moves if there is still some movement left.
-								if(stats->get_move() - it->path_cost > FLT_EPSILON) {
+								if(stats->get_move() > FLT_EPSILON) {
 									inp->gen_moves = true;
 								}
 							}

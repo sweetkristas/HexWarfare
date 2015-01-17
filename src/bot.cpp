@@ -36,14 +36,17 @@ namespace ai
 		profile::timer time;
 		while(running) {
 			if((up = client->read_recv_queue()) != nullptr) {
-				bool end_of_turn_message = false;
+				bool fire_process = false;
 				std::cerr << "local_bot_code: Got message: " << up->id() << "\n";
 				gs.apply(up);
 				if(up->has_quit() && up->quit() == true && up->id() == -1) {
 					running = false;
 				}
 				if(up->has_end_turn()) {
-					end_of_turn_message = up->end_turn();
+					fire_process = up->end_turn();
+				}
+				if(up->has_game_start()) {
+					fire_process = up->game_start();
 				}
 				if(up->has_game_win_state() && up->game_win_state() != game::Update_GameWinState_IN_PROGRESS) {
 					// Bot is dispassionate and exits out after the game is over.
@@ -52,7 +55,7 @@ namespace ai
 				}
 				delete up;
 
-				if(end_of_turn_message && running) {
+				if(fire_process && running) {
 					up = bot->process(gs, time.get_time());
 					if(up) {
 						client->write_send_queue(up);
