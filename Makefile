@@ -71,6 +71,9 @@ PBSRCS := $(wildcard src/*.proto)
 PBOBJS := $(PBSRCS:.proto=.pb.o)
 PBGENS := $(PBSRCS:.proto=.pb.cc)
 
+SRCS := $(wildcard src/*.cpp)
+OBJS := $(SRCS:.cpp=.o)
+
 include Makefile.common
 
 src/%.pb.cc: src/%.proto
@@ -100,11 +103,11 @@ src/lua/%.o : src/lua/%.c
 	@echo "Building:" $<
 	@$(CCACHE) $(CXX) $(BASE_CXXFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) -c -o $@ $<
 
-HexWarfare: $(PBOBJS) $(objects) $(ogl_objects) $(sdl_objects) liblua.a
+HexWarfare: $(PBOBJS) $(OBJS) $(ogl_objects) $(sdl_objects) liblua.a
 	@echo "Linking : HexWarfare"
 	@$(CCACHE) $(CXX) \
 		$(BASE_CXXFLAGS) $(LDFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(INC) \
-		$(objects) $(PBOBJS) $(ogl_objects) $(sdl_objects) $(ogl_fixed_objects) -o HexWarfare \
+		$(OBJS) $(PBOBJS) -o HexWarfare \
 		$(LIBS) -fthreadsafe-statics
 
 liblua.a: $(lua_objects)
@@ -112,7 +115,7 @@ liblua.a: $(lua_objects)
 	@$(AR) -rcs $@ $(lua_objects)
 
 # pull in dependency info for *existing* .o files
--include $(objects:.o=.d)
+-include $(OBJS:.o=.d)
 
 all: HexWarfare
 

@@ -3,62 +3,6 @@
 # Please keep every file in separate lines to make diff and patching easier.
 #
 
-# Game engine
-objects = \
-	src/action_process.o \
-	src/ai_process.o \
-	src/bar_widget.o \
-	src/bot.o \
-	src/button.o \
-	src/castles.o \
-	src/collision_process.o \
-	src/color.o \
-	src/component.o \
-	src/creature.o \
-	src/datetime.o \
-	src/dialog.o \
-	src/draw_primitives.o \
-	src/enet_server.o \
-	src/engine.o \
-	src/filesystem.o \
-	src/font.o \
-	src/game_state.o \
-	src/grid.o \
-	src/gui_elements.o \
-	src/gui_process.o \
-	src/hex_logical_tiles.o \
-	src/hex_map.o \
-	src/hex_object.o \
-	src/hex_pathfinding.o \
-	src/hex_tile.o \
-	src/initiative_dialog.o \
-	src/input_process.o \
-	src/internal_server.o \
-	src/internal_client.o \
-	src/json.o \
-	src/label.o \
-	src/main.o \
-	src/network_server.o \
-	src/node.o \
-	src/node_utils.o \
-	src/noiseutils.o \
-	src/notify.o \
-	src/parameters.o \
-	src/particles.o \
-	src/player.o \
-	src/process.o \
-	src/property_animate.o \
-	src/random.o \
-	src/render_process.o \
-	src/surface.o \
-	src/texture.o \
-	src/tile.o \
-	src/unit_test.o \
-	src/utility.o \
-	src/uuid.o \
-	src/widget.o \
-	src/wm.o
-
 lua_objects = \
 	src/lua/lapi.o \
 	src/lua/lauxlib.o \
