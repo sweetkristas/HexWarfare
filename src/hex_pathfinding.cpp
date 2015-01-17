@@ -21,6 +21,7 @@
 #include "hex_logical_tiles.hpp"
 #include "hex_pathfinding.hpp"
 #include "profile_timer.hpp"
+#include "units.hpp"
 
 namespace hex
 {
@@ -52,14 +53,14 @@ namespace hex
 		// XXX todo.
 
 		//std::set<point> friendly_units;
-		std::map<point, component_set_ptr> enemy_units;
+		std::map<point, game::unit_ptr> enemy_units;
 		std::set<point> surrounding_positions;
-		auto cp = gs.get_entities().front()->owner.lock();
-		for(auto& e : gs.get_entities()) {
-			auto owner = e->owner.lock();
-			auto& pos = e->pos.gs_pos;
+		auto cp = gs.get_entities().front()->get_owner();
+		for(auto& u : gs.get_entities()) {
+			auto owner = u->get_owner();
+			auto& pos = u->get_position();
 			if(cp->team() != owner->team()) {
-				enemy_units[pos] = e;
+				enemy_units[pos] = u;
 				auto surrounds = map->get_surrounding_positions(pos.x, pos.y);
 				for(auto& t : surrounds) {
 					surrounding_positions.emplace(t);
@@ -69,11 +70,11 @@ namespace hex
 			}
 		}
 		// remove enemy entities from surrounding positions
-		auto team_current = gs.get_entities().front()->owner.lock()->team();
+		auto team_current = gs.get_entities().front()->get_owner()->team();
 		for(auto& e : gs.get_entities()) {
-			auto e_team = e->owner.lock()->team();
+			auto e_team = e->get_owner()->team();
 			if(e_team != team_current) {
-				auto it = surrounding_positions.find(e->pos.gs_pos);
+				auto it = surrounding_positions.find(e->get_position());
 				if(it != surrounding_positions.end()) {
 					surrounding_positions.erase(it);
 				}
@@ -125,11 +126,11 @@ namespace hex
 		return graph;
 	}
 
-	hex_graph_ptr create_cost_graph(const game::state& gs, int srcx, int srcy, float max_cost)
+	hex_graph_ptr create_cost_graph(const game::state& gs, const point& src, float max_cost)
 	{
 		auto& map = gs.get_map();
 		int max_area = static_cast<int>(max_cost*4.0f+1.0f);
-		int x = srcx - max_area/2;
+		int x = src.x - max_area/2;
 		int w = max_area;
 		if(x < 0) {
 			w = w + x;
@@ -138,7 +139,7 @@ namespace hex
 			w = w - (x - map->width() - 1);
 			x = map->width() - 1;
 		}
-		int y = srcy - max_area/2;
+		int y = src.y - max_area/2;
 		int h = max_area;
 		if(y < 0) {
 			h = h + y;

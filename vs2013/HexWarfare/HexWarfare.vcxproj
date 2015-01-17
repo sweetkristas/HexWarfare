@@ -134,6 +134,7 @@
     <ClCompile Include="..\..\src\surface.cpp" />
     <ClCompile Include="..\..\src\texture.cpp" />
     <ClCompile Include="..\..\src\tile.cpp" />
+    <ClCompile Include="..\..\src\units.cpp" />
     <ClCompile Include="..\..\src\unit_test.cpp" />
     <ClCompile Include="..\..\src\utility.cpp" />
     <ClCompile Include="..\..\src\uuid.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="..\..\src\color.hpp" />
     <ClInclude Include="..\..\src\component.hpp" />
     <ClInclude Include="..\..\src\creature.hpp" />
+    <ClInclude Include="..\..\src\creature_fwd.hpp" />
     <ClInclude Include="..\..\src\datetime.hpp" />
     <ClInclude Include="..\..\src\dialog.hpp" />
     <ClInclude Include="..\..\src\dir_monitor.hpp" />
@@ -209,6 +211,8 @@
     <ClInclude Include="..\..\src\texture.hpp" />
     <ClInclude Include="..\..\src\threads.hpp" />
     <ClInclude Include="..\..\src\tile.hpp" />
+    <ClInclude Include="..\..\src\units.hpp" />
+    <ClInclude Include="..\..\src\units_fwd.hpp" />
     <ClInclude Include="..\..\src\unit_test.hpp" />
     <ClInclude Include="..\..\src\utf8_to_codepoint.hpp" />
     <ClInclude Include="..\..\src\utility.hpp" />

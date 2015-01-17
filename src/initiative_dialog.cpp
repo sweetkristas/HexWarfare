@@ -17,6 +17,7 @@
 #include "component.hpp"
 #include "engine.hpp"
 #include "initiative_dialog.hpp"
+#include "units.hpp"
 
 namespace gui
 {
@@ -67,11 +68,13 @@ namespace gui
 	{
 		sprites_.clear();
 
-		for(auto& e : eng.get_game_state().get_entities()) {
-			auto ini = e->stat->initiative;
+		for(auto& u : eng.get_game_state().get_entities()) {
+			auto e = eng.get_entity_for_unit_uuid(u->get_uuid());
+			auto ini = e->stat->get_initiative();
 			auto spr = e->spr->tex;
 			sprites_.emplace_back(spr, ini);
 		}
+		
 	}
 
 	void initiative::recalc_dimensions()

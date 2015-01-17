@@ -81,8 +81,6 @@ public:
 	const graphics::color get_color() const { return color_; }
 	void set_color(graphics::color color) { color_ = color; }
 	const uuid::uuid& get_uuid() const { return uuid_; }
-	int id() const { return id_; }
-	void set_id(int id) { id_ = id; }
 
 	int get_gold() const { return gold_; }
 	void add_gold(int amount) { gold_ += amount; }
@@ -100,7 +98,4 @@ private:
 	graphics::color color_;
 	uuid::uuid uuid_;
 	int gold_;
-
-	// simple id, still debating this.
-	int id_;
 };

@@ -18,7 +18,9 @@
 
 #include "component.hpp"
 #include "easing_between_points.hpp"
+#include "engine.hpp"
 #include "input_process.hpp"
+#include "units.hpp"
 
 namespace process
 {
@@ -57,26 +59,21 @@ namespace process
 
 		for(auto& e : elist) {
 			if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
-				auto& pos = e->pos.gs_pos;
+				auto& pos = e->stat->get_position();
 				auto& inp = e->inp;
 
 				if(inp->clear_selection) {
-					inp->selected = false;
-					inp->possible_moves.clear();
-					inp->graph.reset();
-					inp->arrow_path.clear();
-					inp->tile_path.clear();
-					inp->clear_selection = false;
+					inp->clear();
 				}
 				if(inp->gen_moves) {
 					inp->gen_moves = false;	
-					inp->graph = hex::create_cost_graph(eng.get_game_state(), pos.x, pos.y, e->stat->move);
-					inp->possible_moves = hex::find_available_moves(inp->graph, pos, e->stat->move);
+					inp->graph = hex::create_cost_graph(eng.get_game_state(), pos, e->stat->get_move());
+					inp->possible_moves = hex::find_available_moves(inp->graph, pos, e->stat->get_move());
 					// remove tiles that have friendly entities on them, from the results.
 					// XXX this needs to be incorporated into hex::find_available_moves somehow.
 					inp->possible_moves.erase(std::remove_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&elist](const hex::move_cost& mc) {
 						for(auto& e : elist) {
-							if(e->pos.gs_pos == mc.loc) {
+							if(e->stat->get_position() == mc.loc) {
 								return true;
 							}
 						}
@@ -98,13 +95,13 @@ namespace process
 				aggressor_ = eng.get_game_state().get_entities().front();
 				// XXX This assert may need to be a user error.
 				ASSERT_LOG(aggressor_ != nullptr, "No unit on list with which to attack with.");
-				if(aggressor_->stat->attacks_this_turn > 0) {
+				if(aggressor_->get_attacks_this_turn() > 0) {
 					// Scan through list of enemy entities and select ones which are in 
 					// range for being attacked.
 					bool opponent_in_range = false;
 					for(auto& e2 : elist) {
 						if((e2->mask & pos_mask) == pos_mask && (e2->mask & input_mask) == input_mask) {
-							if(eng.get_game_state().is_attackable(aggressor_, e2)) {
+							if(eng.get_game_state().is_attackable(aggressor_, e2->stat)) {
 								e2->inp->is_attack_target = true;
 								opponent_in_range = true;
 							}
@@ -125,9 +122,9 @@ namespace process
 
 			for(auto& e : elist) {
 				if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
-					auto& pos = e->pos.gs_pos;
-					auto& inp = e->inp;
 					auto& stats = e->stat;
+					auto& pos = stats->get_position();
+					auto& inp = e->inp;
 
 					auto pp = hex::hex_map::get_pixel_pos_from_tile_pos(pos.x, pos.y);
 					if(button.button == SDL_BUTTON_LEFT 
@@ -139,7 +136,7 @@ namespace process
 							if(max_opponent_count_ != 0 
 								&& mouse_in_area 
 								&& inp->is_attack_target) {
-								targets_.emplace_back(e);
+								targets_.emplace_back(e->stat);
 								if(--max_opponent_count_ == 0) {
 									do_attack_message(eng);
 									// XXX Start playing attack animation.
@@ -167,12 +164,12 @@ namespace process
 						} else {
 							// Test whether point is in inp->possible_moves(...) and is players turn, then we animate moving the entity to
 							// that position, clear the moves and decrement the units movement allowance.
-							auto owner = e->owner.lock();
+							auto owner = e->stat->get_owner();
 							auto tp = hex::hex_map::get_tile_pos_from_pixel_pos(button.x, button.y);
 							auto it = std::find_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&tp](hex::move_cost const& mc){
 								return tp == mc.loc;
 							});
-							if(eng.get_active_player() == owner && eng.get_game_state().get_entities().front() == e && stats->move > FLT_EPSILON && it != inp->possible_moves.end()) {
+							if(eng.get_active_player() == owner && eng.get_game_state().get_entities().front() == stats && stats->get_move() > FLT_EPSILON && it != inp->possible_moves.end()) {
 								ASSERT_LOG(!inp->tile_path.empty(), "tile path was empty.");
 								for(auto& t : inp->tile_path) {
 									auto tile = eng.get_map()->get_tile_at(t.x, t.y);
@@ -181,24 +178,19 @@ namespace process
 								}
 								// Generate an update move message.
 								auto up = eng.get_game_state().create_update();
-								eng.get_game_state().unit_move(up, e, inp->tile_path);
+								eng.get_game_state().unit_move(up, e->stat, inp->tile_path);
 								// send message to server.
 								auto netclient = eng.get_netclient().lock();
 								ASSERT_LOG(netclient != nullptr, "Network client has gone away.");
 								netclient->write_send_queue(up);
 
-								auto old_pos = e->pos.pos;
+								auto old_pos = e->pos;
 								eng.add_animated_property("unit", std::make_shared<property::animate<double, point>>(
 									[old_pos, tp](double t, double d){ return easing::between::linear_tween(t, old_pos, tp, d); }, 
-									[e](const point& v){ e->pos.pos = v; }, 2.5));
-								//pos.x = tp.x;
-								//pos.y = tp.y;
+									[e](const point& v){ e->pos = v; }, 2.5));
 
-								// decrement movement.
-								stats->move -= it->path_cost;
-								if(stats->move < FLT_EPSILON) {
-									stats->move = 0.0f;
-								} else {
+								// re-generate moves if there is still some movement left.
+								if(stats->get_move() - it->path_cost > FLT_EPSILON) {
 									inp->gen_moves = true;
 								}
 							}
@@ -224,9 +216,9 @@ namespace process
 			auto motion = mouse_motion_events_.front(); mouse_motion_events_.pop();
 			for(auto& e : elist) {
 				if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
-					auto& pos = e->pos.gs_pos;
-					auto& inp = e->inp;
 					auto& stats = e->stat;
+					auto& pos = stats->get_position();
+					auto& inp = e->inp;
 					if(!inp->possible_moves.empty() && inp->graph != nullptr) {
 						int x = motion.x;
 						int y = motion.y;
@@ -260,12 +252,12 @@ namespace process
 		std::stringstream ss;
 		bool first = true;
 		for(auto& t : targets_) {
-			ss << (first ? " " : "," ) << t->stat->name << "(" << t->entity_id << ")";
+			ss << (first ? " " : "," ) << t->get_name() << "(" << t->get_uuid() << ")";
 			if(first) {
 				first = false;
 			}
 		}
-		LOG_INFO("Unit " << aggressor_->stat->name << "(" << aggressor_->entity_id << ") attacks units:" << ss.str());
+		LOG_INFO("Unit " << aggressor_->get_name() << "(" << aggressor_->get_uuid() << ") attacks units:" << ss.str());
 		// Generate an update move message.
 		auto up = eng.get_game_state().create_update();
 		eng.get_game_state().unit_attack(up, aggressor_, targets_);

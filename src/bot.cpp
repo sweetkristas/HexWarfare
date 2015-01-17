@@ -18,13 +18,14 @@
 
 #include "asserts.hpp"
 #include "bot.hpp"
-#include "component.hpp"
+#include "creature.hpp"
 #include "game_state.hpp"
 #include "hex_logical_tiles.hpp"
 #include "hex_pathfinding.hpp"
 #include "message_format.pb.h"
 #include "profile_timer.hpp"
 #include "random.hpp"
+#include "units.hpp"
 
 namespace ai
 {
@@ -78,30 +79,30 @@ namespace ai
 		// Look at game state and decide if we need to do stuff.
 
 		// Get current entity
-		auto& e = gs.get_entities().front();
+		auto& u = gs.get_entities().front();
 
 		// First test is whether the currently active entity is ours.
-		if(e->owner.lock()->get_uuid() != get_uuid()) {
+		if(u->get_owner()->get_uuid() != get_uuid()) {
 			return nullptr;
 		}
 
-		LOG_DEBUG("Running bot for " << e);
+		LOG_DEBUG("Running bot for " << u);
 
 		// Find available moves for current unit.
-		auto g = hex::create_cost_graph(gs, e->pos.gs_pos.x, e->pos.gs_pos.y, e->stat->move);
-		auto possible_moves = hex::find_available_moves(g, e->pos.gs_pos, e->stat->move);
+		auto g = hex::create_cost_graph(gs, u->get_position(), u->get_move());
+		auto possible_moves = hex::find_available_moves(g, u->get_position(), u->get_move());
 
 		// Calculate the closest enemy and move towards them
-		component_set_ptr closest_enemy = nullptr;
+		game::unit_ptr closest_enemy = nullptr;
 		int closest_distance = std::numeric_limits<int>::max();
 		for(auto& enemy : gs.get_entities()) {
 			// XXX we should come up with a faster access for the team id, maybe add it directly as a member of component_set_ptr
-			if(enemy->owner.lock()->team() != e->owner.lock()->team()) {
+			if(enemy->get_owner()->team() != u->get_owner()->team()) {
 				if(closest_enemy == nullptr) {
 					closest_enemy = enemy;
-					closest_distance = hex::logical::distance(e->pos.gs_pos, enemy->pos.gs_pos);
+					closest_distance = hex::logical::distance(u->get_position(), enemy->get_position());
 				} else {
-					int d = hex::logical::distance(e->pos.gs_pos, enemy->pos.gs_pos);
+					int d = hex::logical::distance(u->get_position(), enemy->get_position());
 					if(d < closest_distance) {
 						closest_enemy = enemy;
 						closest_distance = d;
@@ -113,8 +114,8 @@ namespace ai
 		point dest;
 		bool got_location = false;
 		hex::result_path rp;
-		if(closest_enemy && closest_distance > e->stat->range) {
-			auto surrounds = gs.get_map()->get_surrounding_positions(closest_enemy->pos.gs_pos);
+		if(closest_enemy && closest_distance > u->get_range()) {
+			auto surrounds = gs.get_map()->get_surrounding_positions(closest_enemy->get_position());
 			for(auto& p : possible_moves) {
 				for(auto& sp : surrounds) {
 					if(p.loc == sp) {
@@ -128,24 +129,24 @@ namespace ai
 
 			// Did we find a location of enemy within our list of possible moves?
 			if(got_location) {
-				rp = hex::find_path(g, e->pos.gs_pos, dest);
+				rp = hex::find_path(g, u->get_position(), dest);
 			} else {
 				// Nope. Then we need to find the tile that is closest and move there.
 				int closest_d = std::numeric_limits<int>::max();
 				point closest_pos;
 				for(auto& p : possible_moves) {
-					int d = hex::logical::distance(p.loc, closest_enemy->pos.gs_pos);
+					int d = hex::logical::distance(p.loc, closest_enemy->get_position());
 					if(d < closest_d) {
 						closest_d = d;
 						closest_pos = p.loc;
 					}
 				}
-				rp = hex::find_path(g, e->pos.gs_pos, closest_pos);
+				rp = hex::find_path(g, u->get_position(), closest_pos);
 				got_location = true;
 			}
 		}
 
-		ASSERT_LOG(got_location || closest_distance <= e->stat->range, "Programmer error: No location for destination.");
+		ASSERT_LOG(got_location || closest_distance <= u->get_range(), "Programmer error: No location for destination.");
 
 		// Choose random destination
 		//int x = generator::get_uniform_int<int>(0, static_cast<int>(possible_moves.size()));
@@ -154,16 +155,16 @@ namespace ai
 		// Random move unit.
 		game::Update* up = gs.create_update();
 		// No need to move if there is a unit next to us.
-		if(closest_distance > e->stat->range) {
-			gs.unit_move(up, e, rp);
+		if(closest_distance > u->get_range()) {
+			gs.unit_move(up, u, rp);
 		}
 		
 		// See if there is anything in attack range.
 		//while(e->stat->attacks_this_turn > 0) {
-			std::vector<component_set_ptr> attackable;
-			int max_attacks = e->stat->unit->get_max_units_attackable();
+			std::vector<game::unit_ptr> attackable;
+			int max_attacks = u->get_type()->get_max_units_attackable();
 			for(auto& ae : gs.get_entities()) {
-				if(gs.is_attackable(e, ae)) {
+				if(gs.is_attackable(u, ae)) {
 					attackable.emplace_back(ae);
 					if(--max_attacks == 0) {
 						break;
@@ -171,7 +172,7 @@ namespace ai
 				}
 			}
 			if(!attackable.empty()) {
-				gs.unit_attack(up, e, attackable);
+				gs.unit_attack(up, u, attackable);
 			//} else {
 			//	break;
 			}

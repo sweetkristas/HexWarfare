@@ -23,14 +23,13 @@
 #include "SDL.h"
 
 #include "color.hpp"
-#include "creature.hpp"
 #include "geometry.hpp"
 #include "hex_map.hpp"
 #include "hex_pathfinding.hpp"
 #include "node.hpp"
 #include "player.hpp"
 #include "texture.hpp"
-#include "uuid.hpp"
+#include "units_fwd.hpp"
 #include "widget.hpp"
 
 #define CLONE(cname) std::shared_ptr<cname> clone() { return std::shared_ptr<cname>(new cname(*this)); }
@@ -76,14 +75,6 @@ namespace component
 
 	typedef std::shared_ptr<component> component_ptr;
 
-	struct position : public component
-	{
-		position() : component(Component::POSITION) {}
-		position(const point& p) : component(Component::POSITION), pos(p), gs_pos(p) {}
-		point pos;
-		point gs_pos;
-	};
-
 	struct sprite : public component
 	{
 		sprite() : component(Component::SPRITE) {}
@@ -93,25 +84,6 @@ namespace component
 		CLONE(sprite)
 		void update_texture(surface_ptr surf);
 		graphics::texture tex;
-	};
-
-	struct stats : public component
-	{
-		stats();
-		CLONE(stats)
-		// N.B. If things are added or removed here, this needs to be reflected in the message_format.proto file.
-		// specifically game::Update::UnitStats
-		// Also the game_state.cpp needs to be updated. Mostly the state::set_entity_stats() function.
-		int health;
-		int attack;
-		int armour;
-		float move;
-		float initiative;
-		std::string name;
-		int range;
-		float critical_strike;
-		int attacks_this_turn;
-		creature::const_creature_ptr unit;
 	};
 
 	struct input : public component
@@ -127,6 +99,15 @@ namespace component
 		hex::hex_graph_ptr graph;
 		std::vector<point> arrow_path;
 		std::vector<point> tile_path;
+		void clear() {
+			selected = false;
+			possible_moves.clear();
+			graph.reset();
+			arrow_path.clear();
+			tile_path.clear();
+			clear_selection = false;
+			is_attack_target = false;
+		}
 	};
 
 	struct point_light
@@ -159,36 +140,26 @@ namespace component
 
 	struct component_set
 	{
-		component_set(int z = 0, uuid::uuid u=uuid::generate());
-		component_set(const component_set&, player_weak_ptr new_owner);
-		std::shared_ptr<component_set> clone(player_weak_ptr new_owner) { return std::shared_ptr<component_set>(new component_set(*this, new_owner)); }
-		uuid::uuid entity_id;
+		component_set(int z = 0);
+		component_set(const component_set&);
+		std::shared_ptr<component_set> clone() { return std::shared_ptr<component_set>(new component_set(*this)); }
 		component_id mask;
 		int zorder;
 		// Since pos is frequently accessed, it's better for pos to be a member declaration.
-		position pos;
+		point pos;
+		game::unit_ptr stat;
 		std::shared_ptr<sprite> spr;
-		std::shared_ptr<stats> stat;
 		std::shared_ptr<input> inp;
 		std::shared_ptr<gui_component> gui;
-		player_weak_ptr owner;
+		// If lifetime is set then decrementing it to zero or below will trigger removal of the entity
+		// Should be set in seconds. So to make something last 400 milliseconds we set it to 0.4.
 		double lifetime;
-		// XXX add direct access to team uuid and maybe owner uuid
-		component_set(const component_set&) = delete;
 		void operator=(const component_set&) = delete;
 	};
 	
 	inline bool operator<(const component_set_ptr& lhs, const component_set_ptr& rhs)
 	{
 		return lhs->zorder == rhs->zorder ? lhs.get() < rhs.get() : lhs->zorder < rhs->zorder;
-	}
-
-	inline bool initiative_compare(const component_set_ptr& lhs, const component_set_ptr& rhs)
-	{
-		static component_id stats_mask = genmask(Component::STATS);
-		ASSERT_LOG((lhs->mask & stats_mask) == stats_mask, "initiative_compare: LHS of comparison does not have STATS component.");
-		ASSERT_LOG((rhs->mask & stats_mask) == stats_mask, "initiative_compare: RHS of comparison does not have STATS component.");
-		return lhs->stat->initiative < rhs->stat->initiative;
 	}
 }
 

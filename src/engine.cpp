@@ -24,6 +24,7 @@
 #include "font.hpp"
 #include "node_utils.hpp"
 #include "profile_timer.hpp"
+#include "units.hpp"
 
 namespace 
 {
@@ -50,28 +51,16 @@ engine::~engine()
 
 component_set_ptr engine::add_entity(component_set_ptr e)
 {
-	static component_id stat_mask 
-		= genmask(Component::STATS) 
-		| genmask(Component::POSITION);
 	entity_list_.emplace_back(e);
 	std::stable_sort(entity_list_.begin(), entity_list_.end());
-	if((e->mask & stat_mask) == stat_mask) {
-		game_state_.add_entity(e);
-	}
 	return e;
 }
 
 void engine::remove_entity(component_set_ptr e1)
 {
-	static component_id stat_mask 
-		= genmask(Component::STATS) 
-		| genmask(Component::POSITION);
 	entity_list_.erase(std::remove_if(entity_list_.begin(), entity_list_.end(), [&e1](component_set_ptr e2) {
 		return e1 == e2; 
 	}), entity_list_.end());
-	if((e1->mask & stat_mask) == stat_mask) {
-		game_state_.remove_entity(e1);
-	}
 }
 
 void engine::add_process(process::process_ptr s)
@@ -220,8 +209,7 @@ void engine::entity_health_check()
 		| genmask(Component::POSITION);
 	entity_list_.erase(std::remove_if(entity_list_.begin(), entity_list_.end(), [&](component_set_ptr e) {
 		if((e->mask & stat_mask) == stat_mask) {
-			if(e->stat->health <= 0) {
-				game_state_.remove_entity(e);
+			if(e->stat->get_health() <= 0) {
 				return true;
 			}
 		}
@@ -256,7 +244,6 @@ bool engine::update(double time)
 		if(e->lifetime > DBL_EPSILON) {
 			e->lifetime -= time;
 			if(e->lifetime < DBL_EPSILON) {
-				game_state_.remove_entity(e);
 				return true;
 			}
 		}
@@ -266,15 +253,15 @@ bool engine::update(double time)
 	return true;
 }
 
-component_set_ptr engine::get_entity_by_uuid(const uuid::uuid& id)
+component_set_ptr engine::get_entity_for_unit_uuid(const uuid::uuid& id) const
 {
-	for(auto& e : entity_list_) {
-		if(e->entity_id == id) {
-			return e;
-		}
-	}
-	ASSERT_LOG(false, "Couldn't find entity with uuid: " << id);
-	return nullptr;
+	// This is a linear search through entities. Should see if there is a more efficient
+	// way of doing it if performace is a bottleneck.
+	auto it = std::find_if(entity_list_.begin(), entity_list_.end(), [&id](const component_set_ptr& cs) {
+		return ((cs->mask & genmask(Component::STATS)) == genmask(Component::STATS) && cs->stat->get_uuid() == id) ? true : false;
+	});
+	ASSERT_LOG(it != entity_list_.end(), "Unable to find entity with unit id: " << id);
+	return *it;
 }
 
 // Handle the engine side of game::state updates
@@ -284,9 +271,9 @@ void engine::process_update(game::Update* up)
 
 	auto& fe = game_state_.get_entities().front();
 	if(up->has_game_start() && up->game_start()) {
-		if(fe->owner.lock() == active_player_ 
-			&& (fe->mask & genmask(Component::INPUT)) == genmask(Component::INPUT)) {
-			fe->inp->gen_moves = true;
+		if(fe->get_owner() == active_player_) {
+			auto& inp = get_entity_for_unit_uuid(fe->get_uuid())->inp;
+			inp->gen_moves = true;
 		}
 	}
 
@@ -323,7 +310,7 @@ void engine::process_update(game::Update* up)
 	}
 
 	for(auto& units : up->units()) {
-		auto e = get_entity_by_uuid(uuid::read(units.uuid()));
+		auto e = get_entity_for_unit_uuid(uuid::read(units.uuid()));
 
 		switch(units.type()) {
 			case Update_Unit_MessageType_CANONICAL_STATE:
@@ -331,16 +318,16 @@ void engine::process_update(game::Update* up)
 			case Update_Unit_MessageType_SUMMON:
 				break;
 			case Update_Unit_MessageType_MOVE: {
-				if(e->pos.gs_pos != e->pos.pos) {
+				if(e->pos != e->stat->get_position()) {
 					// XXX schedule a movement animation, which we fake for now.
-					e->pos.pos = e->pos.gs_pos;
+					e->pos = e->stat->get_position();
 				}
 				/// XXX clear any pathing related stuff, or at least signal engine to do it in the input process.
 				//if(e->inp) {
 				//	e->inp->clear_selection = true;
 				//}
-				if(e->inp) {
-					if(e == fe && e->owner.lock() == active_player_) {
+				if(e->inp && e->stat) {
+					if(e->stat == fe && e->stat->get_owner() == active_player_) {
 						e->inp->gen_moves = true;
 					} else {
 						e->inp->clear_selection = true;
@@ -350,8 +337,8 @@ void engine::process_update(game::Update* up)
 			}
 			case Update_Unit_MessageType_ATTACK: {
 				// clear attack targets
-				for(auto& ge : game_state_.get_entities()) {
-					if(ge->inp) {
+				for(auto& ge : entity_list_) {
+					if((ge->mask & genmask(Component::INPUT)) == genmask(Component::INPUT)) {
 						ge->inp->is_attack_target = false;
 					}
 				}
@@ -375,27 +362,27 @@ void engine::process_update(game::Update* up)
 					ss << "Missed";
 				}
 				auto msg = create_entity_from_string(ss.str());
-				msg->pos.pos = hex::hex_map::get_pixel_pos_from_tile_pos(e->pos.gs_pos.x, e->pos.gs_pos.y);
-				msg->pos.pos += point((get_tile_size().x - msg->spr->tex.width())/2, 0);
+				msg->pos = hex::hex_map::get_pixel_pos_from_tile_pos(e->stat->get_position());
+				msg->pos += point((get_tile_size().x - msg->spr->tex.width())/2, 0);
 				msg->lifetime = 3.5;
-				auto start_point = msg->pos.pos;
-				auto end_point   = msg->pos.pos - point(0,40);
+				auto start_point = msg->pos;
+				auto end_point   = start_point - point(0,40);
 				add_animated_property("damage", 
 					std::make_shared<property::animate<double, point>>([start_point, end_point](double t, double d){ 
 						return easing::between::ease_out_quad(t, start_point, end_point, d); 
-					}, [msg](const point& v){ msg->pos.pos = v; }, 2.0));
+					}, [msg](const point& v){ msg->pos = v; }, 2.0));
 
 				if(was_critical) {
-					auto msg = create_entity_from_string("Critical");
-					msg->pos.pos = hex::hex_map::get_pixel_pos_from_tile_pos(e->pos.gs_pos.x, e->pos.gs_pos.y);
-					msg->pos.pos += point((get_tile_size().x - msg->spr->tex.width())/2, 25);
-					msg->lifetime = 3.5;
-					auto start_point = msg->pos.pos;
-					auto end_point   = msg->pos.pos - point(0,40);
+					auto cmsg = create_entity_from_string("Critical");
+					cmsg->pos = hex::hex_map::get_pixel_pos_from_tile_pos(e->stat->get_position());
+					cmsg->pos += point((get_tile_size().x - cmsg->spr->tex.width())/2, 25);
+					cmsg->lifetime = 3.5;
+					auto start_point = cmsg->pos;
+					auto end_point   = start_point - point(0,msg->spr->tex.height());
 					add_animated_property("critical", 
 						std::make_shared<property::animate<double, point>>([start_point, end_point](double t, double d){ 
 							return easing::between::ease_out_quad(t, start_point, end_point, d); 
-						}, [msg](const point& v){ msg->pos.pos = v; }, 2.5));
+						}, [cmsg](const point& v){ cmsg->pos = v; }, 2.5));
 					}
 				break;
 			}
@@ -411,8 +398,8 @@ void engine::process_update(game::Update* up)
 
 	if(up->has_end_turn() && up->end_turn()) {
 		auto& fe = game_state_.get_entities().front();
-		auto& ep = fe->pos.gs_pos;
-		auto fp = get_map()->get_pixel_pos_from_tile_pos(ep.x, ep.y);
+		auto& ep = fe->get_position();
+		auto fp = get_map()->get_pixel_pos_from_tile_pos(ep);
 		fp += point(get_tile_size().x/2 - get_window().width()/2, get_tile_size().y/2 - get_window().height()/2);
 		point sp = camera_;
 		add_animated_property("camera", 
@@ -420,9 +407,11 @@ void engine::process_update(game::Update* up)
 				[sp, fp](double t, double d){ return easing::between::ease_out_quad(t, sp, fp, d); }, 
 				[&](const point&p){ set_camera(p); }, 1.5));
 		// schedule front entity to have moves enumerated -- if it belongs to active player
-		if(fe->owner.lock() == active_player_ 
-			&& (fe->mask & genmask(Component::INPUT)) == genmask(Component::INPUT)) {
-			fe->inp->gen_moves = true;
+		if(fe->get_owner() == active_player_) {
+			auto& inp = get_entity_for_unit_uuid(fe->get_uuid())->inp;
+			if(inp) {
+				inp->gen_moves = true;
+			}
 		}
 	}
 
@@ -467,16 +456,8 @@ void engine::end_turn()
 	static component_id input_mask = genmask(Component::INPUT);
 	for(auto& e : entity_list_) {
 		if((e->mask & input_mask) == input_mask) {
-			auto& inp = e->inp;
 			// clear out a bunch of stuff from the input component
-			// Should probably make this a function on the input component.
-			inp->selected = false;
-			inp->possible_moves.clear();
-			inp->graph.reset();
-			inp->arrow_path.clear();
-			inp->tile_path.clear();
-			inp->clear_selection = false;
-			inp->is_attack_target = false;
+			e->inp->clear();
 		}
 	}
 

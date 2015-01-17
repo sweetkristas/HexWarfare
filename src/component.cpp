@@ -16,32 +16,29 @@
 
 #include "asserts.hpp"
 #include "component.hpp"
+#include "units.hpp"
 
 namespace component
 {
-	component_set::component_set(int z, uuid::uuid u) 
-		: entity_id(u),
-		  mask(component_id(0)), 
+	component_set::component_set(int z) 
+		: mask(component_id(0)), 
 		  zorder(z),
 		  pos(),
-		  owner(),
 		  lifetime(0)
 	{
 	}
 
-	component_set::component_set(const component_set& cs, player_weak_ptr new_owner)
-		: entity_id(cs.entity_id),
-		  mask(cs.mask),
+	component_set::component_set(const component_set& cs)
+		: mask(cs.mask),
 		  zorder(cs.zorder),
 		  pos(cs.pos),
-		  owner(new_owner),
 		  lifetime(0)
 	{
 		if(cs.spr != nullptr) {
 			spr = cs.spr->clone();
 		}
 		if(cs.stat != nullptr) {
-			stat = cs.stat->clone();
+			stat = cs.stat->clone(cs.stat->get_owner());
 		}
 		if(cs.inp != nullptr) {
 			inp = cs.inp->clone();
@@ -101,18 +98,6 @@ namespace component
 	lights::~lights()
 	{
 	}
-
-	stats::stats() 
-		: component(Component::STATS), 
-		  health(1), 
-		  attack(0), 
-		  armour(0), 
-		  move(1.0f), 
-		  range(1), 
-		  critical_strike(0), 
-		  attacks_this_turn(1) 
-	{
-	}
 }
 
 std::ostream& operator<<(std::ostream& os, const component_set_ptr& e)
@@ -120,19 +105,9 @@ std::ostream& operator<<(std::ostream& os, const component_set_ptr& e)
 	using namespace component;
 	static component_id unit_mask = genmask(Component::STATS) | genmask(Component::POSITION);
 	if((e->mask & unit_mask) == unit_mask) {
-		auto& stat = e->stat;
-		auto& pos = e->pos.gs_pos;
-		std::string uuid_short = uuid::write(e->entity_id).substr(0,5);
-		os << "Unit(\"" << stat->name << "\",\"" << uuid_short 
-			<< "\" H:" << stat->health
-			<< " A:" << stat->attack
-			<< " R:" << stat->range
-			<< " M:" << stat->move
-			<< " P:" << pos
-			<< ")";
+		os << e->stat;
 	} else {
 		// XX fill this out more
-		os << e->entity_id;
 	}
 	return os;
 }

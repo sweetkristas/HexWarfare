@@ -18,6 +18,7 @@
 
 #include <queue>
 #include "process.hpp"
+#include "units_fwd.hpp"
 
 namespace process
 {
@@ -40,7 +41,7 @@ namespace process
 		std::queue<SDL_MouseButtonEvent> mouse_button_events_;
 		std::queue<SDL_MouseMotionEvent> mouse_motion_events_;
 		int max_opponent_count_;
-		component_set_ptr aggressor_;
-		std::vector<component_set_ptr> targets_;
+		game::unit_ptr aggressor_;
+		std::vector<game::unit_ptr> targets_;
 	};
 }

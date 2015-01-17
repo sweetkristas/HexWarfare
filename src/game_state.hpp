@@ -18,11 +18,12 @@
 
 #include <map>
 
-#include "engine_fwd.hpp"
 #include "geometry.hpp"
 #include "hex_logical_fwd.hpp"
 #include "message_format.pb.h"
 #include "player.hpp"
+#include "units_fwd.hpp"
+#include "uuid.hpp"
 
 namespace game
 {
@@ -36,13 +37,13 @@ namespace game
 		state(const state&);
 		~state();
 
-		const entity_list& get_entities() const { return entities_; }
+		const unit_list& get_entities() const { return units_; }
 
 		void set_map(hex::logical::map_ptr map);
 		const hex::logical::map_ptr& get_map() const { return map_; }
 
-		void add_entity(component_set_ptr e);
-		void remove_entity(component_set_ptr e);
+		void add_unit(unit_ptr e);
+		void remove_unit(unit_ptr e);
 
 		void end_unit_turn();
 		float get_initiative_counter() const { return initiative_counter_; }
@@ -52,18 +53,17 @@ namespace game
 		void remove_player(player_ptr p);
 		void replace_player(player_ptr to_be_replaced, player_ptr replacement);
 
-		player_weak_ptr get_current_player() const;
+		player_ptr get_current_player() const;
 		int get_player_count() const { return players_.size(); }
 		player_ptr get_player(const uuid::uuid& n);
-		player_ptr get_player_by_id(int id);
 		std::vector<player_ptr> get_players();
 
-		bool is_attackable(const component_set_ptr& aggressor, const component_set_ptr& e) const;
+		bool is_attackable(const unit_ptr& aggressor, const unit_ptr& e) const;
 
 		Update* create_update() const;
-		const state& unit_summon(Update* up, component_set_ptr e) const;
-		const state& unit_move(Update* up, component_set_ptr e, const std::vector<point>& path) const;
-		const state& unit_attack(Update* up, const component_set_ptr& e, const std::vector<component_set_ptr>& targets) const;
+		const state& unit_summon(Update* up, unit_ptr e) const;
+		const state& unit_move(Update* up, unit_ptr e, const std::vector<point>& path) const;
+		const state& unit_attack(Update* up, const unit_ptr& e, const std::vector<unit_ptr>& targets) const;
 		const state& end_turn(Update* up) const;
 
 		// Server-side function for validating the received update.
@@ -77,6 +77,8 @@ namespace game
 		team_ptr create_team_instance(const std::string& name);
 		team_ptr get_team_from_id(const uuid::uuid& id);
 
+		unit_ptr create_unit_instance(const std::string& name, const player_ptr& pid, const point& pos);
+
 		const player_ptr& get_player_by_uuid(const uuid::uuid& id) const;
 
 	private:
@@ -84,19 +86,19 @@ namespace game
 		mutable int update_counter_;
 		hex::logical::map_ptr map_;
 		// List of game entities with stats tag. Sorted by intiative.
-		entity_list entities_;
+		unit_list units_;
 		std::map<uuid::uuid, player_ptr> players_;
 		// Used to synchronise state with the server.
 		std::string fail_reason_;
 		std::map<uuid::uuid, team_ptr> teams_;
 
-		component_set_ptr get_entity_by_uuid(const uuid::uuid& id);
+		unit_ptr get_unit_by_uuid(const uuid::uuid& id);
 		void set_validation_fail_reason(const std::string& reason);
 
-		void combat(Update* up, Update_Unit* agg_uu, component_set_ptr aggressor, component_set_ptr target);
+		void combat(Update* up, Update_Unit* agg_uu, unit_ptr aggressor, unit_ptr target);
 
-		void set_entity_stats(component_set_ptr e, const Update_UnitStats& stats);
+		void set_unit_stats(unit_ptr e, const Update_UnitStats& stats);
 
-		bool validate_move(component_set_ptr e, const ::google::protobuf::RepeatedPtrField<Update_Location>& path);
+		bool validate_move(const unit_ptr& u, const ::google::protobuf::RepeatedPtrField<Update_Location>& path);
 	};
 }

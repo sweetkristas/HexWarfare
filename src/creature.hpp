@@ -16,15 +16,15 @@
 
 #pragma once
 
-#include "engine.hpp"
+#include <map>
+
+#include "creature_fwd.hpp"
+#include "game_state.hpp"
 #include "node.hpp"
+#include "units_fwd.hpp"
 
 namespace creature
 {
-	class creature;
-	typedef std::shared_ptr<creature> creature_ptr;
-	typedef std::shared_ptr<const creature> const_creature_ptr;
-
 	enum class MovementType
 	{
 		NORMAL,
@@ -34,13 +34,22 @@ namespace creature
 	{
 	public:
 		creature(const node& n);
-		component_set_ptr create_instance(const game::state& gs, player_weak_ptr owner, const point& pos);
+		game::unit_ptr create_instance(const game::state& gs, const player_ptr& owner, const point& pos);
 
 		int get_initiative() const { return initiative_; }
 		float get_movement() const { return movement_; }
 
 		int get_max_units_attackable() const { return max_units_attackable_; }
 		int get_attacks_per_turn() const { return attacks_per_turn_; }
+
+		struct AnimationInfo {
+			AnimationInfo() : image_(), area_() {}
+			AnimationInfo(const std::string& image, const rect& area) : image_(image), area_(area) {}
+			std::string image_;
+			rect area_;
+			// XXX Add more fields here as nescessary.
+		};
+		const AnimationInfo& get_animation_info(const std::string& name) const;
 	private:
 		// Displayable name
 		std::string name_;
@@ -63,14 +72,12 @@ namespace creature
 		int max_units_attackable_;
 		//! Numer of attacks per turn for default attack
 		int attacks_per_turn_;
-		std::string sprite_name_;
-		rect sprite_area_;
-		component_id component_mask_;
+
+		std::map<std::string, AnimationInfo> animations_;
 		creature();
 	};
 
 	void loader(const node& n);
 
-	// XXX should the spawn function automatically add the entity to the engine?
-	component_set_ptr spawn(const game::state& gs, player_weak_ptr owner, const std::string& type, const point& pos);
+	game::unit_ptr spawn(const game::state& gs, const std::string& type, const player_ptr& owner, const point& pos);
 }

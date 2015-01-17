@@ -48,6 +48,8 @@
 #include "grid.hpp"
 #include "gui_elements.hpp"
 #include "gui_process.hpp"
+#include "hex_logical_tiles.hpp"
+#include "hex_map.hpp"
 #include "hex_pathfinding.hpp"
 #include "image_widget.hpp"
 #include "initiative_dialog.hpp"
@@ -64,6 +66,7 @@
 #include "surface.hpp"
 #include "sdl_wrapper.hpp"
 #include "unit_test.hpp"
+#include "units.hpp"
 #include "utility.hpp"
 #include "wm.hpp"
 
@@ -136,14 +139,30 @@ void load_scenario(engine& eng, const std::string& name)
 			}
 		}
 		create_world(eng, "data/" + scen["map"].as_string());
-		for(auto& c : scen["starting_units"].as_list()) {
-			ASSERT_LOG(c.has_key("name"), "In 'starting_units' list, you must provide a 'name' attribute.");
-			ASSERT_LOG(c.has_key("location"), "In 'starting_units' list, you must provide a 'location' attribute.");
-			ASSERT_LOG(c.has_key("player"), "In 'starting_units' list, you must provide a 'player' attribute.");
-			// N.B. Don't really like this way of matching player in scenario file to player instance.
-			// XXX should come up with a better way.
-			int player_id = c["player"].as_int32();
-			eng.add_entity(creature::spawn(gs, gs.get_player_by_id(player_id), c["name"].as_string(), node_to_point(c["location"])));
+				
+		auto players = gs.get_players();
+		auto it = players.begin();
+		for(auto& player_units : scen["starting_units"].as_list()) {
+			for(auto c : player_units.as_list()) {
+				ASSERT_LOG(c.has_key("name"), "In 'starting_units' list, you must provide a 'name' attribute.");
+				ASSERT_LOG(c.has_key("location"), "In 'starting_units' list, you must provide a 'location' attribute.");
+				// Create unit
+				auto u = gs.create_unit_instance(c["name"].as_string(), *it, node_to_point(c["location"]));
+				// Add unit to game state
+				gs.add_unit(u);
+				// Create component from unit and add to engine.
+				component_set_ptr cs = std::make_shared<component::component_set>(10);
+				cs->mask = genmask(Component::POSITION) | genmask(Component::SPRITE) | genmask(Component::STATS) | genmask(Component::INPUT);
+				cs->stat = u;
+				cs->pos = u->get_position();
+				// XXX If we get around to putting some animations in, then this would be a good place 
+				// to transform the creature::AnimationInfo into something nicer to go into cs->spr.
+				auto& ai = u->get_type()->get_animation_info("idle");
+				cs->spr = std::make_shared<component::sprite>(ai.image_, ai.area_);
+				cs->inp = std::make_shared<component::input>();
+				eng.add_entity(cs);
+			}
+			++it;
 		}
 	} catch(json::parse_error& pe) {
 		ASSERT_LOG(false, "Error parsing " << name << ": " << pe.what());
@@ -310,10 +329,8 @@ int main(int argc, char* argv[])
 		team_ptr t2 = gs.create_team_instance("Bad guys");
 
 		auto p1 = std::make_shared<player>(t1, PlayerType::NORMAL, "Player 1");
-		p1->set_id(0);
 		gs.add_player(p1);
 		auto b1 = std::make_shared<ai::bot>(t2, "Evil Bot");
-		b1->set_id(1);
 		gs.add_player(b1);
 
 		load_scenario(e, scenario_file);

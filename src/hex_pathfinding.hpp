@@ -45,7 +45,7 @@ namespace hex
 
 	typedef std::vector<point> result_path;
 
-	hex_graph_ptr create_cost_graph(const game::state& gs, int srcx, int srcy, float max_cost);
+	hex_graph_ptr create_cost_graph(const game::state& gs, const point& src, float max_cost);
 	hex_graph_ptr create_graph(const game::state& gs, int x=0, int y=0, int w=0, int h=0);
 	result_list find_available_moves(hex_graph_ptr graph, const point& src, float max_cost);
 	result_path find_path(hex_graph_ptr graph, const point& src, const point& dst);
