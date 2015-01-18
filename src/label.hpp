@@ -25,15 +25,15 @@ namespace gui
 	class label : public widget
 	{
 	public:
-		MAKE_FACTORY(label);
+		MAKE_FACTORY(label)
 
 		void set_text(const std::string& utf8);
 		void set_size(int sz);
 		void set_color(const graphics::color& color);
 		void set_font(const std::string& font_name);
 	private:
+		explicit label(const std::string& utf8, const graphics::color& color=graphics::color(), int sz=12, const point& p=point(), Justify j=Justify::TOP_LEFT);
 		explicit label(const rectf& pos, Justify justify, const std::string& utf8, const graphics::color& color=graphics::color(), int sz=12);
-		explicit label(const std::string& utf8, const graphics::color& color=graphics::color(), int sz=12, Justify j=Justify::TOP_LEFT);
 		void handle_init() override;
 		void handle_draw(const point&p, float rotation, float scale) const override;
 		void handle_window_resize(int w, int h);
@@ -44,5 +44,7 @@ namespace gui
 		std::string font_name_;
 		font::font_ptr font_;
 		graphics::texture label_tex_;
+
+		label(const label&) = delete;
 	};
 }

@@ -16,40 +16,36 @@
 
 #pragma once
 
+#include <set>
+
 #include "widget.hpp"
 
 namespace gui
 {
-	class button : public widget
+	enum class LayoutType {
+		LT_ABSOLUTE,
+		LT_RELATIVE,
+	};
+
+	class layout : public widget
 	{
 	public:
-		MAKE_FACTORY(button);
+		MAKE_FACTORY(layout);
 
-		int get_h_padding() const { return padding_.x; }
-		int get_v_padding() const { return padding_.y; }
-
-		void set_padding(int h, int v);
+		void add_child(widget_ptr w);
 	private:
-		explicit button(std::function<void()> pressed, const rectf& pos, Justify justify=Justify::TOP_LEFT, widget_ptr child=nullptr);
-		explicit button(std::function<void()> pressed, widget_ptr child=nullptr, Justify justify=Justify::TOP_LEFT);
+		explicit layout(const std::vector<widget_ptr>& children, LayoutType lt, const rectf& pos, Justify justify=Justify::TOP_LEFT);
+		explicit layout(const std::vector<widget_ptr>* children=nullptr, LayoutType lt=LayoutType::LT_ABSOLUTE,Justify justify=Justify::TOP_LEFT);
 		void handle_init() override;
 		void handle_draw(const point&p, float rotation, float scale) const override;
 		bool handle_events(SDL_Event* evt, bool claimed) override;
 		void recalc_dimensions() override;
 		void handle_window_resize(int w, int h) override;
-		void on_press();
-		void on_release();
-		std::function<void()> pressed_fn_;
-		widget_ptr child_;
-		bool is_pressed_;
-		bool is_mouseover_;
-		graphics::texture normal_tex_;
-		graphics::texture pressed_tex_;
-		graphics::texture mouse_over_tex_;
-		point padding_;
 
-		button() = default;
-		button(const button&) = delete;
-		void operator=(const button&) = delete;
+		LayoutType layout_type_;
+		
+		typedef std::set<widget_ptr> WidgetList;
+		WidgetList children_;
+
 	};
 }

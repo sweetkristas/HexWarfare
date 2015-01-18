@@ -25,7 +25,7 @@ namespace gui
 	}
 
 	image::image(graphics::texture t, Justify j)
-		: widget(j),
+		: widget(point(), j),
 		  tex_(t)
 	{
 	}

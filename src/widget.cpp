@@ -39,7 +39,7 @@ namespace gui
 		}
 	}
 
-	widget::widget(Justify justify)
+	widget::widget(const point& p, Justify justify)
 		: area_(),
 		  actual_area_(),
 		  has_fixed_location_(false),
@@ -54,6 +54,9 @@ namespace gui
 		  background_rect_enabled_(false),
 		  background_rect_color_(255,255,255)
 	{
+		if(p.x != 0 && p.y != 0) {
+			set_loc_internal(p.x, p.y);
+		}
 	}
 
 	widget::~widget()

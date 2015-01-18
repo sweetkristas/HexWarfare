@@ -26,7 +26,7 @@ namespace gui
 	}
 
 	grid::grid(int ncols, Justify justify)
-		: widget(justify),
+		: widget(point(), justify),
 		  ncols_(ncols),
 		  children_()
 	{

@@ -26,8 +26,8 @@ namespace gui
 	{
 	}
 
-	label::label(const std::string& utf8, const graphics::color& color, int sz, Justify j)
-		: widget(j),
+	label::label(const std::string& utf8, const graphics::color& color, int sz, const point& p, Justify j)
+		: widget(p, j),
 		  text_(utf8),
 		  size_(sz),
 		  color_(color)

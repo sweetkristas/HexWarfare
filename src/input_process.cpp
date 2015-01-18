@@ -27,6 +27,7 @@ namespace process
 	input::input()
 		: process(ProcessPriority::input),
 		  state_(State::IDLE),
+		  do_attack_default_(false),
 		  max_opponent_count_(0)
 	{
 	}
@@ -52,10 +53,47 @@ namespace process
 		return false;
 	}
 
+	void input::do_attack(const std::string& name)
+	{
+		if(name == "default") {
+			do_attack_default_ = true;
+		}
+	}
+
+	void input::generate_attack_targets(engine& eng, const entity_list& elist)
+	{
+		static component_id mask = genmask(Component::POSITION) | genmask(Component::STATS) | genmask(Component::INPUT);
+		aggressor_ = eng.get_game_state().get_entities().front();
+		// XXX This assert may need to be a user error.
+		ASSERT_LOG(aggressor_ != nullptr, "No unit on list with which to attack with.");
+		if(aggressor_->get_attacks_this_turn() > 0) {
+			// Scan through list of enemy entities and select ones which are in 
+			// range for being attacked.
+			bool opponent_in_range = false;
+			for(auto& e2 : elist) {
+				if((e2->mask & mask) == mask) {
+					if(eng.get_game_state().is_attackable(aggressor_, e2->stat)) {
+						e2->inp->is_attack_target = true;
+						opponent_in_range = true;
+					}
+				}
+			}
+			if(opponent_in_range) {
+				state_ = State::SELECT_OPPONENTS;
+				max_opponent_count_ = 1; // XXX attacking_unit->stat->max_attack_opponents
+			}
+		}
+	}
+
 	void input::update(engine& eng, double t, const entity_list& elist)
 	{
 		static component_id input_mask = genmask(Component::INPUT);
 		static component_id pos_mask = genmask(Component::POSITION) | genmask(Component::STATS);
+
+		if(do_attack_default_) {
+			do_attack_default_ = false;
+			generate_attack_targets(eng, elist);
+		}
 
 		for(auto& e : elist) {
 			if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
@@ -92,28 +130,10 @@ namespace process
 			if(key == SDL_SCANCODE_E) {
 				eng.end_turn();
 			} else if(key == SDL_SCANCODE_1) {
-				aggressor_ = eng.get_game_state().get_entities().front();
-				// XXX This assert may need to be a user error.
-				ASSERT_LOG(aggressor_ != nullptr, "No unit on list with which to attack with.");
-				if(aggressor_->get_attacks_this_turn() > 0) {
-					// Scan through list of enemy entities and select ones which are in 
-					// range for being attacked.
-					bool opponent_in_range = false;
-					for(auto& e2 : elist) {
-						if((e2->mask & (pos_mask | input_mask)) == (pos_mask | input_mask)) {
-							if(eng.get_game_state().is_attackable(aggressor_, e2->stat)) {
-								e2->inp->is_attack_target = true;
-								opponent_in_range = true;
-							}
-						}
-					}
-					if(opponent_in_range) {
-						state_ = State::SELECT_OPPONENTS;
-						max_opponent_count_ = 1; // XXX attacking_unit->stat->max_attack_opponents
-					}
-				}
+				generate_attack_targets(eng, elist);
 			}
 		}
+
 		if(!mouse_button_events_.empty()) {
 			auto button = mouse_button_events_.front(); mouse_button_events_.pop();
 

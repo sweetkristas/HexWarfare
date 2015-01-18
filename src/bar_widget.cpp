@@ -27,7 +27,7 @@ namespace gui
 	}
 
 	bar::bar(BarOrientation orientation, Justify justify)
-		: widget(justify),
+		: widget(point(), justify),
 		  orientation_(orientation)
 	{
 	}

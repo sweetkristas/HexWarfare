@@ -28,13 +28,16 @@ namespace process
 		input();
 		~input();
 		void update(engine& eng, double t, const entity_list& elist) override;
+		void do_attack(const std::string& name);
 	private:
 		enum class State {
 			IDLE,
 			SELECT_OPPONENTS,
 		} state_;
+		bool do_attack_default_;
 		bool handle_event(const SDL_Event& evt);
 		void do_attack_message(engine& eng);
+		void generate_attack_targets(engine& eng, const entity_list& elist);
 		// XXX Not sure I like all these queues of events here.
 		// Need to work out if there is a better abstration to use.
 		std::queue<SDL_Scancode> keys_pressed_;

@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 			//auto tex = graphics::texture::get("images/noise1.png");
 #include <iostream>
 #include <string>
@@ -58,6 +57,7 @@
 #include "json.hpp"
 #include "input_process.hpp"
 #include "label.hpp"
+#include "layout_widget.hpp"
 #include "network_server.hpp"
 #include "node_utils.hpp"
 #include "profile_timer.hpp"
@@ -118,10 +118,8 @@ void create_world(engine& e, const std::string& world_file)
 
 void create_gui(engine& eng)
 {
-	auto button_label = gui::label::create("End Turn", graphics::color(255,255,0), 16, gui::Justify::CENTER);
-	rectf area(-0.02f,-0.02f,button_label->get_area().w()+0.05f,button_label->get_area().h()+0.02f);
-	//rectf area(-0.02f,-0.02f);
-	auto end_turn_button = gui::button::create(std::bind(&engine::end_turn, &eng), area, gui::Justify::BOTTOM_RIGHT, button_label);
+	auto button_label = gui::label::create("End Turn", graphics::color(255,255,0), 16);
+	auto end_turn_button = gui::button::create(std::bind(&engine::end_turn, &eng), button_label, gui::Justify::BOTTOM_RIGHT);
 	end_turn_button->set_zorder(1000);
 	eng.add_widget(end_turn_button);
 }
@@ -364,7 +362,8 @@ int main(int argc, char* argv[])
 		e.set_netclient(nclient);
 		e.set_active_player(p1);
 
- 		e.add_process(std::make_shared<process::input>());
+		auto inp_process = std::make_shared<process::input>();
+ 		e.add_process(inp_process);
 		e.add_process(std::make_shared<process::render>());
 		e.add_process(std::make_shared<process::gui>());
 		e.add_process(std::make_shared<process::ai>());
@@ -383,12 +382,38 @@ int main(int argc, char* argv[])
 		//e.add_widget(status_bar);
 
 		auto selection_bar = gui::grid::create(3, gui::Justify::BOTTOM_CENTER);
-		selection_bar->add_item(gui::button::create([](){ LOG_INFO("Button 1 pressed."); },
-			gui::image::create(graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE))));
-		selection_bar->add_item(gui::button::create([](){ LOG_INFO("Button 2 pressed."); },
-			gui::image::create(graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE))));
-		selection_bar->add_item(gui::button::create([](){ LOG_INFO("Button 3 pressed."); },
-			gui::image::create(graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE))));
+		auto lay1 = gui::layout::create();
+		auto lab1 = gui::label::create("1", graphics::color(), 14, point(2,2));
+		auto but1 = gui::button::create([inp_process](){ inp_process->do_attack("default"); },
+			gui::image::create(graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE)));
+		but1->set_padding(8, 8);
+		but1->set_zorder(0);
+		lab1->set_zorder(1);
+		lay1->add_child(but1);
+		lay1->add_child(lab1);
+		selection_bar->add_item(lay1);
+		
+		auto lay2 = gui::layout::create();
+		auto lab2 = gui::label::create(std::string("2"), graphics::color(), 14, point(2,2));
+		auto but2 = gui::button::create([](){ LOG_INFO("Button 2 pressed."); },
+			gui::image::create(graphics::texture("images/gui/cursorSword_bronze.png", graphics::TextureFlags::NONE)));
+		but2->set_padding(8, 8);
+		but2->set_zorder(0);
+		lab2->set_zorder(1);
+		lay2->add_child(but2);
+		lay2->add_child(lab2);
+		selection_bar->add_item(lay2);
+
+		auto lay3 = gui::layout::create();
+		auto lab3 = gui::label::create(std::string("3"), graphics::color(), 14, point(2,2));
+		auto but3 = gui::button::create([](){ LOG_INFO("Button 3 pressed."); },
+			gui::image::create(graphics::texture("images/gui/cursorSword_gold.png", graphics::TextureFlags::NONE)));
+		but3->set_padding(8, 8);
+		but3->set_zorder(0);
+		lab3->set_zorder(1);
+		lay3->add_child(but3);
+		lay3->add_child(lab3);
+		selection_bar->add_item(lay3);
 		e.add_widget(selection_bar);
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);

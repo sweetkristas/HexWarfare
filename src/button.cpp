@@ -20,12 +20,19 @@
 
 namespace gui
 {
+	namespace
+	{
+		int default_horizontal_padding = 8;
+		int default_vertical_padding = 4;
+	}
+
 	button::button(std::function<void()> pressed, const rectf& r, Justify justify, widget_ptr child)
 		: widget(r, justify),
 		  pressed_fn_(pressed),
 		  child_(child),
 		  is_pressed_(false),
-		  is_mouseover_(false)
+		  is_mouseover_(false),
+		  padding_(default_horizontal_padding, default_vertical_padding)
 	{
 		ASSERT_LOG(r.x() >= -1.0f && r.x() <= 1.0f, "Button X position exceeds parent boundaries.");
 		ASSERT_LOG(r.y() >= -1.0f && r.y() <= 1.0f, "Button Y position exceeds parent boundaries.");
@@ -34,11 +41,12 @@ namespace gui
 	}
 
 	button::button(std::function<void()> pressed, widget_ptr child, Justify justify)
-		: widget(justify),
+		: widget(point(), justify),
 		  pressed_fn_(pressed),
 		  child_(child),
 		  is_pressed_(false),
-		  is_mouseover_(false)
+		  is_mouseover_(false),
+		  padding_(default_horizontal_padding, default_vertical_padding)
 	{
 	}
 
@@ -64,7 +72,7 @@ namespace gui
 		tex.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
 
 		if(child_) {
-			child_->draw(r.top_left(), rotation, scale);
+			child_->draw(r.top_left() + padding_, rotation, scale);
 		}
 		if(is_mouseover_) {
 			mouse_over_tex_.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
@@ -95,11 +103,20 @@ namespace gui
 				break;
 			case SDL_MOUSEBUTTONUP:
 				on_release();
+				if(in_widget(evt->button.x, evt->button.y)) {
+					return true;
+				}
 				break;
 			default:
 				break;
 		}
 		return false;
+	}
+
+	void button::set_padding(int h, int v)
+	{
+		padding_ = point(h, v);
+		recalc_dimensions();
 	}
 
 	void button::on_press()
@@ -124,11 +141,11 @@ namespace gui
 	{
 		if(!is_area_set()) {
 			if(child_) {
-				set_dim_internal(child_->w(), child_->h());
+				set_dim_internal(child_->w() + 2 * padding_.x, child_->h() + 2 * padding_.y);
 			} else if(is_pressed_) {
-				set_dim_internal(pressed_tex_.width(), pressed_tex_.height());
+				set_dim_internal(pressed_tex_.width() + 2 * padding_.x, pressed_tex_.height() + 2 * padding_.y);
 			} else {
-				set_dim_internal(normal_tex_.width(), normal_tex_.height());
+				set_dim_internal(normal_tex_.width() + 2 * padding_.x, normal_tex_.height() + 2 * padding_.y);
 			}
 		}
 	}

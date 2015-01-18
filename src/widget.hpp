@@ -74,7 +74,7 @@ namespace gui
 	{
 	public:
 		explicit widget(const rectf& r, Justify justify);
-		explicit widget(Justify justify);
+		explicit widget(const point& p, Justify justify);
 		virtual ~widget();
 		void draw(const point&p, float rotation, float scale) const;
 		bool process_events(SDL_Event* evt, bool claimed);

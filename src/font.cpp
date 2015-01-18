@@ -117,7 +117,7 @@ namespace font
 	std::string get_default_font_name()
 	{
 		// XXX load this from a config file.
-		return "SourceCodePro-Regular.ttf";
+		return "WendyOne-Regular.ttf";
 	}
 
 	manager::manager()

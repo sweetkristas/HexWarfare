@@ -117,6 +117,7 @@
     <ClCompile Include="..\..\src\internal_server.cpp" />
     <ClCompile Include="..\..\src\json.cpp" />
     <ClCompile Include="..\..\src\label.cpp" />
+    <ClCompile Include="..\..\src\layout_widget.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\message_format.pb.cc" />
     <ClCompile Include="..\..\src\network_server.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="..\..\src\internal_server.hpp" />
     <ClInclude Include="..\..\src\json.hpp" />
     <ClInclude Include="..\..\src\label.hpp" />
+    <ClInclude Include="..\..\src\layout_widget.hpp" />
     <ClInclude Include="..\..\src\message_format.pb.h" />
     <ClInclude Include="..\..\src\mutex.hpp" />
     <ClInclude Include="..\..\src\network_server.hpp" />
