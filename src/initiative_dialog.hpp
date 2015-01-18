@@ -27,8 +27,9 @@ namespace gui
 	private:
 		explicit initiative(const rectf& pos, Justify justify);
 		void handle_init() override;
-		void handle_draw(const rect& r, float rotation, float scale) const override;
+		void handle_draw(const point&p, float rotation, float scale) const override;
 		void handle_update(const engine& eng, double t) override;
+		void handle_window_resize(int w, int h);
 		void recalc_dimensions() override;
 
 		widget_ptr bar_;

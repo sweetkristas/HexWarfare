@@ -18,8 +18,14 @@
 
 namespace gui
 {
-	image::image(const rectf& r, Justify justify, graphics::texture t)
+	image::image(graphics::texture t, const rectf& r, Justify justify)
 		: widget(r, justify),
+		  tex_(t)
+	{
+	}
+
+	image::image(graphics::texture t, Justify j)
+		: widget(j),
 		  tex_(t)
 	{
 	}
@@ -28,22 +34,17 @@ namespace gui
 	{
 		if(!is_area_set()) {
 			set_dim_internal(tex_.width(), tex_.height());
-		} else {
-			set_dim_fixed(tex_.width(), tex_.height());
 		}
 	}
 
 	void image::handle_init()
 	{
-		if(!is_area_set()) {
-			set_dim_internal(tex_.width(), tex_.height());
-		} else {
-			set_dim_fixed(tex_.width(), tex_.height());
-		}
+		recalc_dimensions();
 	}
 
-	void image::handle_draw(const rect& r, float rotation, float scale) const
+	void image::handle_draw(const point&p, float rotation, float scale) const
 	{
-		tex_.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		rect r = physical_area()+p;
+		tex_.blit_ex(r, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
 	}
 }

@@ -93,7 +93,15 @@ namespace graphics
 			load_file_into_texture(fname, this);
 			texture_cache()[fname] = tex_;
 		} else {
+			// XXX we should cache the area the texture occupies.
 			tex_ = it->second;
+			int w = 0;
+			int h = 0;
+			if(!SDL_QueryTexture(tex_.get(), NULL, NULL, &w, &h)) {
+				area_.set_wh(w, h);
+			} else {
+				ASSERT_LOG(false, "SDL error querying texture: " << SDL_GetError());
+			}
 		}
 	}
 

@@ -24,6 +24,16 @@ namespace gui
 		: widget(pos, justify),
 		  orientation_(orientation)
 	{
+	}
+
+	bar::bar(BarOrientation orientation, Justify justify)
+		: widget(justify),
+		  orientation_(orientation)
+	{
+	}
+
+	void bar::handle_init() 
+	{
 		if(orientation_ == BarOrientation::HORIZONTAL) {
 			endcap_lt_ = section::get("barBlue_horizontalLeft");
 			endcap_rb_ = section::get("barBlue_horizontalRight");
@@ -35,49 +45,47 @@ namespace gui
 		}
 	}
 
-	void bar::handle_init() 
-	{
-	}
-
-	void bar::handle_draw(const rect& r, float rotation, float scale) const 
+	void bar::handle_draw(const point&p, float rotation, float scale) const 
 	{
 		auto& wm = graphics::window_manager::get_main_window();
-		int lt_x, lt_y;
-		int rb_x, rb_y;
-		int lt_w, lt_h;
-		int rb_w, rb_h;
-		rect mid_r;
-		if(orientation_ == BarOrientation::HORIZONTAL) {
-			lt_x = r.x();
-			lt_y = r.y();
-			lt_w = endcap_lt_.width();
-			lt_h = r.h();
-			
-			rb_x = r.x2() - endcap_rb_.width();
-			rb_y = r.y();
-			rb_w = endcap_rb_.width();
-			rb_h = r.h();
-
-			mid_r = rect(lt_x+lt_w-1, lt_y, rb_x-lt_x+lt_w-1, lt_h);
-		} else {
-			lt_x = r.x();
-			lt_y = r.y();
-			lt_w = r.w();
-			lt_h = endcap_lt_.height();
-
-			rb_x = r.x();
-			rb_y = r.y2() - endcap_rb_.height();
-			rb_w = r.h();
-			rb_h = endcap_rb_.height();
-
-			mid_r = rect(lt_x, lt_y+lt_h-1, lt_w, rb_y-lt_y+lt_h-1);
-		}
-		bar_middle_.blit_ex(mid_r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
-		endcap_lt_.blit_ex(rect(lt_x, lt_y, lt_w, lt_h) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
-		endcap_rb_.blit_ex(rect(rb_x, rb_y, rb_w, rb_h) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
+		bar_middle_.blit_ex((mid_r_+p)* scale, rotation, (mid_r_+p).mid() * scale, graphics::FlipFlags::NONE);
+		endcap_lt_.blit_ex((lt_r_+p) * scale, rotation, (mid_r_+p).mid() * scale, graphics::FlipFlags::NONE);
+		endcap_rb_.blit_ex((rb_r_+p) * scale, rotation, (mid_r_+p).mid() * scale, graphics::FlipFlags::NONE);
 	}
 
 	void bar::recalc_dimensions() 
 	{
+		int lt_x, lt_y;
+		int rb_x, rb_y;
+		int lt_w, lt_h;
+		int rb_w, rb_h;
+
+		if(orientation_ == BarOrientation::HORIZONTAL) {
+			lt_x = physical_area().x();
+			lt_y = physical_area().y();
+			lt_w = endcap_lt_.width();
+			lt_h = physical_area().h();
+			
+			rb_x = physical_area().x2() - endcap_rb_.width();
+			rb_y = physical_area().y();
+			rb_w = endcap_rb_.width();
+			rb_h = physical_area().h();
+
+			mid_r_.set(lt_x+lt_w-1, lt_y, rb_x-lt_x+lt_w-1, lt_h);
+		} else {
+			lt_x = physical_area().x();
+			lt_y = physical_area().y();
+			lt_w = physical_area().w();
+			lt_h = endcap_lt_.height();
+
+			rb_x = physical_area().x();
+			rb_y = physical_area().y2() - endcap_rb_.height();
+			rb_w = physical_area().h();
+			rb_h = endcap_rb_.height();
+
+			mid_r_.set(lt_x, lt_y+lt_h-1, lt_w, rb_y-lt_y+lt_h-1);
+		}
+		lt_r_.set(lt_x, lt_y, lt_w, lt_h);
+		rb_r_.set(rb_x, rb_y, rb_w, rb_h);
 	}
 }

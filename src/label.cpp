@@ -26,6 +26,14 @@ namespace gui
 	{
 	}
 
+	label::label(const std::string& utf8, const graphics::color& color, int sz, Justify j)
+		: widget(j),
+		  text_(utf8),
+		  size_(sz),
+		  color_(color)
+	{
+	}
+
 	void label::set_text(const std::string& utf8)
 	{
 		text_ = utf8;
@@ -50,8 +58,9 @@ namespace gui
 		init();
 	}
 
-	void label::handle_draw(const rect& r, float rotation, float scale) const
+	void label::handle_draw(const point&p, float rotation, float scale) const
 	{
+		rect r = physical_area()+p;
 		if(label_tex_.is_valid()) {
 			label_tex_.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
 		}
@@ -70,5 +79,9 @@ namespace gui
 		auto s = std::make_shared<graphics::surface>(font::render(text_, font_, color_));
 		label_tex_ = graphics::texture(s, graphics::TextureFlags::NO_CACHE);
 		recalc_dimensions();
+	}
+
+	void label::handle_window_resize(int w, int h)
+	{
 	}
 }

@@ -25,46 +25,27 @@ namespace gui
 	{
 	}
 
+	grid::grid(int ncols, Justify justify)
+		: widget(justify),
+		  ncols_(ncols),
+		  children_()
+	{
+	}
+
 	grid& grid::add_item(widget_ptr c)
 	{
-		if(children_.size() == 0 || children_.back().size() >= static_cast<size_t>(ncols_)) {
+		if(children_.size() == 0 || static_cast<int>(children_.back().size()) >= ncols_) {
 			std::vector<widget_ptr> e;
 			children_.emplace_back(e);
 		}
 		children_.back().emplace_back(c);
-		c->set_parent(get_pointer());
-		init();
+		c->set_parent(this_pointer());
+		ASSERT_LOG(!c->has_fixed_location(), "Giving the grid widget children with fixed locations isn't supported.");
+		recalc_dimensions();
 		return *this;
 	}
 
 	void grid::recalc_dimensions()
-	{
-		if(!is_area_set()) {
-			float ow = 0, oh = 0;
-			if(children_.empty()) {
-				set_dim_internal(1,1);
-				return;
-			}
-			for(auto& r : children_) {
-				float lw = 0;
-				float lh = 0;
-				for(auto& c : r) {
-					lw += c->get_area().w();
-					if(c->get_area().h() > lh) {
-						lh = c->get_area().h();
-					}
-				}
-				if(lw > ow) {
-					ow = lw;
-				}
-				oh += lh;
-			}
-//#error fixme
-			//set_dim_internal();
-		}
-	}
-
-	void grid::handle_init()
 	{
 		if(!is_area_set()) {
 			int max_w = 0;
@@ -73,9 +54,9 @@ namespace gui
 				int h = 0;
 				int w = 0;
 				for(auto& c : row) {
-					w += c->get_area().w();
-					if(c->get_area().h() > h) {
-						h = c->get_area().h();
+					w += c->w();
+					if(c->h() > h) {
+						h = c->h();
 					}
 				}
 				max_h += h;
@@ -87,17 +68,58 @@ namespace gui
 		}
 	}
 
-	void grid::handle_draw(const rect& r, float rotation, float scale) const
+	void grid::handle_init()
+	{
+		recalc_dimensions();
+	}
+
+	void grid::handle_draw(const point&p, float rotation, float scale) const
+	{
+		int last_h = 0;
+		for(auto& row : children_) {
+			int h = 0;
+			int w = 0;
+			for(auto& c : row) {
+				c->draw(physical_area().top_left()+p+point(w,last_h), rotation, scale);
+				if(c->h() > h) {
+					h = c->h();
+				}
+				w += c->w();
+			}
+			last_h = h;
+		}
+	}
+
+	void grid::handle_window_resize(int w, int h)
 	{
 		for(auto& row : children_) {
 			for(auto& c : row) {
-				c->draw(r, rotation, scale);
+				c->window_resize(w, h);
 			}
 		}
 	}
 
 	bool grid::handle_events(SDL_Event* evt, bool claimed)
 	{
+		int last_h = 0;
+		for(auto& row : children_) {
+			int h = 0;
+			int w = 0;
+			for(auto& c : row) {
+				// The way this code works is disappointing -- in the extreme.
+				SDL_Event evtcopy(*evt);
+				normalize_event(&evtcopy, physical_area().top_left() + point(w, last_h));
+				claimed = c->process_events(&evtcopy, claimed);
+				if(claimed) {
+					return claimed;
+				}
+				if(c->h() > h) {
+					h = c->h();
+				}
+				w += c->w();
+			}
+			last_h = h;
+		}
 		return claimed;
 	}
 }

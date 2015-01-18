@@ -131,6 +131,9 @@ void engine::process_events()
 				switch(evt.window.event) {
 					case SDL_WINDOWEVENT_RESIZED:
 						wm_.update_window_size();
+						for(auto& w : widgets_) {
+							w->window_resize(evt.window.data1, evt.window.data2);
+						}
 						break;
 					default: break;
 				}

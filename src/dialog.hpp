@@ -43,10 +43,11 @@ namespace gui
 	private:
 		explicit dialog(const rectf& pos, Justify justify);
 		virtual bool handle_events(SDL_Event* evt, bool claimed) override;
-		void handle_draw(const rect& r, float rotation, float scale) const override;
+		void handle_draw(const point&p, float rotation, float scale) const override;
 		void handle_update(const engine& eng, double t) override;
 		void handle_init() override;
 		void recalc_dimensions() override;
+		void handle_window_resize(int w, int h);
 		std::vector<graphics::texture> bg_;
 		std::vector<widget_ptr> children_;
 		bool is_open_;

@@ -25,11 +25,13 @@ namespace gui
 	public:
 		MAKE_FACTORY(button);
 	private:
-		explicit button(const rectf& pos, Justify justify, std::function<void()> pressed, widget_ptr child=nullptr);
+		explicit button(std::function<void()> pressed, const rectf& pos, Justify justify=Justify::TOP_LEFT, widget_ptr child=nullptr);
+		explicit button(std::function<void()> pressed, widget_ptr child=nullptr, Justify justify=Justify::TOP_LEFT);
 		void handle_init() override;
-		void handle_draw(const rect& r, float rotation, float scale) const override;
+		void handle_draw(const point&p, float rotation, float scale) const override;
 		bool handle_events(SDL_Event* evt, bool claimed) override;
 		void recalc_dimensions() override;
+		void handle_window_resize(int w, int h) override;
 		void on_press();
 		void on_release();
 		std::function<void()> pressed_fn_;

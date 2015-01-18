@@ -33,10 +33,11 @@ namespace gui
 		}
 	}
 
-	void initiative::handle_draw(const rect& r, float rotation, float scale) const
+	void initiative::handle_draw(const point&p, float rotation, float scale) const
 	{
+		const rect& r = physical_area()+p;
 		if(bar_) {
-			bar_->draw(r, rotation, scale);
+			bar_->draw(r.top_left(), rotation, scale);
 		}
 
 		if(sprites_.empty()) {
@@ -79,5 +80,12 @@ namespace gui
 
 	void initiative::recalc_dimensions()
 	{
+	}
+
+	void initiative::handle_window_resize(int w, int h)
+	{
+		if(bar_) {
+			bar_->window_resize(w, h);
+		}
 	}
 }

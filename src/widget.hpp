@@ -37,12 +37,25 @@
 namespace gui
 {
 	enum class Justify {
-		LEFT		= 1, 
-		H_CENTER	= 2,
-		RIGHT		= 4,
-		TOP			= 8,
-		V_CENTER	= 16,
-		BOTTOM		= 32,
+		LEFT			= 1, 
+		H_CENTER		= 2,
+		RIGHT			= 4,
+		TOP				= 8,
+		V_CENTER		= 16,
+		BOTTOM			= 32,
+
+		TOP_LEFT		= 9,
+		BOTTOM_RIGHT	= 36,
+		CENTER			= 18,
+
+		TOP_RIGHT		= 12,
+		BOTTOM_LEFT		= 33,
+
+		TOP_CENTER		= 10,
+		BOTTOM_CENTER	= 34,
+
+		CENTER_LEFT		= 17,
+		CENTER_RIGHT	= 20,
 	};
 
 	inline Justify operator|(Justify lhs, Justify rhs) {
@@ -52,21 +65,34 @@ namespace gui
 		return (static_cast<int>(lhs) & static_cast<int>(rhs)) == static_cast<int>(rhs);
 	}
 
+	// XXX Add a std::vector<widget_ptr> children_;
+	// Then add visitor pattern stuff using a callback for each child to visit every node.
+
 	// XXX A better(?) with widgets is they listen for parent size adjusted or window size adjusted messages.
 	// Then recalculate those when things finish. Would be easier to deal with.
 	class widget : public std::enable_shared_from_this<widget>
 	{
 	public:
 		explicit widget(const rectf& r, Justify justify);
+		explicit widget(Justify justify);
 		virtual ~widget();
-		void draw(const rect& r, float rotation, float scale) const;
+		void draw(const point&p, float rotation, float scale) const;
 		bool process_events(SDL_Event* evt, bool claimed);
 		void update(const engine& eng, double t);
+		void normalize_event(SDL_Event* evt, const point& p);
 
-		void set_area(const rectf& area) { area_ = area; area_set_ = true; update_area(); }
-		const rectf& get_area() const { return real_area_; }
+		void set_area(const rectf& area);
+		const rectf& get_area() const { return area_; }
 		bool is_area_set() { return area_set_; }
-		rect get_adjusted_area(const rect& r, float rotation, float scale) const;
+
+		void set_loc(int x, int y);
+		void set_dim(int w, int h);
+
+		int w() const { return actual_area_.w(); } 
+		int h() const { return actual_area_.h(); }
+		int x() const { return actual_area_.x(); }
+		int y() const { return actual_area_.y(); }
+		const rect& physical_area() const { return actual_area_; }
 
 		int get_zorder() const { return zorder_; }
 		void set_zorder(int z) { zorder_ = z; }
@@ -81,7 +107,7 @@ namespace gui
 
 		void set_parent(std::weak_ptr<widget> parent);
 
-		std::shared_ptr<widget> get_pointer() { return shared_from_this(); }
+		std::shared_ptr<widget> this_pointer() { return shared_from_this(); }
 
 		void enable(bool e = true) { enabled_ = e; }
 		bool is_enabled() const { return enabled_; }
@@ -91,28 +117,35 @@ namespace gui
 		void enable_background_rect(bool en=true) { background_rect_enabled_ = en; }
 		void set_background_rect_color(const graphics::color& c) { background_rect_color_ = c; }
 
-		int w() const { return is_fixed_dimension_ ? fixed_area_.w() : 0; } 
-		int h() const { return is_fixed_dimension_ ? fixed_area_.h() : 0; } 
+		bool has_fixed_location() const { return has_fixed_location_; }
+		bool has_fixed_dimensions() const { return has_fixed_dimensions_; }
+
+		// Called when the window is resized to recalculate the position we should draw at.
+		void window_resize(int w, int h);
 	protected:
-		bool in_widget(const pointf& p);
+		bool in_widget(const point& p);
+		bool in_widget(int x, int y);
+		void set_loc_internal(int x, int y);
 		void set_dim_internal(int w, int h);
-		void set_dim_fixed(int w, int h);
-		void set_loc_fixed(int x, int y);
-		void set_loc_internal(const pointf& loc);
-		float get_parent_absolute_width();
-		float get_parent_absolute_height();
+		int get_parent_absolute_width();
+		int get_parent_absolute_height();
 	private:
 		virtual void handle_update(const engine& eng, double t) {}
-		virtual void handle_draw(const rect& r, float rotation, float scale) const {}
+		virtual void handle_draw(const point&p, float rotation, float scale) const {}
 		virtual bool handle_events(SDL_Event* evt, bool claimed) { return claimed; }
+		virtual void handle_window_resize(int w, int h) {}
 		void update_area();
 		virtual void recalc_dimensions() = 0;
 		virtual void handle_init() = 0;
 		// The elements of area should be defined on the interval (0,1)
 		// representing the fraction of the parent.
 		rectf area_;
-		// Area after justification is applied.
-		rectf real_area_;
+		// Actual area is the area of the widget when you take into account the window/parent dimensions.
+		rect actual_area_;
+		// If the location have been directly set to fixed co-ordinates, we set this flag.
+		bool has_fixed_location_;
+		// If the dimensions have been directly set to fixed values, we set this flag
+		bool has_fixed_dimensions_;
 		int zorder_;
 		float rotation_;
 		float scale_;
@@ -122,9 +155,6 @@ namespace gui
 		bool enabled_;
 		bool background_rect_enabled_;
 		graphics::color background_rect_color_;
-		rect fixed_area_;
-		bool is_fixed_location_;
-		bool is_fixed_dimension_;
 
 		widget() = default;
 		widget(const widget&) = delete;

@@ -33,8 +33,10 @@ namespace gui
 		void set_font(const std::string& font_name);
 	private:
 		explicit label(const rectf& pos, Justify justify, const std::string& utf8, const graphics::color& color=graphics::color(), int sz=12);
+		explicit label(const std::string& utf8, const graphics::color& color=graphics::color(), int sz=12, Justify j=Justify::TOP_LEFT);
 		void handle_init() override;
-		void handle_draw(const rect& r, float rotation, float scale) const override;
+		void handle_draw(const point&p, float rotation, float scale) const override;
+		void handle_window_resize(int w, int h);
 		void recalc_dimensions() override;
 		std::string text_;
 		int size_;

@@ -118,9 +118,11 @@ void create_world(engine& e, const std::string& world_file)
 
 void create_gui(engine& eng)
 {
-	auto button_label = gui::label::create(rectf(), gui::Justify::H_CENTER | gui::Justify::V_CENTER, "End Turn", graphics::color(255,255,0), 16);
+	auto button_label = gui::label::create("End Turn", graphics::color(255,255,0), 16, gui::Justify::CENTER);
 	rectf area(-0.02f,-0.02f,button_label->get_area().w()+0.05f,button_label->get_area().h()+0.02f);
-	auto end_turn_button = gui::button::create(area, gui::Justify::BOTTOM | gui::Justify::RIGHT, std::bind(&engine::end_turn, &eng), button_label);
+	//rectf area(-0.02f,-0.02f);
+	auto end_turn_button = gui::button::create(std::bind(&engine::end_turn, &eng), area, gui::Justify::BOTTOM_RIGHT, button_label);
+	end_turn_button->set_zorder(1000);
 	eng.add_widget(end_turn_button);
 }
 
@@ -374,26 +376,20 @@ int main(int argc, char* argv[])
 		auto bw = gui::initiative::create(rectf(0.0f, 0.0f, 0.4f, 0.1f), gui::Justify::H_CENTER | gui::Justify::BOTTOM);
 		e.add_widget(bw);
 
-		auto info_win = gui::dialog::create(rectf(0.0f, 0.0f, 0.2f, 1.0f), gui::Justify::RIGHT | gui::Justify::TOP);
-		e.add_widget(info_win);
+		//auto info_win = gui::dialog::create(rectf(0.0f, 0.0f, 0.2f, 1.0f), gui::Justify::RIGHT | gui::Justify::TOP);
+		//e.add_widget(info_win);
 
-		auto status_bar = gui::dialog::create(rectf(0.0f, 0.0f, 0.8f, 0.05f), gui::Justify::LEFT | gui::Justify::TOP);
-		e.add_widget(status_bar);
+		//auto status_bar = gui::dialog::create(rectf(0.0f, 0.0f, 0.8f, 0.05f), gui::Justify::LEFT | gui::Justify::TOP);
+		//e.add_widget(status_bar);
 
-		/*auto selection_bar = gui::grid::create(rectf(), gui::Justify::H_CENTER | gui::Justify::BOTTOM, 3);
-		selection_bar->add_item(gui::button::create(rectf(), gui::Justify::LEFT | gui::Justify::TOP, 
-			[](){ LOG_INFO("Button 1 pressed."); },
-			gui::image::create(rectf(), gui::Justify::H_CENTER | gui::Justify::BOTTOM, 
-			graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE))));
-		selection_bar->add_item(gui::button::create(rectf(), gui::Justify::LEFT | gui::Justify::TOP, 
-			[](){ LOG_INFO("Button 2 pressed."); },
-			gui::image::create(rectf(), gui::Justify::H_CENTER | gui::Justify::BOTTOM, 
-			graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE))));
-		selection_bar->add_item(gui::button::create(rectf(), gui::Justify::LEFT | gui::Justify::TOP, 
-			[](){ LOG_INFO("Button 3 pressed."); },
-			gui::image::create(rectf(), gui::Justify::H_CENTER | gui::Justify::BOTTOM, 
-			graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE))));
-		e.add_widget(selection_bar);*/
+		auto selection_bar = gui::grid::create(3, gui::Justify::BOTTOM_CENTER);
+		selection_bar->add_item(gui::button::create([](){ LOG_INFO("Button 1 pressed."); },
+			gui::image::create(graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE))));
+		selection_bar->add_item(gui::button::create([](){ LOG_INFO("Button 2 pressed."); },
+			gui::image::create(graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE))));
+		selection_bar->add_item(gui::button::create([](){ LOG_INFO("Button 3 pressed."); },
+			gui::image::create(graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE))));
+		e.add_widget(selection_bar);
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {

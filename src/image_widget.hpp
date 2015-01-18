@@ -25,10 +25,11 @@ namespace gui
 	public:
 		MAKE_FACTORY(image);
 	private:
-		explicit image(const rectf& r, Justify justify, graphics::texture t);
+		explicit image(graphics::texture t, const rectf& r, Justify justify=Justify::TOP_LEFT);
+		explicit image(graphics::texture t, Justify j=Justify::TOP_LEFT);
 		void recalc_dimensions() override;
 		void handle_init() override;
-		void handle_draw(const rect& r, float rotation, float scale) const override;
+		void handle_draw(const point&p, float rotation, float scale) const override;
 
 		graphics::texture tex_;
 	};

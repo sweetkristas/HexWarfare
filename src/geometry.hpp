@@ -80,15 +80,13 @@ namespace geometry
 	{
 	public:
 		inline explicit Rect(T x=0, T y=0, T w=0, T h=0);
+		inline explicit Rect(const Point<T>& xy, T w=0, T h=0);
 		explicit Rect(const std::vector<T>& v);
 		explicit Rect(const std::string& s);
 		//explicit Rect(const variant& v);
 		explicit Rect(const Point<T>& p1, const Point<T>& p2) {
 			top_left_ = p1;
 			bottom_right_ = p2;
-		}
-		explicit Rect(const Point<T>& p1) {
-			bottom_right_ = top_left_ = p1;
 		}
 		static Rect FromCoordinates(T x1, T y1, T x2, T y2);
 		static Rect from_coordinates(T x1, T y1, T x2, T y2) {
@@ -131,8 +129,28 @@ namespace geometry
 		T mid_x() const { return (x1() + x2())/static_cast<T>(2); }
 		T mid_y() const { return (y1() + y2())/static_cast<T>(2); }
 
+		void set_x(const T& new_x) { top_left_.x = new_x; }
+		void set_y(const T& new_y) { top_left_.y = new_y; }
 		void set_w(const T& new_w) { bottom_right_.x = top_left_.x + new_w; }
 		void set_h(const T& new_h) { bottom_right_.y = top_left_.y + new_h; }
+
+		void set_top_left(const T& new_x, const T& new_y) { 
+			top_left_.x = new_x; 
+			top_left_.y = new_y; 
+		}
+		void set_xy(const T& new_x, const T& new_y) { set_top_left(new_x, new_y); }
+		void set_bottom_right(const T& new_x2, const T& new_y2) { 
+			bottom_right_.x = new_x2; 
+			bottom_right_.y = new_y2; 
+		}
+		void set_width_height(const T& new_w, const T& new_h) { 
+			bottom_right_.x = top_left_.x + new_w; 
+			bottom_right_.y = top_left_.y + new_h; 
+		}
+		void set_wh(const T& new_w, const T& new_h) { set_width_height(new_w, new_h); }
+		void set(const T x, const T y, const T w, const T h) {
+			*this = rect(x,y,w,h);
+		}
 
 		Point<T> mid() const { return Point<T>((x1() + x2())/static_cast<T>(2), (y1() + y2())/static_cast<T>(2)); }
 

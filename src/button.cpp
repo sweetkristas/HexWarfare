@@ -20,7 +20,7 @@
 
 namespace gui
 {
-	button::button(const rectf& r, Justify justify, std::function<void()> pressed, widget_ptr child)
+	button::button(std::function<void()> pressed, const rectf& r, Justify justify, widget_ptr child)
 		: widget(r, justify),
 		  pressed_fn_(pressed),
 		  child_(child),
@@ -31,27 +31,35 @@ namespace gui
 		ASSERT_LOG(r.y() >= -1.0f && r.y() <= 1.0f, "Button Y position exceeds parent boundaries.");
 		ASSERT_LOG(r.x2() >= -1.0f && r.x2() <= 1.0f, "Button X2 position exceeds parent boundaries.");
 		ASSERT_LOG(r.y2() >= -1.0f && r.y2() <= 1.0f, "Button Y2 position exceeds parent boundaries.");
+	}
 
+	button::button(std::function<void()> pressed, widget_ptr child, Justify justify)
+		: widget(justify),
+		  pressed_fn_(pressed),
+		  child_(child),
+		  is_pressed_(false),
+		  is_mouseover_(false)
+	{
+	}
+
+	void button::handle_init()
+	{
 		normal_tex_ = gui::section::get("buttonLong_brown");
 		pressed_tex_ = gui::section::get("buttonLong_brown_pressed");
 		mouse_over_tex_ = gui::section::get("mouseover_overlay");
 		mouse_over_tex_.set_blend(graphics::BlendMode::ADDITIVE);
 		normal_tex_.set_blend(graphics::BlendMode::BLEND);
 		pressed_tex_.set_blend(graphics::BlendMode::BLEND);
-	}
 
-	void button::handle_init()
-	{
-		if(!is_area_set()) {
-			set_dim_internal(normal_tex_.width(), normal_tex_.height());
-		}
 		if(child_) {
-			child_->set_parent(get_pointer());
+			child_->set_parent(this_pointer());
 		}
+		recalc_dimensions();
 	}
 
-	void button::handle_draw(const rect& r, float rotation, float scale) const
+	void button::handle_draw(const point&p, float rotation, float scale) const
 	{
+		rect r = physical_area()+p;
 		const auto& tex = is_pressed_ ? pressed_tex_ : normal_tex_;
 		tex.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
 		if(is_mouseover_) {
@@ -59,26 +67,28 @@ namespace gui
 		}
 
 		if(child_) {
-			child_->draw(r, rotation, scale);
+			child_->draw(r.top_left(), rotation, scale);
 		}
 	}
 
 	bool button::handle_events(SDL_Event* evt, bool claimed)
 	{
-		if(child_ && child_->process_events(evt, claimed)) {
+		SDL_Event evtcopy(*evt);
+		normalize_event(&evtcopy, physical_area().top_left());
+		if(child_ && child_->process_events(&evtcopy, claimed)) {
 			return true;
 		}
 		auto& wm = graphics::window_manager::get_main_window();
 		switch(evt->type) {
 			case SDL_MOUSEMOTION: 
-				if(in_widget(pointf(evt->button.x / static_cast<float>(wm.width()), evt->button.y / static_cast<float>(wm.height())))) {
+				if(in_widget(evt->motion.x, evt->motion.y)) {
 					is_mouseover_ = true;
 				} else {
 					is_mouseover_ = false;
 				}
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				if(in_widget(pointf(evt->button.x / static_cast<float>(wm.width()), evt->button.y / static_cast<float>(wm.height())))) {
+				if(in_widget(evt->button.x, evt->button.y)) {
 					on_press();
 					return true;
 				}
@@ -98,9 +108,7 @@ namespace gui
 		if(pressed_fn_) {
 			pressed_fn_();
 		}
-		if(!is_area_set()) {
-			set_dim_internal(pressed_tex_.width(), pressed_tex_.height());
-		}
+		recalc_dimensions();
 	}
 
 	void button::on_release()
@@ -108,9 +116,7 @@ namespace gui
 		if(is_pressed_) {
 			// XXX Change texture to normal one
 			is_pressed_ = false;
-		}
-		if(!is_area_set()) {
-			set_dim_internal(normal_tex_.width(), normal_tex_.height());
+			recalc_dimensions();
 		}
 	}
 
@@ -124,6 +130,13 @@ namespace gui
 			} else {
 				set_dim_internal(normal_tex_.width(), normal_tex_.height());
 			}
+		}
+	}
+
+	void button::handle_window_resize(int w, int h)
+	{
+		if(child_) {
+			child_->window_resize(w, h);
 		}
 	}
 }
