@@ -149,7 +149,7 @@ namespace geometry
 		}
 		void set_wh(const T& new_w, const T& new_h) { set_width_height(new_w, new_h); }
 		void set(const T x, const T y, const T w, const T h) {
-			*this = rect(x,y,w,h);
+			*this = Rect<T>(x,y,w,h);
 		}
 
 		Point<T> mid() const { return Point<T>((x1() + x2())/static_cast<T>(2), (y1() + y2())/static_cast<T>(2)); }

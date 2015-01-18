@@ -62,12 +62,12 @@ namespace gui
 		rect r = physical_area()+p;
 		const auto& tex = is_pressed_ ? pressed_tex_ : normal_tex_;
 		tex.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
-		if(is_mouseover_) {
-			mouse_over_tex_.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
-		}
 
 		if(child_) {
 			child_->draw(r.top_left(), rotation, scale);
+		}
+		if(is_mouseover_) {
+			mouse_over_tex_.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
 		}
 	}
 
