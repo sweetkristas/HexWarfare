@@ -32,7 +32,6 @@ namespace gui
 		void handle_window_resize(int w, int h);
 		void recalc_dimensions() override;
 
-		widget_ptr bar_;
 		struct texture_holder
 		{
 			texture_holder(const graphics::texture& t, float toa) : tex(t), time_to_act(toa) {}

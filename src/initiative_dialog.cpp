@@ -28,17 +28,16 @@ namespace gui
 
 	void initiative::handle_init()
 	{
-		if(!bar_) {
-			bar_ = bar::create(rectf(0.0f, 0.0f, 1.0f, 0.2f), gui::Justify::LEFT | gui::Justify::V_CENTER, gui::BarOrientation::HORIZONTAL);
-		}
 	}
 
 	void initiative::handle_draw(const point&p, float rotation, float scale) const
 	{
 		const rect& r = physical_area()+p;
-		if(bar_) {
-			bar_->draw(r.top_left(), rotation, scale);
-		}
+
+		// XXX draw a filled circle
+		static graphics::texture fcircle("images/misc/circle1.png", graphics::TextureFlags::NONE);
+		const rect nr(r.top_left(), r.w()/2, r.w()/2s);
+		fcircle.blit_ex(nr, 0, point(), graphics::FlipFlags::NONE);
 
 		if(sprites_.empty()) {
 			return;
@@ -84,8 +83,5 @@ namespace gui
 
 	void initiative::handle_window_resize(int w, int h)
 	{
-		if(bar_) {
-			bar_->window_resize(w, h);
-		}
 	}
 }

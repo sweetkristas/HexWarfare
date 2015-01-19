@@ -118,8 +118,9 @@ void create_world(engine& e, const std::string& world_file)
 
 void create_gui(engine& eng)
 {
-	auto button_label = gui::label::create("End Turn", graphics::color(255,255,0), 16);
+	auto button_label = gui::label::create("End Turn", graphics::color(255,255,0), 18);
 	auto end_turn_button = gui::button::create(std::bind(&engine::end_turn, &eng), button_label, gui::Justify::BOTTOM_RIGHT);
+	end_turn_button->set_padding(12,20); 
 	end_turn_button->set_zorder(1000);
 	eng.add_widget(end_turn_button);
 }
@@ -372,7 +373,7 @@ int main(int argc, char* argv[])
 		e.add_process(std::make_shared<process::em_collision>());
 		e.add_process(std::make_shared<process::ee_collision>());
 
-		auto bw = gui::initiative::create(rectf(0.0f, 0.0f, 0.4f, 0.1f), gui::Justify::H_CENTER | gui::Justify::BOTTOM);
+		auto bw = gui::initiative::create(rectf(0.0f, -0.2f, 0.15f, 0.15f), gui::Justify::H_CENTER | gui::Justify::BOTTOM);
 		e.add_widget(bw);
 
 		//auto info_win = gui::dialog::create(rectf(0.0f, 0.0f, 0.2f, 1.0f), gui::Justify::RIGHT | gui::Justify::TOP);
