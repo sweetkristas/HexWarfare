@@ -36,7 +36,7 @@ namespace gui
 
 		// XXX draw a filled circle
 		static graphics::texture fcircle("images/misc/circle1.png", graphics::TextureFlags::NONE);
-		const rect nr(r.top_left(), r.w()/2, r.w()/2s);
+		const rect nr(r.top_left(), r.w()/2, r.w()/2);
 		fcircle.blit_ex(nr, 0, point(), graphics::FlipFlags::NONE);
 
 		if(sprites_.empty()) {
