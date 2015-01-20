@@ -40,32 +40,33 @@ namespace gui
 		}
 		children_.back().emplace_back(c);
 		c->set_parent(this_pointer());
-		ASSERT_LOG(!c->has_fixed_location(), "Giving the grid widget children with fixed locations isn't supported.");
 		recalc_dimensions();
 		return *this;
 	}
 
 	void grid::recalc_dimensions()
 	{
-		if(!is_area_set()) {
-			int max_w = 0;
-			int max_h = 0;
-			for(auto& row : children_) {
-				int h = 0;
-				int w = 0;
-				for(auto& c : row) {
-					w += c->w();
-					if(c->h() > h) {
-						h = c->h();
-					}
-				}
-				max_h += h;
-				if(w > max_w) {
-					max_w = w;
+		int max_w = 0;
+		int max_h = 0;
+		int last_h = 0;
+		for(auto& row : children_) {
+			int h = 0;
+			int w = 0;
+			for(auto& c : row) {
+				c->set_loc(w, last_h);
+				w += c->w();
+				if(c->h() > h) {
+					h = c->h();
 				}
 			}
-			set_dim_internal(max_w, max_h);
+			last_h = h;
+			max_h += h;
+			if(w > max_w) {
+				max_w = w;
+			}
+			int nw = 0;
 		}
+		set_dim(max_w, max_h);
 	}
 
 	void grid::handle_init()
@@ -73,20 +74,12 @@ namespace gui
 		recalc_dimensions();
 	}
 
-	void grid::handle_draw(const point&p, float rotation, float scale) const
+	void grid::handle_draw(const rect& r, float rotation, float scale) const
 	{
-		int last_h = 0;
 		for(auto& row : children_) {
-			int h = 0;
-			int w = 0;
 			for(auto& c : row) {
-				c->draw(physical_area().top_left()+p+point(w,last_h), rotation, scale);
-				if(c->h() > h) {
-					h = c->h();
-				}
-				w += c->w();
+				c->draw(r, rotation, scale);
 			}
-			last_h = h;
 		}
 	}
 
@@ -97,28 +90,21 @@ namespace gui
 				c->window_resize(w, h);
 			}
 		}
+		recalc_dimensions();
 	}
 
 	bool grid::handle_events(SDL_Event* evt, bool claimed)
 	{
-		int last_h = 0;
+		SDL_Event evtcopy(*evt);
+		normalize_event(&evtcopy, physical_area().top_left());
+
 		for(auto& row : children_) {
-			int h = 0;
-			int w = 0;
 			for(auto& c : row) {
-				// The way this code works is disappointing -- in the extreme.
-				SDL_Event evtcopy(*evt);
-				normalize_event(&evtcopy, physical_area().top_left() + point(w, last_h));
 				claimed = c->process_events(&evtcopy, claimed);
 				if(claimed) {
 					return claimed;
 				}
-				if(c->h() > h) {
-					h = c->h();
-				}
-				w += c->w();
 			}
-			last_h = h;
 		}
 		return claimed;
 	}

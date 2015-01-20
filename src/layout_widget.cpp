@@ -50,11 +50,11 @@ namespace gui
 	{
 	}
 
-	void layout::handle_draw(const point&p, float rotation, float scale) const
+	void layout::handle_draw(const rect& r, float rotation, float scale) const
 	{
 		for(auto& w : children_) {
 			// This will work for absolutely positioned elements, not for relative ones.
-			w->draw(physical_area().top_left()+p, rotation, scale);
+			w->draw(r, rotation, scale);
 		}
 	}
 
@@ -98,7 +98,7 @@ namespace gui
 			ASSERT_LOG(false, "Incorrect layout style");
 		}
 		if(!is_area_set()) {
-			set_dim_internal(lw, lh);
+			set_dim(lw, lh);
 		}
 	}
 

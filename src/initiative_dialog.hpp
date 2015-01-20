@@ -25,9 +25,10 @@ namespace gui
 	public:
 		MAKE_FACTORY(initiative);
 	private:
+		explicit initiative(const rect& pos, Justify justify);
 		explicit initiative(const rectf& pos, Justify justify);
 		void handle_init() override;
-		void handle_draw(const point&p, float rotation, float scale) const override;
+		void handle_draw(const rect& r, float rotation, float scale) const override;
 		void handle_update(const engine& eng, double t) override;
 		void handle_window_resize(int w, int h);
 		void recalc_dimensions() override;
@@ -39,5 +40,6 @@ namespace gui
 			float time_to_act;
 		};
 		std::vector<texture_holder> sprites_;
+		float current_initiative_;
 	};
 }

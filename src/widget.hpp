@@ -75,18 +75,18 @@ namespace gui
 	public:
 		explicit widget(const rectf& r, Justify justify);
 		explicit widget(const point& p, Justify justify);
+		explicit widget(const rect& r, Justify justify);
 		virtual ~widget();
-		void draw(const point&p, float rotation, float scale) const;
+		void draw(const rect& r, float rotation, float scale) const;
 		bool process_events(SDL_Event* evt, bool claimed);
 		void update(const engine& eng, double t);
 		void normalize_event(SDL_Event* evt, const point& p);
 
-		void set_area(const rectf& area);
-		const rectf& get_area() const { return area_; }
-		bool is_area_set() { return area_set_; }
-
 		void set_loc(int x, int y);
 		void set_dim(int w, int h);
+
+		void set_loc(float x, float y);
+		void set_dim(float w, float h);
 
 		int w() const { return actual_area_.w(); } 
 		int h() const { return actual_area_.h(); }
@@ -117,21 +117,18 @@ namespace gui
 		void enable_background_rect(bool en=true) { background_rect_enabled_ = en; }
 		void set_background_rect_color(const graphics::color& c) { background_rect_color_ = c; }
 
-		bool has_fixed_location() const { return has_fixed_location_; }
-		bool has_fixed_dimensions() const { return has_fixed_dimensions_; }
+		bool is_area_set() const { return area_set_; }
 
 		// Called when the window is resized to recalculate the position we should draw at.
 		void window_resize(int w, int h);
 	protected:
 		bool in_widget(const point& p);
 		bool in_widget(int x, int y);
-		void set_loc_internal(int x, int y);
-		void set_dim_internal(int w, int h);
 		int get_parent_absolute_width();
 		int get_parent_absolute_height();
 	private:
 		virtual void handle_update(const engine& eng, double t) {}
-		virtual void handle_draw(const point&p, float rotation, float scale) const {}
+		virtual void handle_draw(const rect& r, float rotation, float scale) const {}
 		virtual bool handle_events(SDL_Event* evt, bool claimed) { return claimed; }
 		virtual void handle_window_resize(int w, int h) {}
 		void update_area();
@@ -140,12 +137,12 @@ namespace gui
 		// The elements of area should be defined on the interval (0,1)
 		// representing the fraction of the parent.
 		rectf area_;
+		// Another kludge -- maybe one day we can get this right.
+		rect area_i_;
 		// Actual area is the area of the widget when you take into account the window/parent dimensions.
 		rect actual_area_;
-		// If the location have been directly set to fixed co-ordinates, we set this flag.
-		bool has_fixed_location_;
-		// If the dimensions have been directly set to fixed values, we set this flag
-		bool has_fixed_dimensions_;
+		bool xy_is_fp_;
+		bool wh_is_fp_;
 		int zorder_;
 		float rotation_;
 		float scale_;

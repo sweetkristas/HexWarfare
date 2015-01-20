@@ -33,7 +33,7 @@ namespace gui
 	void image::recalc_dimensions()
 	{
 		if(!is_area_set()) {
-			set_dim_internal(tex_.width(), tex_.height());
+			set_dim(tex_.width(), tex_.height());
 		}
 	}
 
@@ -42,9 +42,8 @@ namespace gui
 		recalc_dimensions();
 	}
 
-	void image::handle_draw(const point&p, float rotation, float scale) const
+	void image::handle_draw(const rect& r, float rotation, float scale) const
 	{
-		rect r = physical_area()+p;
 		tex_.blit_ex(r, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
 	}
 }

@@ -65,14 +65,13 @@ namespace gui
 		recalc_dimensions();
 	}
 
-	void button::handle_draw(const point&p, float rotation, float scale) const
+	void button::handle_draw(const rect& r, float rotation, float scale) const
 	{
-		rect r = physical_area()+p;
 		const auto& tex = is_pressed_ ? pressed_tex_ : normal_tex_;
 		tex.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
 
 		if(child_) {
-			child_->draw(r.top_left() + padding_, rotation, scale);
+			child_->draw(r, rotation, scale);
 		}
 		if(is_mouseover_) {
 			mouse_over_tex_.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
@@ -141,11 +140,12 @@ namespace gui
 	{
 		if(!is_area_set()) {
 			if(child_) {
-				set_dim_internal(child_->w() + 2 * padding_.x, child_->h() + 2 * padding_.y);
+				child_->set_loc(padding_.x, padding_.y);
+				set_dim(child_->w() + 2 * padding_.x, child_->h() + 2 * padding_.y);
 			} else if(is_pressed_) {
-				set_dim_internal(pressed_tex_.width() + 2 * padding_.x, pressed_tex_.height() + 2 * padding_.y);
+				set_dim(pressed_tex_.width() + 2 * padding_.x, pressed_tex_.height() + 2 * padding_.y);
 			} else {
-				set_dim_internal(normal_tex_.width() + 2 * padding_.x, normal_tex_.height() + 2 * padding_.y);
+				set_dim(normal_tex_.width() + 2 * padding_.x, normal_tex_.height() + 2 * padding_.y);
 			}
 		}
 	}
@@ -155,5 +155,6 @@ namespace gui
 		if(child_) {
 			child_->window_resize(w, h);
 		}
+		recalc_dimensions();
 	}
 }

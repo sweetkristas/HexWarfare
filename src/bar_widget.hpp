@@ -34,7 +34,7 @@ namespace gui
 		explicit bar(const rectf& pos, Justify justify, BarOrientation orientation=BarOrientation::HORIZONTAL);
 		explicit bar(BarOrientation orientation=BarOrientation::HORIZONTAL, Justify justify=Justify::TOP_LEFT);
 		void handle_init() override;
-		void handle_draw(const point&p, float rotation, float scale) const override;
+		void handle_draw(const rect& r, float rotation, float scale) const override;
 		void recalc_dimensions() override;
 
 		graphics::texture endcap_lt_;

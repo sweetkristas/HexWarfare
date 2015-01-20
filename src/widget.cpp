@@ -21,9 +21,10 @@ namespace gui
 {
 	widget::widget(const rectf& r, Justify justify)
 		: area_(r),
+		  area_i_(),
 		  actual_area_(),
-		  has_fixed_location_(false),
-		  has_fixed_dimensions_(false),
+		  xy_is_fp_(true),
+		  wh_is_fp_(true),
 		  zorder_(0), 
 		  rotation_(0), 
 		  scale_(1.0f),
@@ -34,16 +35,18 @@ namespace gui
 		  background_rect_enabled_(false),
 		  background_rect_color_(255,255,255)
 	{
-		if(!r.empty()) {
-			set_area(r);
+		area_set_ = !area_.empty();
+		if(area_set_) {
+			update_area();
 		}
 	}
 
 	widget::widget(const point& p, Justify justify)
 		: area_(),
+		  area_i_(p, 0, 0),
 		  actual_area_(),
-		  has_fixed_location_(false),
-		  has_fixed_dimensions_(false),
+		  xy_is_fp_(false),
+		  wh_is_fp_(false),
 		  zorder_(0), 
 		  rotation_(0), 
 		  scale_(1.0f),
@@ -54,8 +57,31 @@ namespace gui
 		  background_rect_enabled_(false),
 		  background_rect_color_(255,255,255)
 	{
-		if(p.x != 0 && p.y != 0) {
-			set_loc_internal(p.x, p.y);
+		area_set_ = !area_i_.empty();
+		if(area_set_) {
+			update_area();
+		}
+	}
+
+	widget::widget(const rect& r, Justify justify)
+		: area_(),
+		  area_i_(r),
+		  actual_area_(),
+		  xy_is_fp_(false),
+		  wh_is_fp_(false),
+		  zorder_(0), 
+		  rotation_(0), 
+		  scale_(1.0f),
+		  area_set_(false),
+		  just_(justify),
+		  parent_(),
+		  enabled_(true),
+		  background_rect_enabled_(false),
+		  background_rect_color_(255,255,255)
+	{
+		area_set_ = !area_i_.empty();
+		if(area_set_) {
+			update_area();
 		}
 	}
 
@@ -73,15 +99,7 @@ namespace gui
 		return geometry::pointInRect(x, y, actual_area_ * get_scale());
 	}
 
-	void widget::set_area(const rectf& area)
-	{
-		area_set_ = true;
-		has_fixed_dimensions_ = has_fixed_location_ = false;
-		area_ = area;
-		update_area();
-	}
-
-	void widget::draw(const point&p, float rotation, float scale) const
+	void widget::draw(const rect& r, float rotation, float scale) const
 	{
 		ASSERT_LOG(!actual_area_.empty(), "No dimensions set.");
 
@@ -93,7 +111,7 @@ namespace gui
 			SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		}
 
-		handle_draw(p, rotation+rotation_, scale*scale_);
+		handle_draw(physical_area()+r.top_left(), rotation+rotation_, scale*scale_);
 
 		// XXX if not enabled should draw something over it to indicate such.
 		if(!enabled_) {
@@ -113,23 +131,9 @@ namespace gui
 		handle_update(eng, t);
 	}
 
-	void widget::set_dim_internal(int w, int h) 
-	{
-		has_fixed_dimensions_ = true;
-		actual_area_.set_wh(w, h);
-		update_area();
-	}
-
 	void widget::set_justification(Justify j)
 	{
 		just_ = j;
-		update_area();
-	}
-
-	void widget::set_loc_internal(int x, int y) 
-	{ 
-		has_fixed_location_ = true;
-		actual_area_.set_xy(x, y);
 		update_area();
 	}
 
@@ -152,26 +156,20 @@ namespace gui
 
 	void widget::update_area()
 	{
-		if(has_fixed_location_ && has_fixed_dimensions_) {
-			// fixed location and dimensions, in co-ordinates relative to main window. -- which we might refer to as absolute positioning.
-			return;
-		}
-
 		const int pw = get_parent_absolute_width();
 		const int ph = get_parent_absolute_height();
 
-		int x = static_cast<int>(area_.x() * pw);
-		int y = static_cast<int>(area_.y() * ph);
-		int w = static_cast<int>(area_.w() * pw);
-		int h = static_cast<int>(area_.h() * ph);
-
-		if(has_fixed_location_) {
-			// fixed location, dimensions will be relative to parent window.
-			actual_area_.set_wh(w, h);
-			return;
-		} else if(has_fixed_dimensions_) {
-			w = actual_area_.w();
-			h = actual_area_.h();	
+		int x = area_i_.x();
+		int y = area_i_.y();
+		int w = area_i_.w();
+		int h = area_i_.h();
+		if(xy_is_fp_) {
+			x = static_cast<int>(area_.x() * pw);
+			y = static_cast<int>(area_.y() * ph);
+		}
+		if(wh_is_fp_) {
+			w = static_cast<int>(area_.w() * pw);
+			h = static_cast<int>(area_.h() * ph);
 		}
 
 		if(just_ & Justify::H_CENTER) {
@@ -185,17 +183,35 @@ namespace gui
 			y = ph - h + y;
 		}
 
-		actual_area_.set(x,y,w,h);
+		actual_area_.set(x, y, w, h);
 	}
 
 	void widget::set_loc(int x, int y)
 	{
-		actual_area_.set_xy(x, y);
+		area_i_.set(x, y, area_i_.w(), area_i_.h());
+		xy_is_fp_ = false;
+		update_area();
 	}
 
 	void widget::set_dim(int w, int h)
 	{
-		actual_area_.set_wh(w, h);
+		area_i_.set_wh(w, h);
+		wh_is_fp_ = false;
+		update_area();
+	}
+
+	void widget::set_loc(float x, float y)
+	{
+		area_.set(x, y, area_.w(), area_.h());		
+		xy_is_fp_ = true;
+		update_area();
+	}
+
+	void widget::set_dim(float w, float h)
+	{
+		area_.set_wh(w, h);
+		wh_is_fp_ = true;
+		update_area();
 	}
 
 	void widget::set_parent(std::weak_ptr<widget> parent)
@@ -212,7 +228,7 @@ namespace gui
 		if(owner == nullptr) {
 			return wm.width();
 		}
-		return owner->get_parent_absolute_width();
+		return owner->w();
 	}
 
 	int widget::get_parent_absolute_height()
@@ -222,7 +238,7 @@ namespace gui
 		if(owner == nullptr) {
 			return wm.height();
 		}
-		return owner->get_parent_absolute_height();
+		return owner->h();
 	}
 
 	void widget::window_resize(int w, int h)

@@ -58,9 +58,8 @@ namespace gui
 		init();
 	}
 
-	void label::handle_draw(const point&p, float rotation, float scale) const
+	void label::handle_draw(const rect& r, float rotation, float scale) const
 	{
-		rect r = physical_area()+p;
 		if(label_tex_.is_valid()) {
 			label_tex_.blit_ex(r * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
 		}
@@ -69,7 +68,7 @@ namespace gui
 	void label::recalc_dimensions()
 	{
 		if(label_tex_.is_valid() && !is_area_set()) {
-			set_dim_internal(label_tex_.width(), label_tex_.height());
+			set_dim(label_tex_.width(), label_tex_.height());
 		}
 	}
 

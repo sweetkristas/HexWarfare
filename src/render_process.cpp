@@ -133,7 +133,7 @@ namespace process
 				auto& g = e->gui;
 				SDL_RenderSetScale(eng.get_renderer(), 1.0f, 1.0f);
 				for(auto& w : g->widgets) {
-					w->draw(point(), 0.0f, 1.0f);
+					w->draw(rect(), 0.0f, 1.0f);
 				}
 				SDL_RenderSetScale(eng.get_renderer(), zoom, zoom);
 			}  
@@ -193,7 +193,7 @@ namespace process
 
 		// draw widgets on top, if any.
 		for(auto& w : eng.get_widgets()) {
-			w->draw(point(), 0.0f, 1.0f);
+			w->draw(rect(), 0.0f, 1.0f);
 		}
 	}
 }

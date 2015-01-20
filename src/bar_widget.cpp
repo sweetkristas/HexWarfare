@@ -45,8 +45,9 @@ namespace gui
 		}
 	}
 
-	void bar::handle_draw(const point&p, float rotation, float scale) const 
+	void bar::handle_draw(const rect& r, float rotation, float scale) const 
 	{
+		const point p = r.top_left();
 		auto& wm = graphics::window_manager::get_main_window();
 		bar_middle_.blit_ex((mid_r_+p)* scale, rotation, (mid_r_+p).mid() * scale, graphics::FlipFlags::NONE);
 		endcap_lt_.blit_ex((lt_r_+p) * scale, rotation, (mid_r_+p).mid() * scale, graphics::FlipFlags::NONE);

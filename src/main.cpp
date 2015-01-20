@@ -373,9 +373,6 @@ int main(int argc, char* argv[])
 		e.add_process(std::make_shared<process::em_collision>());
 		e.add_process(std::make_shared<process::ee_collision>());
 
-		auto bw = gui::initiative::create(rectf(0.0f, -0.2f, 0.15f, 0.15f), gui::Justify::H_CENTER | gui::Justify::BOTTOM);
-		e.add_widget(bw);
-
 		//auto info_win = gui::dialog::create(rectf(0.0f, 0.0f, 0.2f, 1.0f), gui::Justify::RIGHT | gui::Justify::TOP);
 		//e.add_widget(info_win);
 
@@ -416,6 +413,10 @@ int main(int argc, char* argv[])
 		lay3->add_child(lab3);
 		selection_bar->add_item(lay3);
 		e.add_widget(selection_bar);
+
+		
+		auto bw = gui::initiative::create(rect(0, -selection_bar->h(), 64, 64), gui::Justify::H_CENTER | gui::Justify::BOTTOM);
+		e.add_widget(bw);
 
 		SDL_SetRenderDrawColor(wm.get_renderer(), 0, 0, 0, 255);
 		while(running) {

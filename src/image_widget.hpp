@@ -29,7 +29,7 @@ namespace gui
 		explicit image(graphics::texture t, Justify j=Justify::TOP_LEFT);
 		void recalc_dimensions() override;
 		void handle_init() override;
-		void handle_draw(const point&p, float rotation, float scale) const override;
+		void handle_draw(const rect& r, float rotation, float scale) const override;
 
 		graphics::texture tex_;
 	};

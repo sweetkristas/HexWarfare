@@ -28,14 +28,13 @@ namespace gui
 	{
 	}
 
-	void dialog::handle_draw(const point&p, float rotation, float scale) const
+	void dialog::handle_draw(const rect& r, float rotation, float scale) const
 	{
 		for(auto& tex : bg_) {
 			ASSERT_LOG(tex.is_valid(), "Texture isn't valid.");
 		}
 		// XXX move all the rect calculations to recalc_dimensions() and store rects.
 		// like in the texture.
-		rect r = physical_area() + p;
 		
 		auto& tl = bg_[static_cast<int>(BackgroundSections::CORNER_TL)];
 		tl.blit_ex(rect(r.x(), r.y(), tl.width(), tl.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
@@ -57,7 +56,7 @@ namespace gui
 		sb.blit_ex(rect(r.x() + br.width(), r.y2() - sb.height(), r.w() - bl.width() - br.width(), sb.height()) * scale, rotation, r.mid() * scale, graphics::FlipFlags::NONE);
 
 		for(auto& w : children_) {
-			w->draw(r.top_left(), rotation, scale);
+			w->draw(r, rotation, scale);
 		}
 	}
 

@@ -37,7 +37,7 @@ namespace gui
 		explicit layout(const std::vector<widget_ptr>& children, LayoutType lt, const rectf& pos, Justify justify=Justify::TOP_LEFT);
 		explicit layout(const std::vector<widget_ptr>* children=nullptr, LayoutType lt=LayoutType::LT_ABSOLUTE,Justify justify=Justify::TOP_LEFT);
 		void handle_init() override;
-		void handle_draw(const point&p, float rotation, float scale) const override;
+		void handle_draw(const rect& r, float rotation, float scale) const override;
 		bool handle_events(SDL_Event* evt, bool claimed) override;
 		void recalc_dimensions() override;
 		void handle_window_resize(int w, int h) override;
