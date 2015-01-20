@@ -56,8 +56,7 @@ namespace gui
 	{
 		// XXX draw a filled circle
 		static graphics::texture fcircle("images/misc/circle1.png", graphics::TextureFlags::NONE);
-		const rect nr(r.top_left(), r.w(), r.w());
-		fcircle.blit_ex(nr, 0, point(), graphics::FlipFlags::NONE);
+		fcircle.blit_ex(r, 0, point(), graphics::FlipFlags::NONE);
 
 		// draw a line from center to position based on current initiative.
 		// convert current initiative value to an angle.
