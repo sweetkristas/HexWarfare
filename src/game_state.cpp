@@ -566,7 +566,6 @@ namespace game
 		// Might pay to pass in the aggressor Update_Unit* pointer.
 
 		aggressor->dec_attacks_this_turn();
-		agg_uu->set_uuid(uuid::write(target->get_uuid()));
 		Update_UnitStats* agg_uus = nullptr;
 		if(agg_uu->has_stats()) {
 			agg_uus = agg_uu->mutable_stats();
