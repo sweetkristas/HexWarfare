@@ -63,10 +63,10 @@ namespace game
 		void set_owner(const player_ptr& new_owner) { owner_ = new_owner; }
 		
 		// Called at the start of unit's turn to do start of turn type activities.
-		void start_turn();
+		void start_turn(Update_UnitStats* uus);
 		// Called at the end of a unit's turn to do end of turn activities.
 		// such as resetting movement counts, initiative, etc.
-		void complete_turn();
+		void complete_turn(Update_UnitStats* uus);
 
 		const creature::const_creature_ptr& get_type() const { return type_; }
 

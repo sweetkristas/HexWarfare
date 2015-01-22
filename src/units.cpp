@@ -40,13 +40,13 @@ namespace game
 		return os;
 	}
 
-	void unit::start_turn()
+	void unit::start_turn(Update_UnitStats* uus)
 	{
 		// This could be things like healing at the start of the turn
 		// And should definitely included a scripted component.
 	}
 
-	void unit::complete_turn()
+	void unit::complete_turn(Update_UnitStats* uus)
 	{
 		// reset the movement for the unit at the front of the list.
 		move_ = type_->get_movement();
@@ -55,6 +55,10 @@ namespace game
 		// update the unit at the front of the list initiative.
 		initiative_ += 100.0f / type_->get_initiative();
 		// XXX add more things as required here to complete the units turn.
+
+		uus->set_move(move_);
+		uus->set_attacks_this_turn(attacks_this_turn_);
+		uus->set_initiative(initiative_);
 	}
 
 	player_ptr unit::get_owner() const

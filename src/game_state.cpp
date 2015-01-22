@@ -76,19 +76,33 @@ namespace game
 		}), units_.end());
 	}
 
-	void state::end_unit_turn()
+	void state::end_unit_turn(Update* up)
 	{
+		up->set_end_turn(true);
 		if(units_.size() > 0) {
-			units_.front()->complete_turn();
+			auto& old_unit = units_.front();
+			auto ou = up->add_units();
+			ou->set_uuid(uuid::write(old_unit->get_uuid()));
+			Update_UnitStats* uus = new Update_UnitStats();
+			old_unit->complete_turn(uus);
+			ou->set_allocated_stats(uus);
+
 			std::stable_sort(units_.begin(), units_.end(), initiative_compare);
 			initiative_counter_ = units_.front()->get_initiative();
-			units_.front()->start_turn();
-		}
 
-		//std::cerr << "Initative list:";
-		//for(auto& e : entities_) {
-		//	std::cerr << "\t" << e->stat->name << ":" << e->stat->initiative << " : move(" << e->stat->move << ")\n";
-		//}
+			up->set_initiative_counter(initiative_counter_);
+			for(auto& u : units_) {
+				auto order = up->add_ordering();
+				*order = uuid::write(u->get_uuid());
+			}
+
+			auto& new_unit = units_.front();
+			auto nu = up->add_units();
+			nu->set_uuid(uuid::write(new_unit->get_uuid()));
+			Update_UnitStats* nus = new Update_UnitStats();
+			new_unit->start_turn(nus);
+			nu->set_allocated_stats(nus);
+		}
 	}
 
 	void state::add_player(player_ptr p)
@@ -296,9 +310,8 @@ namespace game
 			}
 		}
 
-		if(up->has_end_turn() && up->end_turn()) {
-			end_unit_turn();
-			nup->set_end_turn(true);
+		if(up->has_end_turn() && up->end_turn()) {			
+			end_unit_turn(nup);
 		}
 
 		// Check for victory condition -- assumes it is one side losing all their units.
@@ -522,9 +535,27 @@ namespace game
 			}
 		}
 
+		// If we get sent an initiave value make sure we correct ours.
+		if(up->has_initiative_counter()) {
+			initiative_counter_ = up->initiative_counter();
+		}
+
+		// If we get sent a list of unit uuid's then we correct ours.
+		if(up->ordering().size() > 0) {
+			auto unit_list = units_;
+			units_.clear();
+			for(auto& order : up->ordering()) {
+				const uuid::uuid id = uuid::read(order);
+				for(auto u : unit_list) {
+					if(u->get_uuid() == id) {
+						units_.emplace_back(u);
+					}
+				}
+			}
+		}
+
 		if(up->has_end_turn() && up->end_turn()) {
-			// do client side end turn.
-			end_unit_turn();
+			// do any client side end turn nescessary
 		}
 	}
 

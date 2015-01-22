@@ -45,7 +45,6 @@ namespace game
 		void add_unit(unit_ptr e);
 		void remove_unit(unit_ptr e);
 
-		void end_unit_turn();
 		float get_initiative_counter() const { return initiative_counter_; }
 
 		// Players are abstract and not entities in this case, since we need special handling.
@@ -60,11 +59,15 @@ namespace game
 
 		bool is_attackable(const unit_ptr& aggressor, const unit_ptr& e) const;
 
+		// Client side functions
 		Update* create_update() const;
 		const state& unit_summon(Update* up, unit_ptr e) const;
 		const state& unit_move(Update* up, unit_ptr e, const std::vector<point>& path) const;
 		const state& unit_attack(Update* up, const unit_ptr& e, const std::vector<unit_ptr>& targets) const;
 		const state& end_turn(Update* up) const;
+
+		// Server side function.
+		void end_unit_turn(Update* up);
 
 		// Server-side function for validating the received update.
 		Update* validate_and_apply(Update* up);
