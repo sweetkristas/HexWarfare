@@ -35,6 +35,7 @@ namespace process
 			SELECT_OPPONENTS,
 		} state_;
 		bool do_attack_default_;
+		bool mouse_motion_detected_;
 		bool handle_event(const SDL_Event& evt);
 		void do_attack_message(engine& eng);
 		void generate_attack_targets(engine& eng, const entity_list& elist);
@@ -42,7 +43,6 @@ namespace process
 		// Need to work out if there is a better abstration to use.
 		std::queue<SDL_Scancode> keys_pressed_;
 		std::queue<SDL_MouseButtonEvent> mouse_button_events_;
-		std::queue<SDL_MouseMotionEvent> mouse_motion_events_;
 		int max_opponent_count_;
 		game::unit_ptr aggressor_;
 		std::vector<game::unit_ptr> targets_;

@@ -28,6 +28,7 @@ namespace process
 		: process(ProcessPriority::input),
 		  state_(State::IDLE),
 		  do_attack_default_(false),
+		  mouse_motion_detected_(false),
 		  max_opponent_count_(0)
 	{
 	}
@@ -47,7 +48,7 @@ namespace process
 				mouse_button_events_.push(evt.button);
 				break;
 			case SDL_MOUSEMOTION:
-				mouse_motion_events_.push(evt.motion);
+				mouse_motion_detected_ = true;
 				return true;
 		}
 		return false;
@@ -90,11 +91,6 @@ namespace process
 		static component_id input_mask = genmask(Component::INPUT);
 		static component_id pos_mask = genmask(Component::POSITION) | genmask(Component::STATS);
 
-		if(do_attack_default_) {
-			do_attack_default_ = false;
-			generate_attack_targets(eng, elist);
-		}
-
 		for(auto& e : elist) {
 			if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
 				auto& pos = e->stat->get_position();
@@ -121,6 +117,11 @@ namespace process
 					inp->arrow_path.clear();
 				}
 			}
+		}
+
+		if(do_attack_default_) {
+			do_attack_default_ = false;
+			generate_attack_targets(eng, elist);
 		}
 
 		// Process keystrokes
@@ -233,16 +234,17 @@ namespace process
 			}
 		}
 
-		if(!mouse_motion_events_.empty()) {
-			auto motion = mouse_motion_events_.front(); mouse_motion_events_.pop();
+		if(mouse_motion_detected_) {
+			mouse_motion_detected_ = false;
+			int x = 0;
+			int y = 0;
+			SDL_GetMouseState(&x, &y);
 			for(auto& e : elist) {
 				if((e->mask & pos_mask) == pos_mask && (e->mask & input_mask) == input_mask) {
 					auto& stats = e->stat;
 					auto& pos = stats->get_position();
 					auto& inp = e->inp;
 					if(!inp->possible_moves.empty() && inp->graph != nullptr) {
-						int x = motion.x;
-						int y = motion.y;
 						auto destination_pt = eng.get_map()->get_tile_pos_from_pixel_pos(x, y);
 						if(eng.get_map()->get_tile_at(destination_pt.x, destination_pt.y)) {
 							auto it = std::find_if(inp->possible_moves.begin(), inp->possible_moves.end(), [&destination_pt](hex::move_cost const& mc){
