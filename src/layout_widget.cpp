@@ -60,8 +60,10 @@ namespace gui
 
 	bool layout::handle_events(SDL_Event* evt, bool claimed)
 	{
+		SDL_Event evtcpy(*evt);
+		normalize_event(&evtcpy, physical_area().top_left());
+
 		for(auto& w : boost::adaptors::reverse(children_)) {
-			SDL_Event evtcpy(*evt);
 			if((claimed = w->process_events(&evtcpy, claimed)) == true) {
 				return claimed;
 			}
