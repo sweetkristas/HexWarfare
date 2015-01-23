@@ -197,8 +197,11 @@ void local_server_code(game::state gs, network::server_ptr server)
 		if((up = server->read_recv_queue()) != nullptr) {
 			std::cerr << "local_server_code: Got message: " << up->id() << "\n";
 			// XXX do more processing here.
+			LOG_DEBUG("SERVER: received packet of " << up->SerializeAsString().size() << " bytes");
 			game::Update* nup = gs.validate_and_apply(up);
+			// add some information debugging
 			if(nup) {
+				LOG_DEBUG("SERVER: Sending packet of " << nup->SerializeAsString().size() << " bytes");
 				server->write_send_queue(nup);
 			}
 			if(up->has_quit() && up->quit() && up->id() == -1) {
@@ -382,7 +385,7 @@ int main(int argc, char* argv[])
 		auto selection_bar = gui::grid::create(3, gui::Justify::BOTTOM_CENTER);
 		auto lay1 = gui::layout::create();
 		auto lab1 = gui::label::create("1", graphics::color(), 14, point(2,2));
-		auto but1 = gui::button::create([inp_process](){ inp_process->do_attack("default"); },
+		auto but1 = gui::button::create([inp_process](){ inp_process->do_attack("default"); LOG_DEBUG("Pressed 1"); },
 			gui::image::create(graphics::texture("images/gui/cursorSword_silver.png", graphics::TextureFlags::NONE)));
 		but1->set_padding(8, 8);
 		but1->set_zorder(0);
