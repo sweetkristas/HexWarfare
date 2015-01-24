@@ -16,6 +16,8 @@
 
 #pragma once
 
+#ifndef SERVER_BUILD
+
 #include "SDL.h"
 #include <iostream>
 #include <string>
@@ -67,3 +69,29 @@ namespace profile
 		SDL_Delay(static_cast<Uint32>(t * 1000.0));
 	}
 }
+
+#else
+
+#include <chrono>
+#include <thread>
+
+namespace profile
+{
+	struct manager
+	{
+		manager(const char* const str) : name(str) {}
+		const char* name;
+	};
+
+	struct timer
+	{
+		timer() {}
+		double get_time() { return 0; }
+	};
+
+	inline void sleep(double t) 
+	{
+		std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(t*1000000.0)));
+	}
+}
+#endif

@@ -20,7 +20,7 @@
 #include <boost/graph/astar_search.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
-#include "component.hpp"
+#include "geometry.hpp"
 #include "game_state.hpp"
 #include "hex_logical_fwd.hpp"
 

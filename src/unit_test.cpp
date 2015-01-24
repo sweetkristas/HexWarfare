@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
 #include <iostream>
 #include <map>
 
@@ -41,7 +41,7 @@ namespace test {
 
 	bool run_tests(const std::vector<std::string>* tests)
 	{
-		boost::posix_time::ptime mst1 = boost::posix_time::microsec_clock::local_time();
+		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 
 		std::vector<std::string> all_tests;
 		if(!tests) {
@@ -68,9 +68,9 @@ namespace test {
 			LOG_ERROR(npass << " TESTS PASSED, " << nfail << " TESTS FAILED");
 			return false;
 		} else {
-			boost::posix_time::ptime mst2 = boost::posix_time::microsec_clock::local_time();
-			boost::posix_time::time_duration msdiff = mst2 - mst1;
-			LOG_INFO("ALL " << npass << " TESTS PASSED IN " << msdiff.total_milliseconds() << "ms");
+			const std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+			const auto time_diff = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+			LOG_INFO("ALL " << npass << " TESTS PASSED IN " << time_diff << "ms");
 			return true;
 		}
 	}

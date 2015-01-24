@@ -14,8 +14,6 @@
    limitations under the License.
 */
 
-#include <SDL.h>
-
 #include <csignal>
 #include <memory>
 

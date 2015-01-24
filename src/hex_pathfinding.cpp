@@ -30,8 +30,6 @@ namespace hex
 	{
 		//profile::manager pman("create_graph");
 		
-		using namespace component;
-
 		std::vector<point> vertices;
 		std::vector<edge> edges;
 		std::vector<cost> weights;

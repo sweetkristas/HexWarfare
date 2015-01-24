@@ -33,16 +33,4 @@ namespace hex
 	typedef std::shared_ptr<hex_map> hex_map_ptr;
 	typedef std::shared_ptr<const tile_sheet> tile_sheet_ptr;
 	typedef std::shared_ptr<tile_type> tile_type_ptr;
-
-	struct move_cost
-	{
-		move_cost(const point& p, float c) : loc(p), path_cost(c) {}
-		point loc;
-		float path_cost;
-	};
-	// XXX result_list might be better served as a std::set
-	typedef std::vector<move_cost> result_list;
-
-	struct graph_t;
-	typedef std::shared_ptr<graph_t> hex_graph_ptr;
 }

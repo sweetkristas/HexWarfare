@@ -16,7 +16,6 @@
 
 #include <map>
 
-#include "component.hpp"
 #include "creature.hpp"
 #include "game_state.hpp"
 #include "random.hpp"

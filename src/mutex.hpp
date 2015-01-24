@@ -16,7 +16,8 @@
 
 // C++ wrapper around SDL mutex services
 
-#include <SDL.h>
+#include <mutex>
+
 #include "asserts.hpp"
 
 namespace threading
@@ -24,30 +25,23 @@ namespace threading
     class Mutex
     {
     public:
-        Mutex() : mutex_(nullptr) {
-            mutex_ = SDL_CreateMutex();
-            ASSERT_LOG(mutex_ != nullptr, "Unable to create locking mutex");            
-        }
-        ~Mutex() {
-            SDL_DestroyMutex(mutex_);
-        }
+        Mutex() : mutex_() {}
+        ~Mutex() {}
         
         struct Lock
         {
-            Lock(Mutex& mutex) : m_(mutex) {
-                if(SDL_LockMutex(m_.mutex_) != 0) {
-                    ASSERT_LOG(false, "Unable to lock mutex");
-                }
+            Lock(Mutex& mutex) : lock_(mutex.mutex_) {
+				lock_.lock();
             }
             ~Lock() {
-                SDL_UnlockMutex(m_.mutex_);
+                lock_.unlock();
             }
 		private:
-			Mutex& m_;
+			std::unique_lock<std::mutex> lock_;
         };
     private:
         Mutex(const Mutex&) = delete;
         void operator=(const Mutex&) = delete;
-        SDL_mutex* mutex_;
+        std::mutex mutex_;
     };
 }

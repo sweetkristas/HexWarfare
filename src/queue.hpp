@@ -17,9 +17,11 @@
 #pragma once
 
 #include <cstdint>
+#include <condition_variable>
 #include <queue>
-#include <boost/thread.hpp>
-#include <boost/chrono/chrono.hpp>
+#include <thread>
+#include <mutex>
+#include <chrono>
 
 namespace queue 
 {
@@ -31,7 +33,7 @@ namespace queue
 		{}
 		void push(T const& data)
 		{
-			boost::mutex::scoped_lock lock(guard_);
+			std::unique_lock<std::mutex> lock(guard_);
 			q_.push(data);
 			lock.unlock();
 			cv_.notify_one();
@@ -39,13 +41,13 @@ namespace queue
 
 		bool empty() const
 		{
-			boost::mutex::scoped_lock lock(guard_);
+			std::unique_lock<std::mutex> lock(guard_);
 			return q_.empty();
 		}
 
 		bool try_pop(T& popped_value)
 		{
-			boost::mutex::scoped_lock lock(guard_);
+			std::unique_lock<std::mutex> lock(guard_);
 			if(q_.empty()) {
 				return false;
 			}
@@ -57,12 +59,12 @@ namespace queue
 
 		bool wait_and_pop(T& popped_value, int64_t interval = 0)
 		{
-			using namespace boost::chrono;
-			boost::mutex::scoped_lock lock(guard_);
+			using namespace std::chrono;
+			std::unique_lock<std::mutex> lock(guard_);
 			system_clock::time_point time_limit = system_clock::now() + milliseconds(interval);
 			while(q_.empty()) {
 				if(interval) {
-					if(cv_.wait_until<system_clock, system_clock::duration>(lock, time_limit) == boost::cv_status::timeout) {
+					if(cv_.wait_until<system_clock, system_clock::duration>(lock, time_limit) == std::cv_status::timeout) {
 						return false;
 					}
 				} else {
@@ -77,8 +79,8 @@ namespace queue
 
 	private:
 		std::queue<T> q_;
-		mutable boost::mutex guard_;
-		boost::condition_variable cv_;
+		mutable std::mutex guard_;
+		std::condition_variable cv_;
 		queue(const queue&) = delete;
 		void operator=(const queue&) = delete;
 	};

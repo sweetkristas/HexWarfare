@@ -14,36 +14,31 @@
    limitations under the License.
 */
 
-#pragma once
+#ifdef SERVER_BUILD
 
-#include <memory>
 #include <vector>
+#include <cstdarg>
 
-#include "geometry.hpp"
+#include "lua.hpp"
+#include <LuaBridge.h>
 
-namespace hex
+#include "bot.hpp"
+#include "creature.hpp"
+#include "enet_server.hpp"
+#include "game_state.hpp"
+#include "internal_server.hpp"
+#include "internal_client.hpp"
+#include "network_server.hpp"
+
+//	enet::server enet_server(9000);
+//	enet_server.run();
+
+int main(int argc, char* argv[])
 {
-	enum direction { NORTH, NORTH_EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, NORTH_WEST };
-
-	namespace logical
-	{
-		class tile;
-		typedef std::shared_ptr<tile> tile_ptr;
-		typedef std::shared_ptr<const tile> const_tile_ptr;
-		class map;
-		typedef std::shared_ptr<map> map_ptr;
+	std::vector<std::string> args;
+	for(int i = 0; i < argc; ++i) {
+		args.push_back(argv[i]);
 	}
-
-	struct move_cost
-	{
-		move_cost(const point& p, float c) : loc(p), path_cost(c) {}
-		point loc;
-		float path_cost;
-	};
-	// XXX result_list might be better served as a std::set
-	typedef std::vector<move_cost> result_list;
-
-	struct graph_t;
-	typedef std::shared_ptr<graph_t> hex_graph_ptr;
-
 }
+
+#endif

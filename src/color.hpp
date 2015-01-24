@@ -16,7 +16,9 @@
 
 #pragma once
 
+#ifndef SERVER_BUILD
 #include "SDL.h"
+#endif
 
 namespace graphics
 {
@@ -44,6 +46,7 @@ namespace graphics
 			c_.value = rgba;
 			set_float_values();
 		}
+#ifndef SERVER_BUILD
 		explicit color(const SDL_Color& col)
 		{
 			c_.rgba[0] = col.r;
@@ -52,6 +55,7 @@ namespace graphics
 			c_.rgba[3] = 255;
 			set_float_values();
 		}
+#endif
 		explicit color(float r, float g, float b, float a = 1.0f)
 		{
 			rgbaf_[0] = clampf(r);
@@ -69,11 +73,13 @@ namespace graphics
 		uint8_t b() const { return c_.rgba[2]; }
 		uint8_t a() const { return c_.rgba[3]; }
 
+#ifndef SERVER_BUILD
 		SDL_Color as_sdl_color() const
 		{
 			SDL_Color c = {c_.rgba[0], c_.rgba[1], c_.rgba[2], 255};
 			return c;
 		}
+#endif
 
 		const float* as_gl_color() const
 		{

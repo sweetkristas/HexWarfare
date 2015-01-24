@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\bot.cpp" />
+    <ClCompile Include="..\..\src\creature.cpp" />
+    <ClCompile Include="..\..\src\enet_server.cpp" />
+    <ClCompile Include="..\..\src\filesystem.cpp" />
+    <ClCompile Include="..\..\src\game_state.cpp" />
+    <ClCompile Include="..\..\src\hex_logical_tiles.cpp" />
+    <ClCompile Include="..\..\src\hex_pathfinding.cpp" />
+    <ClCompile Include="..\..\src\internal_client.cpp" />
+    <ClCompile Include="..\..\src\internal_server.cpp" />
+    <ClCompile Include="..\..\src\message_format.pb.cc" />
+    <ClCompile Include="..\..\src\network_server.cpp" />
+    <ClCompile Include="..\..\src\node.cpp" />
+    <ClCompile Include="..\..\src\player.cpp" />
+    <ClCompile Include="..\..\src\random.cpp" />
+    <ClCompile Include="..\..\src\server_main.cpp" />
+    <ClCompile Include="..\..\src\units.cpp" />
+    <ClCompile Include="..\..\src\unit_test.cpp" />
+    <ClCompile Include="..\..\src\uuid.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\external\lib\Debug\libprotobuf-lite.lib" />
+    <Library Include="..\..\external\lib\Debug\libprotobuf.lib" />
+    <Library Include="..\..\external\lib\Debug\libprotoc.lib" />
+    <Library Include="..\..\external\lib\enet.lib" />
+    <Library Include="..\lua\Debug\Win32\lua.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\asserts.hpp" />
+    <ClInclude Include="..\..\src\bot.hpp" />
+    <ClInclude Include="..\..\src\creature.hpp" />
+    <ClInclude Include="..\..\src\enet_server.hpp" />
+    <ClInclude Include="..\..\src\filesystem.hpp" />
+    <ClInclude Include="..\..\src\game_state.hpp" />
+    <ClInclude Include="..\..\src\geometry.hpp" />
+    <ClInclude Include="..\..\src\hex_logical_fwd.hpp" />
+    <ClInclude Include="..\..\src\hex_logical_tiles.hpp" />
+    <ClInclude Include="..\..\src\hex_pathfinding.hpp" />
+    <ClInclude Include="..\..\src\internal_client.hpp" />
+    <ClInclude Include="..\..\src\internal_server.hpp" />
+    <ClInclude Include="..\..\src\lua.hpp" />
+    <ClInclude Include="..\..\src\message_format.pb.h" />
+    <ClInclude Include="..\..\src\mutex.hpp" />
+    <ClInclude Include="..\..\src\network_server.hpp" />
+    <ClInclude Include="..\..\src\node.hpp" />
+    <ClInclude Include="..\..\src\player.hpp" />
+    <ClInclude Include="..\..\src\profile_timer.hpp" />
+    <ClInclude Include="..\..\src\queue.hpp" />
+    <ClInclude Include="..\..\src\random.hpp" />
+    <ClInclude Include="..\..\src\units.hpp" />
+    <ClInclude Include="..\..\src\units_fwd.hpp" />
+    <ClInclude Include="..\..\src\unit_test.hpp" />
+    <ClInclude Include="..\..\src\uuid.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\geometry.inl" />
+    <None Include="..\..\src\message_format.proto" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5E2989D9-798A-4748-92F1-6CAA76850DBA}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Server</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;SERVER_BUILD;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Projects\boost;C:\Projects\HexWarfare\external\include;C:\Projects\HexWarfare\src\lua;C:\Projects\HexWarfare\LuaBridge\Source\LuaBridge;C:\Projects\HexWarfare\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Projects\boost\stage32-debug-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

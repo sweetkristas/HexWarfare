@@ -14,12 +14,10 @@
    limitations under the License.
 */
 
-// C++ wrapper around SDL thread services
-
-#include <string>
 #include <functional>
+#include <string>
+#include <thread>
 
-#include <SDL.h>
 #include "asserts.hpp"
 
 namespace threading
@@ -28,26 +26,18 @@ namespace threading
     {
         public:
             explicit Thread(const std::string& name, std::function<int()> thread_fn)
-                : thread_(nullptr),
+                : thread_(thread_fn), 
 				  thread_fn_(thread_fn)
             {
-				thread_ = SDL_CreateThread(thread_function, name.c_str(), this);
-                ASSERT_LOG(thread_ != nullptr, "Unable to create thread.");
             }
             ~Thread() {
-                if(thread_ != nullptr) {
-                    SDL_DetachThread(thread_);
-                    thread_ = nullptr;
-                }
             }
             
             void join() {
-                int status;
-                SDL_WaitThread(thread_, &status);
-                thread_ = nullptr;
+				thread_.join();
             }
         private:
-            SDL_Thread* thread_;
+            std::thread thread_;
 			std::function<int()> thread_fn_;
 			
 			static int thread_function(void* arg) {
