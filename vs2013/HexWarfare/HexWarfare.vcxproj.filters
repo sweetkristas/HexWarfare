@@ -192,6 +192,9 @@
     <ClCompile Include="..\..\src\layout_widget.cpp">
       <Filter>Source Files\widgets</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\server_code.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\action_process.hpp">
@@ -426,6 +429,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\layout_widget.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\server_code.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -69,6 +69,9 @@
     <ClCompile Include="..\..\src\unit_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\server_code.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\external\lib\Debug\libprotobuf.lib" />
@@ -151,6 +154,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\unit_test.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\server_code.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

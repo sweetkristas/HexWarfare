@@ -25,6 +25,7 @@
     <ClCompile Include="..\..\src\node.cpp" />
     <ClCompile Include="..\..\src\player.cpp" />
     <ClCompile Include="..\..\src\random.cpp" />
+    <ClCompile Include="..\..\src\server_code.cpp" />
     <ClCompile Include="..\..\src\server_main.cpp" />
     <ClCompile Include="..\..\src\units.cpp" />
     <ClCompile Include="..\..\src\unit_test.cpp" />
@@ -59,6 +60,7 @@
     <ClInclude Include="..\..\src\profile_timer.hpp" />
     <ClInclude Include="..\..\src\queue.hpp" />
     <ClInclude Include="..\..\src\random.hpp" />
+    <ClInclude Include="..\..\src\server_code.hpp" />
     <ClInclude Include="..\..\src\units.hpp" />
     <ClInclude Include="..\..\src\units_fwd.hpp" />
     <ClInclude Include="..\..\src\unit_test.hpp" />

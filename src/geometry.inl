@@ -16,8 +16,25 @@
 
 #include <algorithm>
 #include <ostream>
+#if defined(_MSC_VER) &&  _MSC_VER >= 1800
+#include <regex>
+#include <sstream>
+
+template <typename T>
+T lexical_cast(const std::string& str)
+{
+    T var;
+    std::istringstream iss;
+    iss.str(str);
+    iss >> var;
+    // deal with any error bits that may have been set on the stream
+    return var;
+}
+
+#else
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
+#endif
 
 namespace geometry
 {
@@ -25,8 +42,13 @@ namespace geometry
 	{
 		std::vector<std::string> split(const std::string& input, const std::string& re) {
 			// passing -1 as the submatch index parameter performs splitting
+#if defined(_MSC_VER) &&  _MSC_VER >= 1800
+			std::regex regex(re);
+			std::sregex_token_iterator first(input.begin(), input.end(), regex, -1), last;
+#else
 			boost::regex regex(re);
 			boost::sregex_token_iterator first(input.begin(), input.end(), regex, -1), last;
+#endif
 			return std::vector<std::string>(first, last);
 		}	
 	}
@@ -61,7 +83,11 @@ namespace geometry
 		int num_items = 0;
 		std::vector<std::string> buf = split(str, ",| |;");
 		for(int n = 0; n != 2 && n != buf.size(); ++n) {
+#if defined(_MSC_VER) &&  _MSC_VER >= 1800
+			items[num_items++] = lexical_cast<T>(buf[n]);
+#else
 			items[num_items++] = boost::lexical_cast<T>(buf[n]);
+#endif
 		}
 
 		switch(num_items) {
@@ -222,7 +248,11 @@ namespace geometry
 		int num_items = 0;
 		std::vector<std::string> buf = split(str, ",| |;");
 		for(int n = 0; n != 4 && n != buf.size(); ++n) {
+#if defined(_MSC_VER) &&  _MSC_VER >= 1800
+			items[num_items++] = lexical_cast<T>(buf[n]);
+#else
 			items[num_items++] = boost::lexical_cast<T>(buf[n]);
+#endif
 		}
 
 		switch(num_items) {

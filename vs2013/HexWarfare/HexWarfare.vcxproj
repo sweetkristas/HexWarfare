@@ -132,6 +132,7 @@
     <ClCompile Include="..\..\src\property_animate.cpp" />
     <ClCompile Include="..\..\src\random.cpp" />
     <ClCompile Include="..\..\src\render_process.cpp" />
+    <ClCompile Include="..\..\src\server_code.cpp" />
     <ClCompile Include="..\..\src\surface.cpp" />
     <ClCompile Include="..\..\src\texture.cpp" />
     <ClCompile Include="..\..\src\tile.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="..\..\src\random.hpp" />
     <ClInclude Include="..\..\src\render_process.hpp" />
     <ClInclude Include="..\..\src\sdl_wrapper.hpp" />
+    <ClInclude Include="..\..\src\server_code.hpp" />
     <ClInclude Include="..\..\src\surface.hpp" />
     <ClInclude Include="..\..\src\texpack.hpp" />
     <ClInclude Include="..\..\src\texture.hpp" />

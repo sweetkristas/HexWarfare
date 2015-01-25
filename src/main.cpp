@@ -58,6 +58,7 @@
 #include "input_process.hpp"
 #include "label.hpp"
 #include "layout_widget.hpp"
+#include "server_code.hpp"
 #include "network_server.hpp"
 #include "node_utils.hpp"
 #include "profile_timer.hpp"
@@ -172,55 +173,7 @@ void load_scenario(engine& eng, const std::string& name)
 	gs.set_map(eng.get_map()->get_logical_map());
 }
 
-void local_server_code(game::state gs, network::server_ptr server)
-{
-	game::Update* up;
-	bool running = true;
-
-	// create and send a start game packet.
-	up = gs.create_update();
-	up->set_game_start(true);
-	// Set starting gold for all players, with player update messages.
-	for(auto& p : gs.get_players()) {
-		game::Update_Player* upp = up->add_player();
-		upp->set_uuid(uuid::write(p->get_uuid()));
-		upp->set_action(game::Update_Player_Action_UPDATE);
-		game::Update_PlayerInfo* pi = new game::Update_PlayerInfo();
-		// XXX starting gold per player -- should load from scenario.
-		pi->set_gold(50);
-		upp->set_allocated_player_info(pi);
-	}
-	server->write_send_queue(up);
-	server->process();
-
-	while(running) {
-		if((up = server->read_recv_queue()) != nullptr) {
-			std::cerr << "local_server_code: Got message: " << up->id() << "\n";
-			// XXX do more processing here.
-			LOG_DEBUG("SERVER: received packet of " << up->SerializeAsString().size() << " bytes");
-			game::Update* nup = gs.validate_and_apply(up);
-			// add some information debugging
-			if(nup) {
-				LOG_DEBUG("SERVER: Sending packet of " << nup->SerializeAsString().size() << " bytes");
-				server->write_send_queue(nup);
-			}
-			if(up->has_quit() && up->quit() && up->id() == -1) {
-				running = false;
-			}
-			delete up;
-
-			server->process();
-		}
-	}
-}
-
-
-COMMAND_LINE_UTILITY(server)
-{
-	enet::server enet_server(9000);
-	enet_server.run();
-}
-
+ 
 int main(int argc, char* argv[])
 {
 	std::string utility_name;
@@ -358,7 +311,7 @@ int main(int argc, char* argv[])
 			nserver->add_peer(nbotclient);
 			nbotclient->add_peer(nserver);	
 
-			local_server_thread.reset(new std::thread(local_server_code, gs, nserver));
+			local_server_thread.reset(new std::thread(game::local_server_code, gs, nserver));
 			local_bot_thread.reset(new std::thread(ai::local_bot_code, b1, gs, nbotclient));
 		} else {
 			//nclient = std::make_shared<network::enet::client>(server_name, server_port);

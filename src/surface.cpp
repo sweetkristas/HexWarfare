@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+#include <map>
+
 #include "SDL_image.h"
 
 #include "asserts.hpp"
