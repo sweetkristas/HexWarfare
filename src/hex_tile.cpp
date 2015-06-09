@@ -209,6 +209,8 @@ namespace hex
 			rect area = sheet_->get_area(index);
 	
 			sheet_->get_texture().blit(area, rect(p.x - cam.x, p.y - cam.y, area.w(), area.h()));
+
+			LOG_WARN("draw adjacent: ");
 		}
 	}
 
@@ -221,8 +223,8 @@ namespace hex
 		int best = -1;
 		for(int dir = 0; dir < 6; ++dir) {
 			unsigned char mask = 1 << dir;
-			if(adjmap&mask) {
-				unsigned char newmap = adjmap&(~mask);
+			if(adjmap & mask) {
+				unsigned char newmap = adjmap & ~mask;
 				if(newmap != 0) {
 					calculate_adjacency_pattern(newmap);
 

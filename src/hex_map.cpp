@@ -57,6 +57,9 @@ namespace hex
 		for(auto& t : p->tiles_) {
 			t.init_neighbors();
 		}
+		for(auto& t : p->tiles_) {
+			t.neighbors_changed();
+		}
 		p->screen_area_ = screen_area;
 		return p;
 	}

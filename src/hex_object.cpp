@@ -60,7 +60,7 @@ namespace hex
 	void hex_object::draw(const point& cam) const
 	{
 		// Draw base tile.
-		if(tile_ == NULL) {
+		if(tile_ == nullptr) {
 			return;
 		}
 
@@ -83,23 +83,19 @@ namespace hex
 		for(int n = 0; n < 6; ++n) {
 			const hex_object* obj = get_tile_in_dir(static_cast<direction>(n));
 			if(obj && obj->tile() && obj->tile()->height() > tile()->height()) {
-				NeighborType* neighbor = NULL;
+				NeighborType* neighbor = nullptr;
 				for(NeighborType& candidate : neighbors_) {
 					neighbor = &candidate;
 				}
 
-				if(!neighbor) {
+				if(neighbor == nullptr) {
 					neighbors_.push_back(NeighborType());
 					neighbor = &neighbors_.back();
 					neighbor->type = obj->tile();
 				}
 
-				neighbor->dirmap = neighbor->dirmap | (1 << n);
+				neighbor->dirmap |= (1 << n);
 			}
-		}
-
-		for (auto& neighbor : neighbors_) {
-			neighbor.type->calculate_adjacency_pattern(neighbor.dirmap);
 		}
 	}
 }
